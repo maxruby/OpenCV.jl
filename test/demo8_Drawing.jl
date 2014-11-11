@@ -185,4 +185,4 @@ void drawing_test()
 }
 """
 
-drawing_test = @cxx drawing_test()
+@cxx drawing_test()

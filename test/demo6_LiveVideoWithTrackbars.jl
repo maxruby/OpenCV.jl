@@ -4,16 +4,18 @@
 #
 ######################################################################################
 
+device_index = CAP_ANY
+
 # C++ headers
 cxx""" #include <iostream> """
 cxx""" #include <vector> """
 
 # C++ OpenCV code
 cxx"""
-void liveVideo_adjust() {
+void liveVideo_adjust(int device_index) {
 
     // open Video device
-    cv::VideoCapture capture(0);
+    cv::VideoCapture capture(device_index);
 
      //Check that it is indeed open
     if (!capture.isOpened())
@@ -72,9 +74,7 @@ void liveVideo_adjust() {
 }
 """
 
-# Run the script
-res = @cxx liveVideo_adjust()
-#################################################################################################
+@cxx liveVideo_adjust(device_index)
 
 
 

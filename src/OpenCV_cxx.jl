@@ -1,14 +1,43 @@
 ################################################################################################
 #
 # OpenCV_cxx.jl
-# Wrapping OpenCV structures and functions in Julia using Cxx.jl
 #
-# Mainly returns a pointer to a C++ object which Julia can handle
+# Wrapper for OpenCV structures and functions in Julia with Cxx.jl
+#
+# Mainly returns a pointer to OpenCV C++ objects which Julia can handle
 ################################################################################################
 
 # Basic Structures
 # Mat::Mat
 # modules/core/include/opencv2/core/mat.hpp
+
+# class CV_EXPORTS Mat
+# {
+# public:
+#     // ... a lot of methods ...
+#     ...
+
+#     /*! includes several bit-fields:
+#          - the magic signature
+#          - continuity flag
+#          - depth
+#          - number of channels
+#      */
+#     int flags;
+#     //! the array dimensionality, >= 2
+#     int dims;
+#     //! the number of rows and columns or (-1, -1) when the array has more than 2 dimensions
+#     int rows, cols;
+#     //! pointer to the data
+#     uchar* data;
+
+#     //! pointer to the reference counter;
+#     // when array points to user-allocated data, the pointer is NULL
+#     int* refcount;
+
+#     // other members
+#     ...
+# };
 
 # (rows = pixels, columns = pixels, format, Scalar(B = 0:255,G = 0:255,R = 0:255) e.g., CV_8UC3
 # formats:
@@ -63,34 +92,82 @@
 # ranges –   Array of selected ranges of m along each dimensionality.
 ################################################################################################
 
+# go through the documentation here
+# http://docs.opencv.org/trunk/index.html
 
-# 1. Mat::Mat()
-cxx"""
-    cv::Mat *emptyMat() {
-        cv::Mat *Mat = new cv::Mat;
-        return (Mat);
-    }
-"""
+#DataTypes
 
-# 2. Mat::Mat(int rows, int cols, int type)
-cxx"""
-    cv::Mat *basicMat(int rows, int cols, int type) {
-        cv::Mat *Mat = new cv::Mat(rows, cols, type);
-        return (Mat);
-    }
-"""
+# size
+cvSize(width::Int, height::Int) = @cxx cv::Size(width,heigth)
 
-# 3. Mat::Mat(int rows, int cols, int type, const Scalar& s)
-cxx"""
-    cv::Mat *colorMat(int rows, int cols, int type, int Red, int Green, int Blue) {
-        cv::Mat *Mat = new cv::Mat(rows, cols, type, cv::Scalar(Blue, Green, Red));
-        return (Mat);
-    }
-"""
+# Scalar
+cvScalar(blue::Int, green::Int, red::Int) = @cxx cv::Scalar(blue,green,red)
 
-# 4. cv::imshow()
+# Mat constructors
+
+# Mat::Mat()
+cvMat() = @cxx Mat()
+
+# Mat::Mat(int rows, int cols, int type)
+cvMat(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat(rows, cols, matType)
+
+# Mat::Mat(Size size, int type)
+cvMat(cvSize, matType::CV_MatType) = @cxx cv::Mat(cvSize, matType)
+
+# Mat::Mat(int rows, int cols, int type, const Scalar& s)
+cvMat(rows::Int, cols::Int, matType::CV_MatType, cvScalar) = @cxx cv::Mat(rows, cols, matType, cvScalar)
+
+# Mat::Mat(Size size, int type, const Scalar& s)
+cvMat(cvSize, matType::CV_MatType, cvScalar) = @cxx cv::Mat(cvSize, matType, cvScalar)
+
+# Mat::Mat(const Mat& m)
+# cvMat() = @cxx Mat(const Mat& m)
+
+# Mat::Mat(int ndims, const int* sizes, int type)
+const psizes = pointer([sizes::Int])
+cvMat(ndims::Int, psizes, matType::CV_MatType) = @cxx cv::Mat(ndims, psizes, matType)
+
+# Mat::Mat(int ndims, const int* sizes, int type, const Scalar& s)
+const psizes = pointer([sizes::Int])
+cvMat(ndims::Int, psizes, matType::CV_MatType, cvScalar) = @cxx cv::Mat(ndims, psizes, matType, cvScalar)
+
+# Mat::Mat(int ndims, const int* sizes, int type, void* data, const size_t* steps=0)
+
+# Mat::Mat(const Mat& m, const Rect& roi)
+
+# Mat::zeros()
+cvMatzeros(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat::zeros(rows, cols, matType)
+# Mat::ones()
+cvMatones(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat::ones(rows, cols, matType)
+# Mat::eye()
+cvMateye(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat::eye(rows, cols, matType)
+
+# C++: Mat::Mat(const Mat& m)
+# C++: Mat::Mat(int rows, int cols, int type, void* data, size_t step=AUTO_STEP)
+# C++: Mat::Mat(Size size, int type, void* data, size_t step=AUTO_STEP)
+# C++: Mat::Mat(const Mat& m, const Range& rowRange, const Range& colRange=Range::all() )
+# C++: template<typename T, int n> explicit Mat::Mat(const Vec<T, n>& vec, bool copyData=true)
+# C++: template<typename T, int m, int n> explicit Mat::Mat(const Matx<T, m, n>& vec, bool copyData=true)
+# C++: template<typename T> explicit Mat::Mat(const vector<T>& vec, bool copyData=false)
+# C++: Mat::Mat(const Mat& m, const Range* ranges)
+
+
+# Mat::convertTo
+img = @cxx Mat()
+@cxx img->convertTo(cv::OutputArray m, int rtype, double alpha=1, double beta=0)
+
+# GUI functions
+# void imshow(const String& winname, InputArray mat)
+imshow(windowName::Ptr{Uint8}, img) = @cxx cv::imshow(windowName, img)
+
+
+
+
+imshow(img, windowName::Ptr{Uint8}, set::WindowProperty, key::Int, delay::Int) = @cxx cv::imshow(img, windowName, set, key, delay)
+
+
 cxx"""
-   void imshow(cv::Mat *img, const char *winname, uint32 flags, int key, int delay) {
+   void imshow(cv::Mat *img, const char *winname, int WindowProperty, int key, int delay) {
 
        // Create a new window named
        const std::string winName = winname;
@@ -99,39 +176,25 @@ cxx"""
        //WINDOW_AUTOSIZE => the window size is automatically adjusted
        //WINDOW_OPENGL => OpenGL support
 
-       cv::namedWindow(winName, cv::WINDOW_AUTOSIZE);
+       cv::namedWindow(winname, cv::WINDOW_AUTOSIZE);
 
        // Show the image in window
        cv::imshow(winName, *img);
 
        //  Wait for command to close window
        if (cv::waitKey(delay) == key) {
-          cv::destroyWindow()
+           cv::destroyWindow(winName);
        }
-   }
+    }
 """
 
 
-# 4.
+cvSize(width::Int, height::Int)
+cvScalar(blue::Int, green::Int, red::Int)
 
 
+# Create a gray image 600 x 600
+img = cvMat(600, 600, CV_8UC1)
 
-
-# Julia declarations
-# See http://julia.readthedocs.org/en/latest/manual/functions/
-
-jl_Scalar = Dict{Symbol,Int}(:B => 0, :G => 0, :R => 0)
-# # pcpp"cv::Scalar(255,0,0)"
-# rcpp"cv::Scalar(255,0,0)"
-
-function Mat()
-    img = @cxx Mat()
-end
-
-function Mat(width::Int, height::Int, MatType::CV_MatType, jl_Scalar::Dict{Symbol,Int})
-    R = jl_Scalar[:R]
-    B = jl_Scalar[:B]
-    G = jl_Scalar[:G]
-    img = @cxx Mat($width, $height, CV_MatType, rcpp"cv::Scalar($B,$G,$R)");
-end
-
+# Show the image
+imshow(img, pointer("Welcome!"), WINDOW_AUTOSIZE, 27, 30)

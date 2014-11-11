@@ -5,17 +5,15 @@
 ################################################################################################
 
 # Julia variables
-device_index = 0
 winname = "Welcome"
-
-fname = "/Users/maximilianosuster/programming/ComputerVision/testimages/movie.avi"
+fname = joinpath(Pkg.dir("OpenCV"), "./test/images/movie.avi")
 
 # C++ headers
 cxx""" #include <iostream> """
 
 # C++ OpenCV code
 cxx"""
-void setVideoProperties(int device_index, const char *winname, const char *fname)
+void setVideoProperties(const char *winname, const char *fname)
 {
     // convert const char* => string
     std::string wname = winname;
@@ -73,4 +71,4 @@ void setVideoProperties(int device_index, const char *winname, const char *fname
 }
 """
 
-j_setVideoProperties = @cxx setVideoProperties(device_index,pointer(winname), pointer(fname))
+@cxx setVideoProperties(pointer(winname), pointer(fname))

@@ -6,8 +6,8 @@
 #################################################################################################
 
 # Julia filename with full path
-inputfile = "/Users/maximilianosuster/programming/ComputerVision/testimages/mandrill.jpg"
-outfile = "/Users/maximilianosuster/programming/ComputerVision/testimages/imghistogram.jpg"
+inputfile = joinpath(Pkg.dir("OpenCV"), "./test/images/mandrill.jpg")
+outfile = joinpath(Pkg.dir("OpenCV"), "./test/images/mandrillHist.jpg")
 
 # header files
 cxx"""
@@ -90,4 +90,4 @@ void imHist(const char *inputfile, const char *outfile)
 }
 """
 
-jl_imHist = @cxx imHist(pointer(inputfile), pointer(outfile))
+@cxx imHist(pointer(inputfile), pointer(outfile))

@@ -43,4 +43,4 @@ void create_image_and_display()
  }
 """
 
-create_image_and_display = @cxx create_image_and_display()
+@cxx create_image_and_display()

@@ -5,8 +5,8 @@
 #################################################################################################
 
 # Julia filename with full path
-inputfile = "/Users/maximilianosuster/lena.png"
-outfile = "/Users/maximilianosuster/lena.jpeg"
+inputfile = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
+outfile = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.jpeg")
 
 cxx"""
 #include <iostream>
@@ -56,6 +56,5 @@ void imageConversion(const char *inputfile, const char *outfile)
 }
 """
 
-# Run the script
-res = @cxx imageConversion(pointer(inputfile), pointer(outfile))
-################################################################################################
+
+@cxx imageConversion(pointer(inputfile), pointer(outfile))

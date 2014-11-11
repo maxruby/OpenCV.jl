@@ -1,4 +1,6 @@
 using OpenCV
-#using Base.Test
+using Base.Test
 
-include(joinpath(Pkg.dir("OpenCV"), "./test/demos.jl"))
+function run_tests()
+    include(joinpath(Pkg.dir("OpenCV"), "./test/demos.jl"))
+end

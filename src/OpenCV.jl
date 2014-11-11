@@ -1,7 +1,7 @@
 ################################################################################################
-# OpenCV.jl
+# OpenCV
 #
-# Interface for calling OpenCV (C++) directly in Julia
+# Loading interface for calling OpenCV (C++) directly in Julia
 #
 # If OpenCV is already installed, or you wish to use different version of the libraries,
 # change the library and header paths to your local directories, e.g.,
@@ -18,9 +18,10 @@ using Cxx
 (VERSION >= v"0.4-") ? nothing :
      throw(ErrorException("Julia $VERSION does not support C++ FFI"))
 
+
 # Load C++ FFI interface, headers and shared libraries
-# collect path of opencv_libraries
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_libs.jl"))
+
 
 # Include directories and paths for headers and libs
 @osx_only begin
@@ -56,4 +57,12 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_libs.jl"))
     cxxinclude(joinpath(cvheaderdir,"opencv2/stitching.hpp"))
     cxxinclude(joinpath(cvheaderdir,"opencv2/superres.hpp"))
     cxxinclude(joinpath(cvheaderdir,"opencv2/videostab.hpp"))
+
+    #load OpenCV.jl interface
+    include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_hpp.jl"))
+
+    #load demo function
+    function run_tests()
+        include(joinpath(Pkg.dir("OpenCV"), "./test/demos.jl"))
+    end
 end

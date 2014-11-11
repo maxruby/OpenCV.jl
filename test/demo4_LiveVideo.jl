@@ -5,7 +5,7 @@
 ################################################################################################
 
 # Julia variables
-device_index = 0
+device_index = CAP_ANY
 winname = "Welcome"
 
 # C++ headers

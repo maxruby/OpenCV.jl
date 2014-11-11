@@ -6,8 +6,8 @@
 #################################################################################################
 
 # Julia filename with full path
-inputfile = "/Users/maximilianosuster/programming/ComputerVision/testimages/control.tif"
-outfile = "/Users/maximilianosuster/programming/ComputerVision/testimages/thresholded.tif"
+inputfile = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
+outfile = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.jpeg")
 
 # header files
 cxx"""
@@ -82,5 +82,4 @@ void imThreshold(const char *inputfile, const char *outfile) {
 }
 """
 
-# Run (or wrap function for later use)
-jl_imThreshold = @cxx imThreshold(pointer(inputfile), pointer(outfile))
+@cxx imThreshold(pointer(inputfile), pointer(outfile))

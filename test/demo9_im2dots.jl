@@ -6,8 +6,8 @@
 #################################################################################################
 
 # Julia filename with full path
-inputfile = "/Users/maximilianosuster/programming/ComputerVision/testimages/julia.png"
-outfile = "/Users/maximilianosuster/programming/ComputerVision/testimages/dotjulia.png"
+inputfile =  joinpath(Pkg.dir("OpenCV"), "./test/images/julia.png")
+outfile = joinpath(Pkg.dir("OpenCV"), "./test/images/dotjulia.png")
 
 # header files
 cxx"""
@@ -72,4 +72,4 @@ void im2dots(const char *inputfile, const char *outfile)
 }
 """
 
-jl_im2dots = @cxx im2dots(pointer(inputfile), pointer(outfile))
+@cxx im2dots(pointer(inputfile), pointer(outfile))

@@ -7,7 +7,7 @@
 #
 #################################################################################################
 
-device_index = 0
+device_index = CAP_ANY
 
 cxx"""
 #include <iostream>
@@ -124,5 +124,5 @@ void ObjectTracking(int device_index)
 }
 """
 
-ObjectTracking = @cxx ObjectTracking(device_index)
+@cxx ObjectTracking(device_index)
 
