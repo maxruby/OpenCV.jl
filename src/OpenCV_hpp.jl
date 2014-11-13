@@ -7,6 +7,56 @@
 
 # constant declarations
 
+# matrix decomposition types
+const DECOMP_LU       = 0
+const DECOMP_SVD      = 1
+const DECOMP_EIG      = 2
+const DECOMP_CHOLESKY = 3
+const DECOMP_QR       = 4
+const DECOMP_NORMAL   = 16
+
+# norm types
+const NORM_INF       = 1
+const NORM_L1        = 2
+const NORM_L2        = 4
+const NORM_L2SQR     = 5
+const NORM_HAMMING   = 6
+const NORM_HAMMING2  = 7
+const NORM_TYPE_MASK = 7
+const NORM_RELATIVE  = 8
+const NORM_MINMAX    = 32
+
+# comparison types
+const CMP_EQ = 0
+const CMP_GT = 1
+const CMP_GE = 2
+const CMP_LT = 3
+const CMP_LE = 4
+const CMP_NE = 5
+
+const GEMM_1_T = 1
+const GEMM_2_T = 2
+const GEMM_3_T = 4
+
+const DFT_INVERSE        = 1
+const DFT_SCALE          = 2
+const DFT_ROWS           = 4
+const DFT_COMPLEX_OUTPUT = 16
+const DFT_REAL_OUTPUT    = 32
+const DCT_INVERSE        = DFT_INVERSE
+const DCT_ROWS           = DFT_ROWS
+
+# Various border types, image boundaries are denoted with '|'
+const BORDER_CONSTANT    = 0 # iiiiii|abcdefgh|iiiiiii  with some specified 'i'
+const BORDER_REPLICATE   = 1 # aaaaaa|abcdefgh|hhhhhhh
+const BORDER_REFLECT     = 2 # fedcba|abcdefgh|hgfedcb
+const BORDER_WRAP        = 3 # cdefgh|abcdefgh|abcdefg
+const BORDER_REFLECT_101 = 4 # gfedcb|abcdefgh|gfedcba
+const BORDER_TRANSPARENT = 5 # uvwxyz|absdefgh|ijklmno
+const BORDER_REFLECT101  = BORDER_REFLECT_101
+const BORDER_DEFAULT     = BORDER_REFLECT_101
+const BORDER_ISOLATED    = 16 # do not look outside of ROI
+
 # Mat types (core.hpp)
 typealias CV_MatType Int
 const CV_8UC1 = 0
@@ -38,6 +88,37 @@ const CV_64FC2 = 14
 const CV_64FC3 = 22
 const CV_64FC4 = 30
 #end of CV_MatType
+
+# Make a Dict() for lookup
+CV_MAT_TYPE= Dict( 0 => "CV_8UC1",
+                   8 => "CV_8UC2",
+                  16 => "CV_8UC3",
+                  24 => "CV_8UC4",
+                   1 => "CV_8SC1",
+                   9 => "CV_8SC2",
+                  17 => "CV_8SC3",
+                  25 => "CV_8SC4",
+                   2 => "CV_16UC1",
+                  10 => "CV_16UC2",
+                  18 => "CV_16UC3",
+                  26 => "CV_16UC4",
+                   3 => "CV_16SC1",
+                  11 => "CV_16SC2",
+                  19 => "CV_16SC3",
+                  27 => "CV_16SC4",
+                   4 => "CV_32SC1",
+                  12 => "CV_32SC2",
+                  20 => "CV_32SC3",
+                  28 => "CV_32SC4",
+                   5 => "CV_32FC1",
+                  13 => "CV_32FC2",
+                  21 => "CV_32FC3",
+                  29 => "CV_32FC4",
+                   6 => "CV_64FC1",
+                  14 => "CV_64FC2",
+                  22 => "CV_64FC3",
+                  30 => "CV_64FC4")
+
 
 # Line thickness
 const FILLED  = -1

@@ -17,7 +17,7 @@ demos = [ "CreateImage",
 println("\nSelect a demo from the following options: \n")
 
 for i in enumerate(demos)
-    println("\t", i[1], ": ", i[2])
+    println("\t", i[1], ") ", i[2])
 end
 
 println("\nSelect and run the demo at the julia prompt: \n","e.g., run_demo(N)\n")
