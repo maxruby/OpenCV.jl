@@ -9,13 +9,6 @@
 inputfile = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
 outfile = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.jpeg")
 
-# header files
-cxx"""
-#include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-"""
-
 #Main code
 cxx"""
 // global variables

@@ -9,10 +9,6 @@ inputfile = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
 outfile = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.jpeg")
 
 cxx"""
-#include <iostream>
-"""
-
-cxx"""
 void imageConversion(const char *inputfile, const char *outfile)
 {
     const std::string ifname = inputfile;

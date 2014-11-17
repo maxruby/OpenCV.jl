@@ -9,13 +9,6 @@
 inputfile = joinpath(Pkg.dir("OpenCV"), "./test/images/mandrill.jpg")
 outfile = joinpath(Pkg.dir("OpenCV"), "./test/images/mandrillHist.jpg")
 
-# header files
-cxx"""
-#include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-"""
-
 cxx"""
 void showHistogram(cv::Mat& img)
 {

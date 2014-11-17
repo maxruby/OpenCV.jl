@@ -5,11 +5,6 @@
 #################################################################################################
 
 cxx"""
-   #include <iostream>
-   #include <stdio.h>
-"""
-
-cxx"""
 static void help()
 {
     printf("\nThis program demonstrates OpenCV drawing and text output functions.\n"

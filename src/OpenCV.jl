@@ -1,7 +1,7 @@
 ################################################################################################
 # OpenCV.jl
 #
-# Loading Julia interface for calling OpenCV (C++) libraries
+# Julia interface for OpenCV (C++)
 #
 # If OpenCV is already installed in your computer, or you wish to use different libraries,
 # change the library and header paths to your local directories, e.g.,
@@ -86,6 +86,15 @@ cxxinclude(joinpath(cvheaderdir,"opencv2/shape.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/stitching.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/superres.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/videostab.hpp"))
+
+# Load frequently used headers
+cxx """
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <cfloat>
+#include <vector>
+"""
 
 # Load header constants and typedefs
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_hpp.jl"))

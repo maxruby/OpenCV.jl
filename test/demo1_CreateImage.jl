@@ -16,9 +16,6 @@ B=0
 # Window name
 fun = "New Image"
 
-# C++ code
-cxx""" #include <iostream> """
-
 cxx"""
 void create_image_and_display()
    {

@@ -8,9 +8,6 @@
 device_index = CAP_ANY
 winname = "Welcome"
 
-# C++ headers
-cxx""" #include <iostream> """
-
 # C++ OpenCV code
 cxx"""
 void videocapture(int device_index, const char *winname) {

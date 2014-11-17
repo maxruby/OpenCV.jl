@@ -8,9 +8,6 @@
 winname = "Welcome"
 fname = joinpath(Pkg.dir("OpenCV"), "./test/images/movie.avi")
 
-# C++ headers
-cxx""" #include <iostream> """
-
 # C++ OpenCV code
 cxx"""
 void setVideoProperties(const char *winname, const char *fname)

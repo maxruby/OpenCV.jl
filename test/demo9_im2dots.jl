@@ -9,13 +9,6 @@
 inputfile =  joinpath(Pkg.dir("OpenCV"), "./test/images/julia.png")
 outfile = joinpath(Pkg.dir("OpenCV"), "./test/images/dotjulia.png")
 
-# header files
-cxx"""
-#include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-"""
-
 cxx"""
 void im2dots(const char *inputfile, const char *outfile)
 {

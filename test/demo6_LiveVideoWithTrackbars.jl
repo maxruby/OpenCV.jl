@@ -6,10 +6,6 @@
 
 device_index = CAP_ANY
 
-# C++ headers
-cxx""" #include <iostream> """
-cxx""" #include <vector> """
-
 # C++ OpenCV code
 cxx"""
 void liveVideo_adjust(int device_index) {

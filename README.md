@@ -54,21 +54,21 @@ $ ls opencv2
 
 ### **Using OpenCV.jl**
 
-##### Creating images with cvMat
+##### Creating images with cv::Mat constructors
 ```python
 # empty image
-img0 = cvMat()
+img0 = Mat()
 
 # Uint8 gray image, 600x600
-img1 = cvMat(600, 600, CV_8UC1)
+img1 = Mat(600, 600, CV_8UC1)
 
 # Uint8 gray image, 500x250
 imgSize = cvSize(500, 250)
-img2 = cvMat(imgSize, CV_8UC1)
+img2 = Mat(imgSize, CV_8UC1)
 
 # Uint8 blue image, 600x600
 imgColor = cvScalar(255, 0, 0)
-img3 = cvMat(600, 600, CV_8UC3, imgColor)
+img3 = Mat(600, 600, CV_8UC3, imgColor)
 ```
 
 ##### Basic image information
@@ -100,11 +100,10 @@ ptr(img, 10)
 
 ```
 
-##### Access and manipulate cvMat arrays
+##### Access and manipulate Mat arrays
 ```python
 # Create a ROI
 const roi = cvRect(25, 25, 100, 100) # create a ROI
-
 ```
 
 ##### Loading images
@@ -113,8 +112,6 @@ const roi = cvRect(25, 25, 100, 100) # create a ROI
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
 # load file
 img = imread(pointer(filename))
-
-
 ```
 ##### Graphical user interface (GUI)
 ```python
@@ -129,7 +126,7 @@ imdisplay(img, "Lena", WINDOW_AUTOSIZE, 0, 27)
 ### **Demos**
 
 ```python
-# Primarily native C++ OpenCV scripts in Julia
+# Sample C++ OpenCV scripts run in Julia****
 
 julia> run_tests()
 Select a demo from the following options: 

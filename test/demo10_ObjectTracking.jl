@@ -10,11 +10,6 @@
 device_index = CAP_ANY
 
 cxx"""
-#include <iostream>
-#include <stdio.h>
-"""
-
-cxx"""
 void ObjectTracking(int device_index)
 {
     cv::VideoCapture capture(device_index);  // capture the video from webcam
