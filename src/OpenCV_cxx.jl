@@ -1,17 +1,98 @@
 ################################################################################################
 #
 # OpenCV_cxx.jl
-# Julia wrapper of OpenCV structures and functions
+#
+# core.     The Core Functionality
+#            * Basic structures
+#            * Operations on Arrays
+#            * Clustering
+#            * Utility and System Functions and Macros
+#
+# imgproc.  Image Processing
+#            * Image Filtering
+#            * Geometric Image Transformations
+#            * Miscellaneous Image Transformations
+#            * Drawing Functions
+#            * ColorMaps
+#            * Histograms
+#            * Structural Analysis and Shape Descriptors
+#            * Motion Analysis and Object Tracking
+#            * Feature Detection
+#            * Object Detection
+#
+# imgcodecs. Image file reading and writing
+#            * Reading and Writing Images
+#
+# videoio.   Media I/O
+#            * Reading and Writing Video
+#
+# highgui.   High-level GUI and Media I/O
+#            * User Interface
 #
 #
+# In progress:
+# video.      Video Analysis
+# calib3d.    Camera Calibration and 3D Reconstruction
+# features2d. 2D Features Framework
+# objdetect.  Object Detection
+# ml.         Machine Learning
+# flann.      Clustering and Search in Multi-Dimensional Spaces
+#
+# Source: http://docs.opencv.org/trunk/modules/refman.html
 ################################################################################################
 
+
+################################################################################################
+# core. The Core Functionality
+################################################################################################
+# 1. Basic structures
+
+# Point
+cvPoint(x, y) = @cxx cv::Point(x,y)
+cvPoint2f(x, y) = @cxx cv::Point2f(float32(x),float32(y))
+cvPoint2d(x::Float64, y::Float64) = @cxx cv::Point2d(x,y)
+# cvPoint3(x, y, z) = @cxx cv::Point3(x,y,z)
+
+# Size
+cvSize(width, height) = @cxx cv::Size(width,height)
+cvSize2f(width, height) = @cxx cv::Size(float32(width),float32(height))
+
+# Scalar
+cvScalar(blue::Int, green::Int, red::Int) = @cxx cv::Scalar(blue,green,red)
+
+# Range
+cvRange(start::Int, tend::Int) = @cxx cv::Range(start, tend)
+cvRange_all(range) = @cxx range->all()
+
+# Rectangle
+cvRect(x::Int, y::Int, width::Int, height::Int) = @cxx cv::Rect(x, y, width, height)
+
+# Rotated Rectangle
+cvRotatedRect() =  @cxx cv::RotatedRect()
+# const center = cvPoint2f(x,y), const size = cv::Size2f(width,height)
+cvRotatedRect(center, size, angle::Float32) = @cxx cv::RotatedRect(center, size, angle)
+# const point1 = cvPoint2f(x,y), const point2 = cvPoint2f(x,y), const point3 = cvPoint2f(x,y)
+cvRotatedRect(point1, point2, point3) = @cxx cv::RotatedRect(point1, point2, point3)
+# arrpts(x,y) = [cvPoint2f(x,y)]
+cvRotatedRectPoints(arrpts) = @cxx cvRotatedRect.points(arrpts)
+# rRect = cvRotatedRect(pts, size, angle)
+cvRotatedRectBoundingRect(rRect) = @cxx rRect.boundingRect()
+
+#TermCriteria
+TermCriteria() = @cxx cv::TermCriteria::TermCriteria()
+TermCriteria(rtype::Int, maxCount::Int, epsilon::Float64) =
+     @cxx cv::TermCriteria::TermCriteria(rtype, maxCount, epsilon)
+# type     – TermCriteria::COUNT, TermCriteria::EPS or TermCriteria::COUNT + TermCriteria::EPS
+# maxCount – The maximum number of iterations or elements to compute
+# epsilon  – The desired accuracy or change in parameters
+
+###################################################
 # Mat: The core image array structure in OpenCV
-
+###################################################
+# Mat array constructors
 # Parameters:
-
 # ndims    –>   dimension
-# rows     –>   Number of rows in a 2D array
+# rws      –>   Number of rows in a 2D array
 # cols     –>   Number of columns in a 2D array
 # roi      –>   Region of interest
 # size     –>   2D array size: Size(cols, rows)
@@ -29,7 +110,6 @@
 #              To set all the matrix elements to the particular value after the construction,
 #              use the assignment operator Mat::operator=(const Scalar& value).
 # data     –>   Pointer to the user data.
-
 # step     –>   Number of bytes each matrix row occupies, if missing set to AUTO_STEP.
 #              cols*elemSize(). See Mat::elemSize().
 #              The value should include the padding bytes at the end of each row.
@@ -56,91 +136,39 @@
 # ranges    –> Array of selected ranges of m along each dimensionality.
 
 
-################################################################################################
-# DataTypes
-################################################################################################
-
-# 1) Point
-cvPoint(x, y) = @cxx cv::Point(x,y)
-cvPoint2f(x, y) = @cxx cv::Point2f(float32(x),float32(y))
-cvPoint2d(x::Float64, y::Float64) = @cxx cv::Point2d(x,y)
-# cvPoint3(x, y, z) = @cxx cv::Point3(x,y,z)
-
-# 2) Size
-cvSize(width, height) = @cxx cv::Size(width,height)
-cvSize2f(width, height) = @cxx cv::Size(float32(width),float32(height))
-
-# 3) Scalar
-cvScalar(blue::Int, green::Int, red::Int) = @cxx cv::Scalar(blue,green,red)
-
-# 4) Range
-cvRange(start::Int, tend::Int) = @cxx cv::Range(start, tend)
-cvRange_all(range) = @cxx range->all()
-
-# 5) Rectangle
-cvRect(x::Int, y::Int, width::Int, height::Int) = @cxx cv::Rect(x, y, width, height)
-
-# 6) Rotated Rectangle
-cvRotatedRect() =  @cxx cv::RotatedRect()
-# const center = cvPoint2f(x,y), const size = cv::Size2f(width,height)
-cvRotatedRect(center, size, angle::Float32) = @cxx cv::RotatedRect(center, size, angle)
-# const point1 = cvPoint2f(x,y), const point2 = cvPoint2f(x,y), const point3 = cvPoint2f(x,y)
-cvRotatedRect(point1, point2, point3) = @cxx cv::RotatedRect(point1, point2, point3)
-# arrpts(x,y) = [cvPoint2f(x,y)]
-cvRotatedRectPoints(arrpts) = @cxx cvRotatedRect.points(arrpts)
-# rRect = cvRotatedRect(pts, size, angle)
-cvRotatedRectBoundingRect(rRect) = @cxx rRect.boundingRect()
-
-# 7) TermCriteria
-TermCriteria() = @cxx cv::TermCriteria::TermCriteria()
-TermCriteria(rtype::Int, maxCount::Int, epsilon::Float64) =
-     @cxx cv::TermCriteria::TermCriteria(rtype, maxCount, epsilon)
-# type     – TermCriteria::COUNT, TermCriteria::EPS or TermCriteria::COUNT + TermCriteria::EPS
-# maxCount – The maximum number of iterations or elements to compute
-# epsilon  – The desired accuracy or change in parameters
-
-
-################################################################################################
-# Mat constructors
-################################################################################################
-
-# 1) Mat::Mat()
+# Mat::Mat()
 Mat() = @cxx cv::Mat()
 
-# 2) Mat::Mat(int rows, int cols, int type)
+# Mat::Mat(int rows, int cols, int type)
 Mat(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat(rows, cols, matType)
 
-# 3) Mat::Mat(Size size, int type)
+# Mat::Mat(Size size, int type)
 Mat(size, matType::CV_MatType) = @cxx cv::Mat(size, matType)
 
-# 4) Mat::Mat(int rows, int cols, int type, const Scalar& s)
+# Mat::Mat(int rows, int cols, int type, const Scalar& s)
 Mat(rows::Int, cols::Int, matType::CV_MatType, s) = @cxx cv::Mat(rows, cols, matType, s)
 
-# 5) Mat::Mat(Size size, int type, const Scalar& s)
+# Mat::Mat(Size size, int type, const Scalar& s)
 Mat(size, matType::CV_MatType, s) = @cxx cv::Mat(size, matType, s)
 
-# 6) Mat::Mat(const Mat& m)
+# Mat::Mat(const Mat& m)
 Mat(m) = @cxx cv::Mat(m)
 
-# 7) Mat::Mat(int ndims, const int* sizes, int type)
+# Mat::Mat(int ndims, const int* sizes, int type)
 # const psizes(sizes) = pointer([sizes::Int])
 Mat(ndims::Int, psizes::Ptr{Int}, matType::CV_MatType) = @cxx cv::Mat(ndims, psizes, matType)
 
-# 8) Mat::Mat(int ndims, const int* sizes, int type, const Scalar& s)
+# Mat::Mat(int ndims, const int* sizes, int type, const Scalar& s)
 Mat(ndims::Int, psizes::Ptr{Int}, matType::CV_MatType, s) = @cxx cv::Mat(ndims, psizes, matType, s)
 
-# 9) Mat::Mat(const Mat& m, const Rect& roi)
+# Mat::Mat(const Mat& m, const Rect& roi)
 Mat(img, roi) = @cxx cv::Mat(img, roi)
 
-# 10) Mat::Mat(const Mat& m, const Range* ranges)
+# Mat::Mat(const Mat& m, const Range* ranges)
 # const ranges = pointer(range)
 Mat(img, ranges) = @cxx cv::Mat(img, ranges)
 
-
-################################################################################################
-# Mat operators
-################################################################################################
-
+# Mat class methods
 # addition
 cxx""" cv::Mat add(cv::Mat img1, cv::Mat img2) { return(img1 + img2); } """
 imadd(img1, img2) = @cxx add(img1, img2)
@@ -308,11 +336,6 @@ locateROI(img, wholeSize, ofs) = @cxx img->locateROI(wholeSize, ofs)
 # dright – Shift of the right submatrix boundary to the right.
 adjustROI(img, dtop::Int, dbottom::Int, dleft::Int, dright::Int) = @cxx img->adjustROI(dtop, dbottom, dleft, dright)
 
-
-#########################################################################################################################
-# Accessing Mat parameters
-#########################################################################################################################
-
 total(img) = @cxx img->total()                               # returns size_t: number of array elements
 dims(img) = @cxx img->dims                                   # ndims
 rows(img) = @cxx img->rows                                   # rows
@@ -440,10 +463,8 @@ void imset(cv::Mat img, int row, int col, cv::Vec<_Rs,3> cvec)
     set(dst, row, col, cvec);
 }
 """
-
-####################################################################################################
-# Operations on Arrays
-####################################################################################################
+#-------------------------------------------------------------------------------------------------------------------#
+# 2. Operations on Arrays
 
 abs(img) = @cxx cv::abs(img)
 absdiff(src1, src2, dst) = @cxx absdiff(src1, src2, dst)
@@ -819,23 +840,38 @@ copyMakeBorder(src, dst, top::Int, bottom::Int, left::Int, right::Int, borderTyp
 # BORDER_TRANSPARENT
 # BORDER_ISOLATED
 
-# Clustering
-# Finds centers of clusters and groups input samples around the clusters
+#-------------------------------------------------------------------------------------------------------------------#
+# 3. Clustering
 
+# Finds centers of clusters and groups input samples around the clusters
 kmeans(data, K::Int, bestLabels, criteria, attempts::Int, flags::Int) =
     @cxx cv::kmeans(data, K, bestLabels, criteria, attempts, flags)
 # OutputArray centers=noArray()
 # TermCriteria
 # partition
 
-
-# Utility and System Functions and Macros
+#-------------------------------------------------------------------------------------------------------------------#
+# 4. Utility and System Functions and Macros
 
 # angle of a 2D vector in degrees
 fastAtan2(y::Float64, x::Float64) = @cxx cv::fastAtan2(y, x)
 
 # cube root of an argument
 cubeRoot(val::Float64) =  @cxx cv::cubeRoot(val)
+
+# fastMalloc
+fastMalloc(bufSize::Uint64) = @cxx cv::fastMalloc(bufSize)  # returns void*
+
+# fastFree
+fastFree(ptr::Ptr{Void}) = @cxx cv::fastFree(ptr)
+# ptr – Pointer to the allocated buffer
+
+# format
+format(text::Ptr{Uint8}) = @cxx cv::format(text) # returns string
+
+# getBuildInformation
+getBuildInformation() = @cxx cv::getBuildInformation()
+
 
 # heckHardwareSupport(int feature)
 checkHardwareSupport(feature::Int) = @cxx cv::checkHardwareSupport(feature)
@@ -864,8 +900,10 @@ useOptimized() = @cxx cv::useOptimized()  #true/false status
 
 
 #####################################################################################################
-# Image processing (imgproc)
+# imgproc. Image Processing
 #####################################################################################################
+
+# 1. Image Filtering
 
 # bilateralFilter
 # void bilateralFilter(InputArray src, OutputArray dst, int d, double sigmaColor, double sigmaSpace,
@@ -1119,8 +1157,8 @@ scharr(src, dst, ddepth::Int, dx::Int, dy::Int, scale=1.0, delta=float(0), borde
 # scale  – optional scale factor for the computed derivative values
 
 
-
-# Geometric transformations
+#-------------------------------------------------------------------------------------------------------------------#
+# 2. Geometric transformations
 
 # Convert image transformation maps from one representation to another
 convertMaps(map1, map2, dstmap1, dstmap2, dstmap1type::Int, nninterpolation=false) =
@@ -1215,6 +1253,10 @@ undistortPoints(src, dst, cameraMatrix, distCoeffs) = @cxx cv::undistortPoints(s
 # R – Rectification transformation in the object space (3x3 matrix)
 # P – New camera matrix (3x3) or new projection matrix (3x4)
 
+
+#-------------------------------------------------------------------------------------------------------------------#
+# 3. Miscellaneous Image Transformations
+
 # Apply an adaptive threshold to an array
 adaptiveThreshold(src, dst, maxValue::Float64, adaptiveMethod::Int, thresholdType::Int, blockSize::Int, C::Float64) =
     @cxx cv::adaptiveThreshold(src, dst, maxValue, adaptiveMethod, thresholdType, blockSize, C)
@@ -1303,8 +1345,8 @@ grabCut(img, mask, rect, bgdModel, fgdModel, iterCount::Int, mode=GC_EVAL) =
      # GC_EVAL
 
 
-
-# Drawing functions
+#-------------------------------------------------------------------------------------------------------------------#
+# 4. Drawing functions
 
 # Draw a circle
 circle(img, center, radius::Int, color, thickness=1, lineType=LINE_8, shift=0) =
@@ -1424,7 +1466,9 @@ putText(img, text::Ptr{Uint8}, org, fontFace::Int, fontScale::Float64, color, th
 # FONT_HERSHEY_SCRIPT_COMPLEX
 # FONT_ITALIC
 
-# ColorMaps in OpenCV
+#-------------------------------------------------------------------------------------------------------------------#
+# 5. ColorMaps in OpenCV
+
 # Appl a GNU Octave/MATLAB equivalent colormap on a given image
 applyColorMap(src, dst, colormap::Int) = @cxx cv::applyColorMap(src, dst, colormap)
 # colormap =
@@ -1441,7 +1485,9 @@ applyColorMap(src, dst, colormap::Int) = @cxx cv::applyColorMap(src, dst, colorm
 #     COLORMAP_PINK
 #     COLORMAP_HOT
 
-# Histograms
+#-------------------------------------------------------------------------------------------------------------------#
+# 6. Histograms
+
 calcHist(images, nimages::Int, channels::Ptr{Int}, mask, hist, int dims, histSize::Ptr{Int}, ranges::Ptr{Ptr{Float64}}, uniform=true,
     accumulate=false) = @cxx cv::calcHist(images, nimages, channels, mask, hist, int dims, histSize, ranges, uniform, accumulate)
 # images = const Mat*
@@ -1484,8 +1530,8 @@ emd(signature1, signature2, distType::Int, lowerBound=[pointer(float(0))]) =
 equalizeHist(src, dst) = @cxx cv::equalizeHist(src, dst)
 
 
-
-# Structural Analysis and Shape Descriptors
+#-------------------------------------------------------------------------------------------------------------------#
+# 7. Structural Analysis and Shape Descriptors
 
 # moments
 moments(array, binaryImage=false) = @cxx cv::moments(array, binaryImage)
@@ -1656,7 +1702,8 @@ rotatedRectangleIntersection(rect1, rect2, intersectingRegion) =
 # INTERSECT_PARTIAL=1  – There is a partial intersection
 # INTERSECT_FULL=2     – One of the rectangle is fully enclosed in the other
 
-# Motion Analysis and Object
+#-------------------------------------------------------------------------------------------------------------------#
+# 8. Motion Analysis and Object Tracking
 
 # accumulate: Adds an image to the accumulator
 accumulate(src, dst) = @cxx cv::accumulate(src, dst)
@@ -1694,8 +1741,8 @@ createHanningWindow(dst, winSize, rtype::Int) = @cxx cv::createHanningWindow(dst
 # winSize     – The window size specifications
 
 
-
-# Feature Detection
+#-------------------------------------------------------------------------------------------------------------------#
+# 9. Feature Detection
 
 # Canny: Finds edges in an image using the [Canny86] algorithm
 Canny(image, edges, threshold1::Float64, threshold2::Float64, apertureSize=3, L2gradient=false) =
@@ -1847,8 +1894,8 @@ preCornerDetect(src, dst, ksize::Int, borderType=BORDER_DEFAULT) = @cxx cv::preC
 # borderType – Pixel extrapolation method
 
 
-
-# Object Detection
+#-------------------------------------------------------------------------------------------------------------------#
+# 10. Object Detection
 
 # matchTemplate: Compares a template against overlapped image regions
 matchTemplate(image, templ, result, method::Int) = @cxx cv: matchTemplate(image, templ, result, method)
@@ -1864,12 +1911,50 @@ matchTemplate(image, templ, result, method::Int) = @cxx cv: matchTemplate(image,
 #    TM_CCOEFF_NORMED
 
 
+####################################################################################################
+# imgcodecs. Image file reading and writing
+####################################################################################################
 
+# 1. Reading and Writing Images
+
+# imdecode: Reads an image from a buffer in memory
+imdecode(buf, flags) = @cxx cv::imdecode(buf, flags)  # returs Mat
+# buf – Input array or vector of bytes
+# flags – The same flags as in imread()
+
+# imencode: Encodes an image into a memory buffer
+imencode(ext, img, buf) = @cxx imencode(ext, img, buf)
+# ext    – File extension that defines the output format
+# img    – Image to be written
+# buf    – Output buffer resized to fit the compressed image  => vector<uchar>&
+# params – Format-specific parameters. See imwrite()   => const vector<int>&, default = vector<int>()
+
+# imread: Read images from file
+imread(filename::Ptr{Uint8}, flags=IMREAD_COLOR) = @cxx cv::imread(filename, flags)
+# IMREAD_UNCHANGED  # 8bit, color or not
+# IMREAD_GRAYSCALE  # 8bit, gray
+# IMREAD_COLOR      # ?, color
+# IMREAD_ANYDEPTH   # any depth, ?
+# IMREAD_ANYCOLOR   # ?, any color
+# IMREAD_LOAD_GDAL
+
+# imwrite: Saves an image to a specified file
+imwrite(filename::Ptr{Uint8}, img)
+# optional: const vector<int>& params=vector<int>()
+# filename – Name of the file
+# image    – Image to be saved
+# params   –
+# IMWRITE_JPEG_QUALITY      Default value is 95 {0,100}
+# IMWRITE_WEBP_QUALITY      Default value is 100 {1,100}
+# IMWRITE_PNG_COMPRESSION   Default value is 3 {0,9}
+# IMWRITE_PXM_BINARY        Default value is 1 {0,1}
 
 
 ####################################################################################################
-# Reading and Writing Video (videoio.hpp)
+# videoio. Media I/O
 ####################################################################################################
+
+# 1. Reading and Writing Video
 
 # Create the VideoCapture structures
 cxx""" cv::VideoCapture VideoCapture(){ cv::VideoCapture() capture; return(capture); }"""
@@ -1944,11 +2029,11 @@ openWriter(filename::Ptr{Uint8}, fourcc::Int, fps::Float64, frameSize, isColor=t
 isOpened(writer) = @cxx writer->isOpened()
 
 # Write the next video frame
-videoWrite(writer, image) = @cxx writer->
+videoWrite(writer, image) = @cxx writer->write(image)
 
 # Video write with operator >>
-cxx""" cv::VideoCapture&  videoread(cv::VideoCapture& capture){ cv::Mat& image; capture >> image; return(capture); } """
-videoRead(capture) = @cxx videoread(capture)
+cxx""" cv::VideoWriter&  videowrite(cv::VideoCapture& capture){ cv::Mat& image; capture << image; return(capture); } """
+videoWrite(capture) = @cxx videowrite(capture)
 
 # Get int for the FourCC codec code
 fourcc(writer, fcc::Array(Ptr{Uint8},4)) = @cxx writer->fourcc(fcc[1], fcc[2], fcc[3], fcc[4])
@@ -1962,11 +2047,14 @@ fourcc(writer, fcc::Array(Ptr{Uint8},4)) = @cxx writer->fourcc(fcc[1], fcc[2], f
 
 
 ####################################################################################################
-# Graphical user interface (highgui)
+# highgui. High-level GUI and Media I/O
 ####################################################################################################
 
+# 1.User Interface
+
 # createTrackbar: Creates a trackbar and attaches it to the specified window
-# create a TrackbarCallback function in C++ and wrap with @cxx macro
+# 1. create a TrackbarCallback function in C++ and wrap with @cxx macro
+# 2. call createTrackbar() below
 createTrackbar(trackbarname::Ptr{Uint8},winname::Ptr{Uint8}, value::Ptr{Int}, count::Int, onChange,
     userdata=Ptr{Void}[0]) = @cxx cv::createTrackbar(trackbarname,winname, value, count, onChange, userdata)
 # trackbarname – Name of the created trackbar
@@ -1979,9 +2067,6 @@ createTrackbar(trackbarname::Ptr{Uint8},winname::Ptr{Uint8}, value::Ptr{Int}, co
 
 # getTrackbarPos: Returns the trackbar position
 getTrackbarPos(trackbarname::Ptr{Uint8},winname::Ptr{Uint8}) = @cxx cv::getTrackbarPos(trackbarname,winname)
-
-# Mat imread(const String& filename, int flags=IMREAD_COLOR)
-imread(filename::Ptr{Uint8}, flags=IMREAD_COLOR) = @cxx cv::imread(filename, flags)
 
 # namedWindow(const String& winname, int flags=WINDOW_AUTOSIZE)
 namedWindow(windowName::Ptr{Uint8}, flags=WINDOW_AUTOSIZE) = @cxx cv::namedWindow(windowName, flags)

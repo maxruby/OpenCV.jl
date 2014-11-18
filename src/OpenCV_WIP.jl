@@ -66,6 +66,11 @@
 # """
 
 
+
+# Pass opencv inputarray and use it as std::vector
+# http://stackoverflow.com/questions/25750041/pass-opencv-inputarray-and-use-it-as-stdvector
+
+
 # In OpenCV image data is stored in a ROW-major order
 
 # uchar* p = img.ptr(row)
