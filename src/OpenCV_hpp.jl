@@ -1,145 +1,26 @@
 ################################################################################################
 #
 # OpenCV_hpp.jl
-# single header OpenCV (.hpp) wrapper for Julia
+#
+# Julia constants from OpenCV headers:
+#
+# cvdef.h
+# core.h
+# core.hpp
+# types_c.h
+# imgproc.hpp
+# imgcodec.hpp
+# videoio.hpp
+# highgui.hpp
+# features2d.hpp
+# objectdetect.hpp
+# calib3d.hpp (not in use)
 #
 ################################################################################################
 
 # C++ constant from <cfloat>
 const DBL_MAX = 1.79769e+308
 # constant declarations (not all)
-
-# cvdef.h
-const CV_CPU_NONE   = 0
-const CV_CPU_MMX    = 1
-const CV_CPU_SSE    = 2
-const CV_CPU_SSE2   = 3
-const CV_CPU_SSE3   = 4
-const CV_CPU_SSSE3  = 5
-const CV_CPU_SSE4_1 = 6
-const CV_CPU_SSE4_2 = 7
-const CV_CPU_POPCNT = 8
-const CV_CPU_AVX    = 10
-const CV_CPU_NEON   = 11
-
-# core.h
-const CV_REDUCE_SUM = 0
-const CV_REDUCE_AVG = 1
-const CV_REDUCE_MAX = 2
-const CV_REDUCE_MIN = 3
-
-const CV_SORT_EVERY_ROW = 0
-const CV_SORT_EVERY_COLUMN = 1
-const CV_SORT_ASCENDING = 0
-const CV_SORT_DESCENDING = 16
-
-# types_c.h
-const CV_RNG_COEFF = 4164903690       #U = unsigned
-const CV_PI = 3.1415926535897932384626433832795
-const CV_LOG2 =  0.69314718055994530941723212145818
-const CV_AUTO_STEP = 0x7fffffff
-const CV_CN_MAX =  512
-const CV_CN_SHIFT =  3
-const CV_HIST_ARRAY = 0
-const CV_HIST_SPARSE =  1
-const CV_HIST_TREE  = CV_HIST_SPARSE
-const CV_HIST_UNIFORM =  1
-const CV_MAGIC_MASK =  0xFFFF0000
-const CV_MAT_MAGIC_VAL =  0x42420000
-const CV_MATND_MAGIC_VAL = 0x42430000
-const CV_MAX_DIM = 32
-const CV_NODE_EMPTY = 32
-const CV_NODE_FLOW = 8
-const CV_NODE_INT =  1
-const CV_NODE_INTEGER =   CV_NODE_INT
-const CV_NODE_MAP =   6
-const CV_NODE_NAMED  =  64
-const CV_NODE_NONE =   0
-const CV_NODE_REAL =   2
-const CV_NODE_REF =   4
-const CV_NODE_SEQ  =  5
-const CV_NODE_SEQ_SIMPLE =   256
-const CV_NODE_STR =   3
-const CV_NODE_TYPE_MASK  =  7
-const CV_NODE_USER =   16
-const CV_SEQ_ELTYPE_BITS =  12
-const CV_SEQ_ELTYPE_CODE =   CV_8UC1
-const CV_SEQ_ELTYPE_CONNECTED_COMP =   0
-const CV_SEQ_ELTYPE_GENERIC =   0
-const CV_SEQ_ELTYPE_GRAPH_EDGE  =  0
-const CV_SEQ_ELTYPE_GRAPH_VERTEX  =  0
-const CV_SEQ_ELTYPE_INDEX =  CV_32SC1
-const CV_SEQ_ELTYPE_POINT =  CV_32SC2
-const CV_SEQ_ELTYPE_POINT3D =  CV_32FC3
-const CV_SEQ_ELTYPE_TRIAN_ATR  = 0
-const CV_SEQ_KIND_BITS =  2
-const CV_SEQ_MAGIC_VAL =  0x42990000
-const CV_SET_MAGIC_VAL  = 0x42980000
-const CV_SPARSE_MAT_MAGIC_VAL  = 0x42440000
-const CV_STORAGE_APPEND =  2
-const CV_STORAGE_MAGIC_VAL  = 0x42890000
-const CV_STORAGE_READ =  0
-const CV_STORAGE_WRITE  = 1
-const CV_STORAGE_WRITE_BINARY =  CV_STORAGE_WRITE
-const CV_STORAGE_WRITE_TEXT  = CV_STORAGE_WRITE
-const CV_SUBMAT_FLAG_SHIFT  = 15
-const CV_TERMCRIT_EPS  = 2
-const CV_TERMCRIT_ITER  = 1
-const CV_USRTYPE1 =  7
-const CV_WHOLE_SEQ_END_INDEX =  0x3fffffff
-
-# Errors
-const CV_StsOk = 0
-const CV_StsBackTrace = -1
-const CV_StsError = -2
-const CV_StsInternal = -3
-const CV_StsNoMem = -4
-const CV_StsBadArg = -5
-const CV_StsBadFunc = -6
-const CV_StsNoConv = -7
-const CV_StsAutoTrace = -8
-const CV_HeaderIsNull = -9
-const CV_BadImageSize = -10
-const CV_BadOffset = -11
-const CV_BadDataPtr = -12
-const CV_BadStep = -13
-const CV_BadModelOrChSeq = -14
-const CV_BadNumChannels = -15
-const CV_BadNumChannel1U = -16
-const CV_BadDepth = -17
-const CV_BadAlphaChannel = -18
-const CV_BadOrder = -19
-const CV_BadOrigin = -20
-const CV_BadAlign = -21
-const CV_BadCallBack = -22
-const CV_BadTileSize = -23
-const CV_BadCOI = -24
-const CV_BadROISize = -25
-const CV_MaskIsTiled = -26
-const CV_StsNullPtr = -27,
-const CV_StsVecLengthErr = -28
-const CV_StsFilterStructContentErr = -29
-const CV_StsKernelStructContentErr = -30
-const CV_StsFilterOffsetErr = -31
-const CV_StsBadSize = -201
-const CV_StsDivByZero = -202
-const CV_StsInplaceNotSupported = -203
-const CV_StsObjectNotFound = -204
-const CV_StsUnmatchedFormats = -205
-const CV_StsBadFlag = -206
-const CV_StsBadPoint = -207
-const CV_StsBadMask = -208
-const CV_StsUnmatchedSizes = -209
-const CV_StsUnsupportedFormat = -210
-const CV_StsOutOfRange = -211
-const CV_StsParseError = -212
-const CV_StsNotImplemented = -213
-const CV_StsBadMemBlock = -214
-const CV_StsAssert = -215
-const CV_GpuNotSupported = -216
-const CV_GpuApiCallError = -217
-const CV_GpuNppCallError = -218
-const CV_GpuCufftCallError = -219
 
 # core.hpp
 # Operations on arrays
@@ -245,36 +126,6 @@ const CV_64FC3 = 22
 const CV_64FC4 = 30
 #end of CV_MatType
 
-# Make a Dict() for lookup
-CV_MAT_TYPE= Dict( 0 => "CV_8UC1",
-                   8 => "CV_8UC2",
-                  16 => "CV_8UC3",
-                  24 => "CV_8UC4",
-                   1 => "CV_8SC1",
-                   9 => "CV_8SC2",
-                  17 => "CV_8SC3",
-                  25 => "CV_8SC4",
-                   2 => "CV_16UC1",
-                  10 => "CV_16UC2",
-                  18 => "CV_16UC3",
-                  26 => "CV_16UC4",
-                   3 => "CV_16SC1",
-                  11 => "CV_16SC2",
-                  19 => "CV_16SC3",
-                  27 => "CV_16SC4",
-                   4 => "CV_32SC1",
-                  12 => "CV_32SC2",
-                  20 => "CV_32SC3",
-                  28 => "CV_32SC4",
-                   5 => "CV_32FC1",
-                  13 => "CV_32FC2",
-                  21 => "CV_32FC3",
-                  29 => "CV_32FC4",
-                   6 => "CV_64FC1",
-                  14 => "CV_64FC2",
-                  22 => "CV_64FC3",
-                  30 => "CV_64FC4")
-
 # K-means
 const KMEANS_RANDOM_CENTERS     = 0
 const KMEANS_PP_CENTERS         = 2
@@ -296,6 +147,140 @@ const FONT_HERSHEY_COMPLEX_SMALL  = 5
 const FONT_HERSHEY_SCRIPT_SIMPLEX = 6
 const FONT_HERSHEY_SCRIPT_COMPLEX = 7
 const FONT_ITALIC                 = 16
+
+
+# cvdef.h
+const CV_CPU_NONE   = 0
+const CV_CPU_MMX    = 1
+const CV_CPU_SSE    = 2
+const CV_CPU_SSE2   = 3
+const CV_CPU_SSE3   = 4
+const CV_CPU_SSSE3  = 5
+const CV_CPU_SSE4_1 = 6
+const CV_CPU_SSE4_2 = 7
+const CV_CPU_POPCNT = 8
+const CV_CPU_AVX    = 10
+const CV_CPU_NEON   = 11
+
+# core.h
+const CV_REDUCE_SUM = 0
+const CV_REDUCE_AVG = 1
+const CV_REDUCE_MAX = 2
+const CV_REDUCE_MIN = 3
+
+const CV_SORT_EVERY_ROW = 0
+const CV_SORT_EVERY_COLUMN = 1
+const CV_SORT_ASCENDING = 0
+const CV_SORT_DESCENDING = 16
+
+# types_c.h
+const CV_RNG_COEFF = 4164903690       #U = unsigned
+const CV_PI = 3.1415926535897932384626433832795
+const CV_LOG2 = 0.69314718055994530941723212145818
+const CV_AUTO_STEP = 0x7fffffff
+const CV_CN_MAX = 512
+const CV_CN_SHIFT = 3
+const CV_HIST_ARRAY = 0
+const CV_HIST_SPARSE =  1
+const CV_HIST_TREE  = CV_HIST_SPARSE
+const CV_HIST_UNIFORM =  1
+const CV_MAGIC_MASK =  0xFFFF0000
+const CV_MAT_MAGIC_VAL =  0x42420000
+const CV_MATND_MAGIC_VAL = 0x42430000
+const CV_MAX_DIM = 32
+const CV_NODE_EMPTY = 32
+const CV_NODE_FLOW = 8
+const CV_NODE_INT = 1
+const CV_NODE_INTEGER = CV_NODE_INT
+const CV_NODE_MAP =  6
+const CV_NODE_NAMED = 64
+const CV_NODE_NONE =  0
+const CV_NODE_REAL =  2
+const CV_NODE_REF =  4
+const CV_NODE_SEQ = 5
+const CV_NODE_SEQ_SIMPLE =   256
+const CV_NODE_STR =   3
+const CV_NODE_TYPE_MASK  =  7
+const CV_NODE_USER =   16
+const CV_SEQ_ELTYPE_BITS =  12
+const CV_SEQ_ELTYPE_CODE = CV_8UC1
+const CV_SEQ_ELTYPE_CONNECTED_COMP = 0
+const CV_SEQ_ELTYPE_GENERIC =  0
+const CV_SEQ_ELTYPE_GRAPH_EDGE = 0
+const CV_SEQ_ELTYPE_GRAPH_VERTEX = 0
+const CV_SEQ_ELTYPE_INDEX = CV_32SC1
+const CV_SEQ_ELTYPE_POINT = CV_32SC2
+const CV_SEQ_ELTYPE_POINT3D = CV_32FC3
+const CV_SEQ_ELTYPE_TRIAN_ATR = 0
+const CV_SEQ_KIND_BITS = 2
+const CV_SEQ_MAGIC_VAL =  0x42990000
+const CV_SET_MAGIC_VAL = 0x42980000
+const CV_SPARSE_MAT_MAGIC_VAL  = 0x42440000
+const CV_STORAGE_APPEND =  2
+const CV_STORAGE_MAGIC_VAL  = 0x42890000
+const CV_STORAGE_READ =  0
+const CV_STORAGE_WRITE  = 1
+const CV_STORAGE_WRITE_BINARY =  CV_STORAGE_WRITE
+const CV_STORAGE_WRITE_TEXT  = CV_STORAGE_WRITE
+const CV_SUBMAT_FLAG_SHIFT  = 15
+const CV_TERMCRIT_EPS  = 2
+const CV_TERMCRIT_ITER  = 1
+const CV_USRTYPE1 =  7
+const CV_WHOLE_SEQ_END_INDEX =  0x3fffffff
+
+# Errors
+const CV_StsOk = 0
+const CV_StsBackTrace = -1
+const CV_StsError = -2
+const CV_StsInternal = -3
+const CV_StsNoMem = -4
+const CV_StsBadArg = -5
+const CV_StsBadFunc = -6
+const CV_StsNoConv = -7
+const CV_StsAutoTrace = -8
+const CV_HeaderIsNull = -9
+const CV_BadImageSize = -10
+const CV_BadOffset = -11
+const CV_BadDataPtr = -12
+const CV_BadStep = -13
+const CV_BadModelOrChSeq = -14
+const CV_BadNumChannels = -15
+const CV_BadNumChannel1U = -16
+const CV_BadDepth = -17
+const CV_BadAlphaChannel = -18
+const CV_BadOrder = -19
+const CV_BadOrigin = -20
+const CV_BadAlign = -21
+const CV_BadCallBack = -22
+const CV_BadTileSize = -23
+const CV_BadCOI = -24
+const CV_BadROISize = -25
+const CV_MaskIsTiled = -26
+const CV_StsNullPtr = -27,
+const CV_StsVecLengthErr = -28
+const CV_StsFilterStructContentErr = -29
+const CV_StsKernelStructContentErr = -30
+const CV_StsFilterOffsetErr = -31
+const CV_StsBadSize = -201
+const CV_StsDivByZero = -202
+const CV_StsInplaceNotSupported = -203
+const CV_StsObjectNotFound = -204
+const CV_StsUnmatchedFormats = -205
+const CV_StsBadFlag = -206
+const CV_StsBadPoint = -207
+const CV_StsBadMask = -208
+const CV_StsUnmatchedSizes = -209
+const CV_StsUnsupportedFormat = -210
+const CV_StsOutOfRange = -211
+const CV_StsParseError = -212
+const CV_StsNotImplemented = -213
+const CV_StsBadMemBlock = -214
+const CV_StsAssert = -215
+const CV_GpuNotSupported = -216
+const CV_GpuApiCallError = -217
+const CV_GpuNppCallError = -218
+const CV_GpuCufftCallError = -219
+
 
 # imgproc.hpp
 
@@ -550,10 +535,10 @@ const COLOR_YUV2BGRA_NV21 = 97
 const COLOR_YUV420sp2RGBA = COLOR_YUV2RGBA_NV21
 const COLOR_YUV420sp2BGRA = COLOR_YUV2BGRA_NV21
 
-const COLOR_YUV2RGB_YV12  = 98,
-const COLOR_YUV2BGR_YV12  = 99,
-const COLOR_YUV2RGB_IYUV  = 100,
-const COLOR_YUV2BGR_IYUV  = 101,
+const COLOR_YUV2RGB_YV12  = 98
+const COLOR_YUV2BGR_YV12  = 99
+const COLOR_YUV2RGB_IYUV  = 100
+const COLOR_YUV2BGR_IYUV  = 101
 const COLOR_YUV2RGB_I420  = COLOR_YUV2RGB_IYUV
 const COLOR_YUV2BGR_I420  = COLOR_YUV2BGR_IYUV
 const COLOR_YUV420p2RGB   = COLOR_YUV2RGB_YV12
@@ -589,7 +574,7 @@ const COLOR_YUV2BGR_UYNV = COLOR_YUV2BGR_UYVY
 
 const COLOR_YUV2RGBA_UYVY = 111
 const COLOR_YUV2BGRA_UYVY = 112
-#COLOR_YUV2BGRA_VYUY = 114,
+#COLOR_YUV2BGRA_VYUY = 114
 const COLOR_YUV2RGBA_Y422 = COLOR_YUV2RGBA_UYVY
 const COLOR_YUV2BGRA_Y422 = COLOR_YUV2BGRA_UYVY
 const COLOR_YUV2RGBA_UYNV = COLOR_YUV2RGBA_UYVY
@@ -657,7 +642,7 @@ const COLOR_BayerGB2GRAY = 87
 const COLOR_BayerRG2GRAY = 88
 const COLOR_BayerGR2GRAY = 89
 
-#Demosaicing using Variable Number of Gradients
+# Demosaicing using Variable Number of Gradients
 const COLOR_BayerBG2BGR_VNG = 62
 const COLOR_BayerGB2BGR_VNG = 63
 const COLOR_BayerRG2BGR_VNG = 64
@@ -854,10 +839,10 @@ const LMEDS  = 4 #  least-median algorithm
 const RANSAC = 8 #  RANSAC algorithm
 
 const SOLVEPNP_ITERATIVE = 0
-const SOLVEPNP_EPNP      = 1 #  F.Moreno-Noguer, V.Lepetit and P.Fua "EPnP: Efficient Perspective-n-Point Camera Pose Estimation"
-const SOLVEPNP_P3P       = 2 #  X.S. Gao, X.-R. Hou, J. Tang, H.-F. Chang; "Complete Solution Classification for the Perspective-Three-Point Problem"
-const SOLVEPNP_DLS       = 3 #  Joel A. Hesch and Stergios I. Roumeliotis. "A Direct Least-Squares (DLS) Method for PnP"
-const SOLVEPNP_UPNP      = 4  #  A.Penate-Sanchez, J.Andrade-Cetto, F.Moreno-Noguer. "Exhaustive Linearization for Robust Camera Pose and Focal Length Estimation"
+const SOLVEPNP_EPNP      = 1  #  F.Moreno-Noguer et al, "EPnP: Efficient Perspective-n-Point Camera Pose Estimation"
+const SOLVEPNP_P3P       = 2  #  X.S. Gao et al, "Complete Solution Classification for the Perspective-Three-Point Problem"
+const SOLVEPNP_DLS       = 3  #  Joel A. Hesch et al, "A Direct Least-Squares (DLS) Method for PnP"
+const SOLVEPNP_UPNP      = 4  #  A.Penate-Sanchez et al. "Exhaustive Linearization for Robust Camera Pose and Focal Length Estimation"
 
 const CALIB_CB_ADAPTIVE_THRESH = 1
 const CALIB_CB_NORMALIZE_IMAGE = 2

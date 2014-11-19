@@ -88,7 +88,7 @@ isContinuous(img)
 # matrix element size in bytes (size_t)
 elemSize(img)
 # Mat type identifier (e.g., CV_8UC1)
-cvtype(img)
+cvtypelabel(img)
 # identifier of the matrix element depth
 depth(img)
 # number of matrix channels

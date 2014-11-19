@@ -88,7 +88,7 @@ cxxinclude(joinpath(cvheaderdir,"opencv2/superres.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/videostab.hpp"))
 
 # Load frequently used headers
-cxx """
+cxx"""
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -100,7 +100,7 @@ cxx """
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_hpp.jl"))
 
 # Load CXX bindings
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_cxx.jl"))
+include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_modules.jl"))
 
 # Load custom utility functions
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_util.jl"))
