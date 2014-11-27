@@ -32,7 +32,6 @@
 # highgui.   High-level GUI and Media I/O
 #            * User Interface
 #
-#
 # TO DO:
 # video.      Video Analysis
 # calib3d.    Camera Calibration and 3D Reconstruction
@@ -58,11 +57,14 @@
 #
 #
 #
-# Source: http://docs.opencv.org/trunk/modules/refman.html
-################################################################################################
+# Sources:
+# http://docs.opencv.org/trunk/modules/refman.html
+# http://physics.nyu.edu/grierlab/manuals/opencv/namespacecv.html#a346f563897249351a34549137c8532a0
+####################################################################################################
 
 # Core
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_core.jl"))
+include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_core_templates.jl"))
 
 # Image processing
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_imgproc.jl"))

@@ -1,42 +1,69 @@
 
-# Custom utility functions
+# General utility functions
+cint(x) = convert(Cint, x)
+csize_t(x) = convert(Csize_t, x)
 
-# Make a Dict() for lookup of image formats (CV_Mat types)
-CV_MAT_TYPE= Dict( 0 => "CV_8UC1",
-                   8 => "CV_8UC2",
-                  16 => "CV_8UC3",
-                  24 => "CV_8UC4",
-                   1 => "CV_8SC1",
-                   9 => "CV_8SC2",
-                  17 => "CV_8SC3",
-                  25 => "CV_8SC4",
-                   2 => "CV_16UC1",
-                  10 => "CV_16UC2",
-                  18 => "CV_16UC3",
-                  26 => "CV_16UC4",
-                   3 => "CV_16SC1",
-                  11 => "CV_16SC2",
-                  19 => "CV_16SC3",
-                  27 => "CV_16SC4",
-                   4 => "CV_32SC1",
-                  12 => "CV_32SC2",
-                  20 => "CV_32SC3",
-                  28 => "CV_32SC4",
-                   5 => "CV_32FC1",
-                  13 => "CV_32FC2",
-                  21 => "CV_32FC3",
-                  29 => "CV_32FC4",
-                   6 => "CV_64FC1",
-                  14 => "CV_64FC2",
-                  22 => "CV_64FC3",
-                  30 => "CV_64FC4")
+
+#-------------------------------------------------------------------------------------------------------------------#
+# Image processing (imgproc)
+
+# Support functions for image convolution
+cxx"""
+// Function getSum returns total sum of all the elements of given matrix.
+
+float getKernelSum(cv::Mat kernel)
+{
+   float sum = 0;
+   for(typeof(kernel.begin<float>()) it = kernel.begin<float>(); it!= kernel.end<float>() ; it++)
+   {
+      sum+=*it;
+   }
+   return sum;
+}
+
+// Normalize the mask (kernel)
+cv::Mat normalizeKernel (cv::Mat kernel, double ksum) {
+    kernel = kernel/ksum;
+    return(kernel);
+    }
+"""
+
+# kernel = ones(5,5,CV_32F)
+getKernelSum(kernel) = @cxx getKernelSum(kernel)
+# ksum = getKernelSum(kernel)
+normalizeKernel(kernel, ksum) = @cxx normalizeKernel(kernel, ksum)
+
+
+
+#-------------------------------------------------------------------------------------------------------------------#
+# GUI interface (highui)
 
 # Display an image in a window and close upon key press (and delay)
-function imdisplay(img, windowName::String, flag::WindowProperty, delay, key)
-    namedWindow(pointer(windowName), flag)
-    imshow(pointer(windowName), img)    #img::CppValue{symbol("cv::Mat"),()}
-    waitkey(delay) == key ? destroyWindow(pointer(windowName)) : nothing
+# For concurrent multiple display, set multi = "ON"
+function imdisplay(img, windowName::String, multi="OFF", flag=WINDOW_AUTOSIZE, delay=0, key=27)
+    namedWindow(windowName, flag)
+    imshow(windowName, img)
+    (multi == "OFF" && waitkey(delay) == key) ? destroyWindow(windowName) : nothing
 end
 
+macro closeWindows(delay, key, windowName)
+      (waitkey(delay) == key && windowName != "") ? destroyWindow(windowName) : destroyAllWindows()
+end
+# @closeWindows(0,27)
 
+function im2canvas(imgArray, windowName::String, flag=WINDOW_AUTOSIZE, delay=0, key=27)
+    canvas = Mat()
 
+    for i=1:length(imgArray)
+        # check that images have same dims, format and channels
+        if (i > 1)
+            (cvtypeval(imgArray[i]) != cvtypeval(imgArray[i-1]) ||
+             rows(imgArray[i]) != rows(imgArray[i-1]) ||
+             cols(imgArray[i]) != cols(imgArray[i-1])) ?
+          throw(ArgumentError("Images must have same dimensions and format")): nothing
+        end
+        push(canvas, imgArray[i])
+    end
+
+    imdisplay(canvas, windowName, flag, delay, key)
+end

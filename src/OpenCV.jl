@@ -1,7 +1,7 @@
 ################################################################################################
 # OpenCV.jl
 #
-# Julia interface for OpenCV (C++)
+# The OpenCV interface (C++) for Julia
 #
 # If OpenCV is already installed in your computer, or you wish to use different libraries,
 # change the library and header paths to your local directories, e.g.,
@@ -10,7 +10,6 @@
 #
 # To add more libraries, make sure to add the name to "opencv_libraries" in /src/OpenCV_libs.jl
 #
-# 2014, Maximiliano Suster
 #################################################################################################
 
 using Cxx
@@ -33,13 +32,13 @@ output = readall(so)
 close(so)
 
 path = match(Regex("/usr/local/lib/"), output)
-path != nothing ? println("Found a local OpenCV installation in $(path.match) . . .") : nothing
+path != nothing ? println("Found a local OpenCV installation in $(path.match).") : nothing
 
 found = false
 for i in opencv_libraries
     libfinder = match(Regex("$(i[1:end-6])"), output)
     if  libfinder != nothing
-        println("$(libfinder.match) is installed")
+        # println("$(libfinder.match) is installed")  # for debugging
         found = true
     else
         println("$(i) is not installed")
@@ -65,8 +64,8 @@ for i in opencv_libraries
 end
 
 # Now include C++ header files
-addHeaderDir(joinpath(cvheaderdir,"opencv2"), kind = C_System)
-addHeaderDir(joinpath(cvheaderdir,"opencv2/core"), kind = C_System)
+addHeaderDir(joinpath(cvheaderdir,"opencv2"), kind = C_System )
+addHeaderDir(joinpath(cvheaderdir,"opencv2/core"), kind = C_System )
 cxxinclude(joinpath(cvheaderdir,"opencv2/opencv.hpp"))
 
     # => opencv.hpp calls all the main headers
@@ -87,19 +86,24 @@ cxxinclude(joinpath(cvheaderdir,"opencv2/stitching.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/superres.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/videostab.hpp"))
 
-# Load frequently used headers
+# Load common headers
 cxx"""
-#include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <cfloat>
-#include <vector>
+ #include <iostream>
+ #include <cstdlib>
+ #include <cstdio>
+ #include <cstddef>
+ #include <cfloat>
+ #include <vector>
+ #include <ctime>
 """
+
+# Load Qt framework
+include(joinpath(Pkg.dir("OpenCV"), "./deps/Qt_support.jl"))
 
 # Load header constants and typedefs
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_hpp.jl"))
 
-# Load CXX bindings
+# Load OpenCV bindings
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_modules.jl"))
 
 # Load custom utility functions

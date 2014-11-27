@@ -1,5 +1,5 @@
 
-## Image contour detection 
+## Contour detection
 * [Interactive detection of edges](http://www.andrew-seaford.co.uk/image-contour-detection-display-opencv/)
 
 

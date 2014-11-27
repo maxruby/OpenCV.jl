@@ -178,7 +178,7 @@ bilateralFilter(src, dst, d::Int, sigmaColor::Float64, sigmaSpace::Float64, bord
 # Parameters:
 # src – input image; it can have any number of channels, which are processed independently, but the depth should be CV_8U, CV_16U, CV_16S, CV_32F or CV_64F.
 # dst – output image of the same size and type as src.
-# ksize – blurring kernel size.
+# ksize – blurring kernel size. (cv::Size)
 # anchor – anchor point; default value Point(-1,-1) means that the anchor is at the kernel center.
 # borderType – border mode used to extrapolate pixels outside of the image
 
@@ -279,7 +279,7 @@ filter2D(src, dst, ddepth, kernel, anchor=cvPoint(-1,-1), delta=float(0), border
 #              computed from ksize.width and ksize.height
 # borderType – pixel extrapolation method (see borderInterpolate for details
 
-gaussianBlur(src, dst, ksize, sigmaX, sigmaY, borderType=BORDER_DEFAULT) = @cxx cv::GaussianBlur(src, dst, ksize, sigmaX, sigmaY, borderType)
+gaussianBlur(src, dst, ksize, sigmaX=10.0, sigmaY=float(0), borderType=BORDER_DEFAULT) = @cxx cv::GaussianBlur(src, dst, ksize, sigmaX, sigmaY, borderType)
 
 # Return filter coefficients for computing spatial image derivatives
 # void getDerivKernels(OutputArray kx, OutputArray ky, int dx, int dy, int ksize, bool normalize=false, int ktype=CV_32F )
@@ -357,7 +357,7 @@ morphologyEx(src, dst, op::Int, kernel, anchor=cvPoint(-1,-1), iterations=1, bor
 # borderValue  – Border value in case of a constant border
 
 # Laplacian of an image
-laplacian(src, dst, ddepth::Int, ksize=1, scale=1.0, delta=float(0), borderType=BORDER_DEFAULT) =
+laplacian(src, dst, ddepth::Int, ksize=5, scale=1.0, delta=float(0), borderType=BORDER_DEFAULT) =
     @cxx cv::Laplacian(src, dst, ddepth, ksize, scale, delta, borderType)
 
 # Blur image and then downsample
@@ -550,8 +550,8 @@ integral(src, sum, sqsum, sdepth=-1, sqdepth=-1) = @cxx cv::integral(src, sum, s
 # sqdepth – depth of the integral image of squared pixel values, CV_32F or CV_64F
 
 # Apply a fixed-level threshold to each array element
-threshold(src, dst, thresh::Float64, maxval::Float64, ttype::Int) =
-    @cxx cv::threshold(src, dst, thresh, maxval, ttype)
+threshold(src, dst, thresh, maxval, ttype::Int) =
+    @cxx cv::threshold(src, dst, float(thresh), float(maxval), ttype)
 # src     – input array (single-channel, 8-bit or 32-bit floating point)
 # dst     – output array
 # thresh  – threshold value

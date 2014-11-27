@@ -114,20 +114,6 @@
 # //After changing
 # cv::imshow("After",img);
 
-
-# Templated functions
-cxx"""
-      #include<iostream>
-      #include<vector>
-
-      template<typename T>
-
-      void PrintmyTemplate(const T var) {
-           std::cout << "Templated function:\n" << std::endl;
-           std::cout << var << std::endl;
-      }
-"""
-
 # See:
 # http://bytefish.de/blog/opencv/code_snippets/
 
@@ -317,5 +303,3 @@ cxx"""
           return((_wT) iter);
       }
 """
-
-# Mat::forEach

@@ -17,7 +17,7 @@ imencode(ext, img, buf) = @cxx cv::imencode(ext, img, buf)
 # params – Format-specific parameters. See imwrite()   => const vector<int>&, default = vector<int>()
 
 # imread: Read images from file
-imread(filename::Ptr{Uint8}, flags=IMREAD_COLOR) = @cxx cv::imread(filename, flags)
+imread(filename::String, flags=IMREAD_UNCHANGED) = @cxx cv::imread(pointer(filename), flags)
 # IMREAD_UNCHANGED  # 8bit, color or not
 # IMREAD_GRAYSCALE  # 8bit, gray
 # IMREAD_COLOR      # ?, color
@@ -25,8 +25,12 @@ imread(filename::Ptr{Uint8}, flags=IMREAD_COLOR) = @cxx cv::imread(filename, fla
 # IMREAD_ANYCOLOR   # ?, any color
 # IMREAD_LOAD_GDAL
 
+# customized imread with QFileDialog::getOpenFileName
+imread(filename = getOpenFileName(), flags=IMREAD_UNCHANGED) = @cxx cv::imread(pointer(filename), flags)
+# invoke with imread()
+
 # imwrite: Saves an image to a specified file
-imwrite(filename::Ptr{Uint8}, img) = @cxx cv::imwrite(filename, img)
+imwrite(filename::String, img) = @cxx cv::imwrite(pointer(filename), img)
 # optional: const vector<int>& params=vector<int>()
 # filename – Name of the file
 # image    – Image to be saved
@@ -35,3 +39,6 @@ imwrite(filename::Ptr{Uint8}, img) = @cxx cv::imwrite(filename, img)
 # IMWRITE_WEBP_QUALITY      Default value is 100 {1,100}
 # IMWRITE_PNG_COMPRESSION   Default value is 3 {0,9}
 # IMWRITE_PXM_BINARY        Default value is 1 {0,1}
+
+# customized imread with QFileDialog::getOpenFileName
+imwrite(img, filename = getSaveFileName()) = @cxx cv::imwrite(pointer(filename), img)

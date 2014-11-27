@@ -200,12 +200,12 @@
 # Point
 cvPoint(x, y) = @cxx cv::Point(x,y)
 cvPoint2f(x, y) = @cxx cv::Point2f(float32(x),float32(y))
-cvPoint2d(x::Float64, y::Float64) = @cxx cv::Point2d(x,y)
+cvPoint2d(x, y) = @cxx cv::Point2d(float(x),float(y))
 # cvPoint3(x, y, z) = @cxx cv::Point3(x,y,z)
 
 # Size
 cvSize(width, height) = @cxx cv::Size(width,height)
-cvSize2f(width, height) = @cxx cv::Size(float32(width),float32(height))
+cvSize2f(width, height) = @cxx cv::Size2f(width,height)
 
 # Scalar
 cvScalar(blue::Int, green::Int, red::Int) = @cxx cv::Scalar(blue,green,red)
@@ -224,9 +224,9 @@ cvRotatedRect(center, size, angle::Float32) = @cxx cv::RotatedRect(center, size,
 # const point1 = cvPoint2f(x,y), const point2 = cvPoint2f(x,y), const point3 = cvPoint2f(x,y)
 cvRotatedRect(point1, point2, point3) = @cxx cv::RotatedRect(point1, point2, point3)
 # arrpts(x,y) = [cvPoint2f(x,y)]
-cvRotatedRectPoints(arrpts) = @cxx rRect.points(arrpts)
+cvRotatedRectPoints(arrpts) = @cxx rRect->points(arrpts)
 # rRect = cvRotatedRect(pts, size, angle)
-cvRotatedRectBoundingRect(rRect) = @cxx rRect.boundingRect()
+cvRotatedRectBoundingRect(rRect) = @cxx rRect->boundingRect()
 
 #TermCriteria
 TermCriteria() = @cxx cv::TermCriteria::TermCriteria()
@@ -293,9 +293,11 @@ Mat() = @cxx cv::Mat()
 Mat(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat(rows, cols, matType)
 
 # Mat::Mat(Size size, int type)
+#cxx""" cv::Mat Mat(int rows, int cols, int matType){ cv::Mat img(cv::Size(rows,cols), matType); return(img); }"""
 Mat(size, matType::CV_MatType) = @cxx cv::Mat(size, matType)
 
 # Mat::Mat(int rows, int cols, int type, const Scalar& s)
+#cxx""" cv::Mat Mat(int rows, int cols, int matType){ cv::Mat img(cv::Size(rows,cols), matType); return(img); }"""
 Mat(rows::Int, cols::Int, matType::CV_MatType, s) = @cxx cv::Mat(rows, cols, matType, s)
 
 # Mat::Mat(Size size, int type, const Scalar& s)
@@ -328,8 +330,8 @@ cxx""" cv::Mat substract(cv::Mat img1, cv::Mat img2) { return(img1 - img2); } ""
 imsubstract(img1, img2) = @cxx substract(img1, img2)
 
 # multiply
-cxx""" cv::Mat multiply(cv::Mat img1, cv::Mat img2) { return(img1 * img2); } """
-immultiply(img1, img2) = @cxx multiply(img1, img2)
+# cxx""" cv::Mat multiply(cv::Mat img1, cv::Mat img2) { return(img1 * img2); } """
+# immultiply(img1, img2) = @cxx multiply(img1, img2)
 
 # Mat::scale
 # cxx""" cv::Mat scale(cv::Mat img, cv::Scalar alpha) { return(img * alpha); } """
@@ -376,26 +378,18 @@ clone(img) = @cxx clone(img)
 
 # Mat::copyTo
 cxx""" void copyTo(cv::Mat img, cv::Mat copy) { img.copyTo(copy); } """
-copy(img, copy) = @cxx copy(img, copy)
-copy(mask, copy) = @cxx copy(mask, copy)
+copy(img, copi) = @cxx copy(img, copi)
+copy(mask, copi) = @cxx copy(mask, copi)
 
 # Mat::convertTo
-# cxx"""
-#     void convertTo(cv::Mat img, cv::Mat m, int rtype, double alpha=1, double beta=0) {
-#         // m – output matrix
-#         // rtype - depth, rtype < 0 output = input type
-#         // alpha – optional scale factor.
-#         // beta – optional delta added to the scaled values.
-#         img.covertTo(m, rtype, alpha, beta);
-#     }
-# """
-#convertTo(img, m, rtype, double, beta) = @cxx convertTo(img, m, rtype, double, beta)
-# Mat::convertTo
+# rtype - depth, rtype < 0 output = input type
+# alpha – optional scale factor.
+# beta – optional delta added to the scaled values.
 convert(img1, img2, rtype::Int, alpha=1, beta=0) = @cxx img1->convertTo(img2, rtype, alpha, beta)
 
 # Mat::assignTo
-cxx""" void  assignTo(cv::Mat img, cv::Mat& m, int type=-1) { img.assignTo(m, type); } """
-assignTo(img, m, rtype) = @cxx assignTo(img, m, rtype)
+cxx""" void  assignTo(cv::Mat img, cv::Mat& m, int type) { img.assignTo(m, type); } """
+assignTo(img, m, rtype=-1) = @cxx assignTo(img, m, rtype)
 
 # Mat::setTo
 # value(cvScalar), mask (same size as img)
@@ -403,7 +397,7 @@ set(img, value) = @cxx img->setTo(value)
 
 # Mat::reshape
 # rows = 0 (no change)
-cxx""" cv::Mat reshape(cv::Mat img, int cn, int rows=0) { return(img.reshape(cn, rows)); } """
+cxx""" cv::Mat reshape(cv::Mat img, int cn, int rows) { return(img.reshape(cn, rows)); } """
 reshape(img, ch::Int, rows=0) = @cxx reshape(img, ch, rows)
 
 # Mat::t() (transpose)
@@ -411,12 +405,12 @@ cxx""" cv::Mat transpose(cv::Mat img, double lambda) { return(img.t()*lambda); }
 transpose(img, lambda) = @cxx transpose(img, lambda)
 
 # Mat::inv (invert)
-cxx""" cv::Mat inv(cv::Mat img, int method= cv::DECOMP_LU) { return(img.inv(method)); } """
+cxx""" cv::Mat inv(cv::Mat img, int method) { return(img.inv(method)); } """
 inv(img, method=DECOMP_LU) = @cxx inv(img, method)
 
 # Mat::mul (mutiply)
-cxx""" cv::Mat mul(cv::Mat img, double scale=1) { return(img.mul(scale)); } """
-mul(img, scale=1) = @cxx inv(img, scale)
+cxx""" cv::Mat mul(cv::Mat img, double scale) { return(img.mul(scale)); } """
+mul(img, scale=1) = @cxx mul(img, scale)
 
 # Mat::cross (cross-product of 2 Vec<float,3>)
 cxx""" cv::Mat cross(cv::Mat img, cv::Mat m) { return(img.cross(m)); } """
@@ -434,19 +428,21 @@ dot(img, m) = @cxx dot(img, m)
 # sz    –> Array of integers specifying the array shape.
 # type  –> Created matrix type.
 
-zeros(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat::zeros(rows, cols, matType)
-zeros(size, matType::CV_MatType) = @cxx cv::Mat::zeros(size, matType)
-zeros(ndims::Int, sz::Ptr{Int}, matType::CV_MatType) = @cxx cv::Mat::zeros(ndims, sz, matType)
+cxx""" cv::Mat zerosM(int rows, int cols, int matType) {cv::Mat A = cv::Mat::zeros(rows, cols, matType); return (A); }"""
+cxx""" cv::Mat zerosM(cv::Size size, int matType) {cv::Mat A = cv::Mat::zeros(size, matType); return (A); }"""
+cxx""" cv::Mat zerosM(int ndims, int* sz, int matType) {cv::Mat A = cv::Mat::zeros(ndims, sz, matType); return (A); }"""
+zerosM(rows::Int, cols::Int, matType::CV_MatType) = @cxx zerosM(rows, cols, matType)
+zerosM(size, matType::CV_MatType) = @cxx zerosM(size, matType)
+zerosM(ndims::Int, sz::Ptr{Int32}, matType::CV_MatType) = @cxx zerosM(ndims, sz, matType)
 
 # Mat::ones()
 ones(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat::ones(rows, cols, matType)
 ones(size, matType::CV_MatType) = @cxx cv::Mat::ones(size, matType)
-ones(ndims::Int, sz::Ptr{Int}, matType::CV_MatType) = @cxx cv::Mat::ones(ndims, sz, matType)
+ones(ndims::Int, sz::Ptr{Int32}, matType::CV_MatType) = @cxx cv::Mat::ones(ndims, sz, matType)
 
 # Mat::eye()
 eye(rows::Int, cols::Int, matType::CV_MatType) = @cxx cv::Mat::eye(rows, cols, matType)
 eye(size, matType::CV_MatType) = @cxx cv::Mat::eye(size, matType)
-eye(ndims::Int, sz::Ptr{Int}, matType::CV_MatType) = @cxx cv::Mat::eye(ndims, sz, matType)
 
 # Mat::addref
 addref(img) = @cxx img->addref()
@@ -455,18 +451,15 @@ addref(img) = @cxx img->addref()
 destroy(img) = @cxx img->release()
 
 # Mat::resize
-# sz – new n rows,  s – value added
-# const s = cvScalar()
-# void Mat::resize(size_t sz)
-# void Mat::resize(size_t sz, const Scalar& s)
-resize(img, sz::Csize_t) = @cxx img->resize(sz)         # resize by a factor (Uint64)
-resize(img, sz::Csize_t, s) = @cxx img->resize(sz, s)   # resize by vector s
+resize(img, sz) = @cxx img->resize(csize_t(sz))         # sz – new n rows (Uint64), s = cvScalar()
+resize(img, sz, s) = @cxx img->resize(csize_t(sz), s)
 
 # Mat::reserve
-# void Mat::reserve(size_t sz)
-reserve(img,sz::Csize_t) = @cxx img->reserve(sz)
+# Reserves space for the certain number of rows
+reserve(img,sz) = @cxx img->reserve(csize_t(sz))
 
 # Mat::push_back
+# Adds elements to the bottom of the matrix:
 # const Mat& m, const T& elem
 push(img, m) = @cxx img->push_back(m)
 push(img, elem) = @cxx img->push_back(elem)
@@ -513,130 +506,64 @@ cxx""" int cvtype(cv::Mat img) { return(img.type()); } """
 cvtypeval(img) = @cxx cvtype(img)
 cvtypelabel(img) = findlabel(int(cvtypeval(img)))
 
-# Mat::at  => get and set functions
+
+# SparseMat: multi-dimensional sparse numerical arrays
 # Parameters:
-# i – Index along the dimension 0
-# j – Index along the dimension 1
-# k – Index along the dimension 2
-# pt – Element position specified as Point(j,i)
-# idx – Array of Mat::dims indices
+# m – Source matrix for copy constructor
+#    If m is dense matrix (ocv:class:Mat) -> sparse representation
+# dims – Array dimensionality
+# _sizes – Sparce matrix size on all dementions, i.e.,  const int*
+# _type – Sparse matrix data type, i.e., const SparseMat&
 
-cxx"""
-template <typename _Tp>
+SparseMat() = @cxx cv::SparseMat()
+SparseMat(dims::Int, _sizes::Ptr{Int32}, _type::Int) = @cxx cv::SparseMat::SparseMat(dims, _sizes, _type)
+SparseMat(sparseM) = @cxx cv::SparseMat::SparseMat(sparseM)
+SparseMat(M) = @cxx cv::SparseMat::SparseMat(M)
 
-_Tp get(const cv::Mat_<_Tp>& mat, int row, int col) {
-    typedef typename cv::DataType<_Tp>::work_type _wTp;
+# # addition
+# cxx""" cv::SparseMat addSparse(cv::SparseMat img1, cv::SparseMat img2) { return(img1 + img2); } """
+# addSparse(sparseM1, sparseM2) = @cxx addSparse(sparseM1, sparseM2)
 
-    CV_Assert(mat.dims>1);
-    CV_Assert(mat.dims<4);
-    CV_Assert(mat.dims!=2);
+# # substract
+# cxx""" cv::SparseMat substractSparse(cv::SparseMat img1, cv::SparseMat img2) { return(img1 - img2); } """
+# substractSparse(sparseM1, sparseM2) = @cxx substractSparse(sparseM1, sparseM2)
 
-    if (mat.dims==1)
-    {
-        return((_wTp) mat.template at<_Tp>(row,col));
-    }
-    if(mat.dims==3)
-    {
-        cv::Vec<_Tp,3> cvec;
-        cvec[0] = mat.template at<cv::Vec<_Tp,3>>(row,col)[0];
-        cvec[1] = mat.template at<cv::Vec<_Tp,3>>(row,col)[1];
-        cvec[2] = mat.template at<cv::Vec<_Tp,3>>(row,col)[2];
-        return((_wTp) cvec);
-    }
-}
+# cxx""" cv::SparseMat multiplySparse(cv::SparseMat img1, cv::SparseMat img2) { return(img1 * img2); } """
+# multiplySparse(sparseM1, sparseM2) = @cxx multiplySparse(sparseM1, sparseM2)
 
-template <typename _Rs>
-_Rs imget(cv::Mat img, int row, int col) {
- typedef typename cv::DataType<_Rs>::work_type _wRs;
+# # clone
+# cxx""" cv::SparseMat cloneSparse(cv::SparseMat img) { return(img.clone()); } """
+# cloneSparse(SparseM) = @cxx cloneSparse(SparseM)
 
-    CV_Assert(img.dims>1);
-    CV_Assert(img.dims<4);
-    CV_Assert(img.dims!=2);
+# # SparseMat::copyTo
+# cxx""" void copyToSparse(cv::SparseMat img, cv::SparseMat copy) { img.copyTo(copy); } """
+# cxx""" void copyToSparse(cv::SparseMat img, cv::Mat copy) { img.copyTo(copy); } """
+# copySparse(SparseM, copy) = @cxx copySparse(SparseM, copy)
+# copySparse(M, copy) = @cxx copySparse(M, copy)
 
-    //  if (!(img.dims==1) | !(img.dims==3)) {
-    //    std::cout << "Argument error: only images with 1 and 3 dimensions are supported." << std::endl
-    //  }
+# # SparseMat::convertTo
+# convertSparse(sparseM1, sparseM2, rtype::Int, alpha=1, beta=0) = @cxx img1->convertToSparse(sparseM1, sparseM2, rtype, alpha, beta)
+# SparseToMat(sparseM, M, rtype::Int, alpha=1, beta=0) = @cxx img1->SparseToMat(sparseM, M, rtype, alpha, beta)
 
- //   switch(img.type()) {
-       // if(img.type()==CV_8SC1) {
-        // case CV_8SC1:
-        cv::Mat_<char>dst(img.rows, img.cols,img.type()); // break;
- //     case CV_8UC1:  cv::Mat_<uchar>dst(img.rows, img.cols,img.type()); break;
- //     case CV_16SC1: cv::Mat_<short>dst(img.rows, img.cols,img.type()); break;
- //     case CV_16UC1: cv::Mat_<unsigned short>dst(img.rows, img.cols,img.type()); break;
- //     case CV_32SC1: cv::Mat_<int>dst(img.rows, img.cols,img.type()); break;
- //     case CV_32FC1: cv::Mat_<float>dst(img.rows, img.cols,img.type()); break;
- //     case CV_64FC1: cv::Mat_<double>dst(img.rows, img.cols,img.type()); break;
- //     case CV_8SC3:  cv::Mat_<cv::Vec<char,3>>dst(img.rows, img.cols,img.type()); break;
- //     case CV_8UC3:  cv::Mat_<cv::Vec3b>dst(img.rows, img.cols,img.type()); break;
- //     case CV_16SC3: cv::Mat_<cv::Vec3s>dst(img.rows, img.cols,img.type()); break;
- //     case CV_16UC3: cv::Mat_<cv::Vec<unsigned short,3>>dst(img.rows, img.cols,img.type()); break;
- //     case CV_32SC3: cv::Mat_<cv::Vec3i>dst(img.rows, img.cols,img.type()); break;
- //     case CV_32FC3: cv::Mat_<cv::Vec3f>dst(img.rows, img.cols,img.type()); break;
- //     case CV_64FC3: cv::Mat_<cv::Vec3d>dst(img.rows, img.cols,img.type()); break;
-    // }
+# # SparseMat::create
+# createSparse(sparseM) = @cxx sparseM->create(dims, _sizes, _type)
 
-    img.assignTo(dst,img.type());
-    return((_wRs) get(dst, row, col));
-}
-"""
+# # SparseMat::clear
+# clearSparse(sparseM) = @cxx sparseM->clear()
+# addrefSparse(sparseM) = @cxx sparseM->addref()
+# destroySparse(sparseM) = @cxx sparseM->release()  # ~SparseMat()
+# elemSizeSparse(sparseM) = @cxx sparseM->elemSize()
+# elemSize1Sparse(sparseM) = @cxx sparseM->elemSize1()
 
-cxx"""
-template <typename _Tp>
+# cxx""" int typeSparse(cv::SparseMat img) { return(img.type()); } """
+# typeSparse(sparseM) = @cxx typeSparse(sparseM)
+# typeSparselabel(sparseM) = findlabel(int(typeSparse(sparseM)))
+# depthSparse(sparseM) = @cxx sparseM->depth()
 
-void set(const cv::Mat_<_Tp>& mat, int row, int col, cv::Vec<_Tp,3> cvec) {
+# cxx""" int channelsSparse(cv::SparseMat img) { return(img.channels()); } """
+# channelsSparse(sparseM) = @cxx channelsSparse(sparseM)                           # number of matrix channels
 
-    CV_Assert(mat.dims>1);
-    CV_Assert(mat.dims<4);
-    CV_Assert(mat.dims!=2);
 
-    if (mat.dims==1)
-    {
-         mat.template at<_Tp>(row,col) = cvec[0];
-    }
-    if(mat.dims==3)
-    {
-         mat.template at<cv::Vec<_Tp,3>>(row,col)[0] = cvec[0];
-         mat.template at<cv::Vec<_Tp,3>>(row,col)[0] = cvec[1];
-         mat.template at<cv::Vec<_Tp,3>>(row,col)[0] = cvec[2];
-    }
-}
-
-template <typename _Rs>
-void imset(cv::Mat img, int row, int col, cv::Vec<_Rs,3> cvec) {
-
-    CV_Assert(img.dims>1);
-    CV_Assert(img.dims<4);
-    CV_Assert(img.dims!=2);
-
-   // if (!(img.dims==1) | !(img.dims==3)) {
-   //    std::cout << "Argument error: only images with 1 and 3 dimensions are supported." << std::endl;
-   //
-   //  }
-
- //   switch(img.type()) {
-    //   if(img.type()==CV_8SC1) {
-        // case CV_8SC1:
-        cv::Mat_<char>dst(img.rows, img.cols,img.type()); // break;
- //     case CV_8UC1:  cv::Mat_<uchar>dst(img.rows, img.cols,img.type()); break;
- //     case CV_16SC1: cv::Mat_<short>dst(img.rows, img.cols,img.type()); break;
- //     case CV_16UC1: cv::Mat_<unsigned short>dst(img.rows, img.cols,img.type()); break;
- //     case CV_32SC1: cv::Mat_<int>dst(img.rows, img.cols,img.type()); break;
- //     case CV_32FC1: cv::Mat_<float>dst(img.rows, img.cols,img.type()); break;
- //     case CV_64FC1: cv::Mat_<double>dst(img.rows, img.cols,img.type()); break;
- //     case CV_8SC3:  cv::Mat_<cv::Vec<char,3>>dst(img.rows, img.cols,img.type()); break;
- //     case CV_8UC3:  cv::Mat_<cv::Vec3b>dst(img.rows, img.cols,img.type()); break;
- //     case CV_16SC3: cv::Mat_<cv::Vec3s>dst(img.rows, img.cols,img.type()); break;
- //     case CV_16UC3: cv::Mat_<cv::Vec<unsigned short,3>>dst(img.rows, img.cols,img.type()); break;
- //     case CV_32SC3: cv::Mat_<cv::Vec3i>dst(img.rows, img.cols,img.type()); break;
- //     case CV_32FC3: cv::Mat_<cv::Vec3f>dst(img.rows, img.cols,img.type()); break;
- //     case CV_64FC3: cv::Mat_<cv::Vec3d>dst(img.rows, img.cols,img.type()); break;
-  //   }
-
-    img.assignTo(dst,img.type());
-    set(dst, row, col, cvec);
-}
-"""
 #-------------------------------------------------------------------------------------------------------------------#
 # 2. Operations on Arrays
 
