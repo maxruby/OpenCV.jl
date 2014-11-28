@@ -23,5 +23,5 @@ end
 println("\nSelect and run the demo at the julia prompt: \n","e.g., run_demo(N)\n")
 
 function run_demo(i::Int)
-    include(joinpath(Pkg.dir("OpenCV"), string("./test/demo",i,"_",demos[i],".jl")))
+    include(joinpath(Pkg.dir("OpenCV"), string("./test/cxx/demo",i,"_",demos[i],".jl")))
 end

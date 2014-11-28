@@ -9,13 +9,13 @@ cxx""" cv::VideoCapture VideoCapture(){ cv::VideoCapture capture = cv::VideoCapt
 videoCapture() = @cxx VideoCapture()
 
 cxx""" cv::VideoCapture VideoCapture(const char *filename){ cv::VideoCapture capture = cv::VideoCapture(filename); return(capture); }"""
-videoCapture(filename::Ptr{Uint8}) = @cxx VideoCapture(filename)
+videoCapture(filename::String) = @cxx VideoCapture(pointer(filename))
 
 cxx""" cv::VideoCapture VideoCapture(int device){ cv::VideoCapture capture = cv::VideoCapture(device); return(capture); }"""
 videoCapture(device::Int) = @cxx VideoCapture(device)   # autodetect = 0
 
 # Functions for opening capture and grabbing frames
-openVideo(capture,filename::Ptr{Uint8}) = @cxx capture->open(filename)
+openVideo(capture,filename::String) = @cxx capture->open(pointer(filename))
 openVideo(capture, device::Int) = @cxx capture->open(device)
 isOpened(capture) = @cxx capture->isOpened()
 
@@ -62,8 +62,8 @@ videoWriter() = @cxx VideoWriter()
 
 cxx""" cv::VideoWriter VideoWriter(const char *filename, int fourcc, double fps, cv::Size frameSize,
     bool isColor=true){ cv::VideoWriter writer(filename, fourcc, fps, frameSize, isColor); return(writer); }"""
-videoWriter(filename::Ptr{Uint8}, fourcc::Int, fps::Float64, frameSize, isColor=true) =
-    @cxx VideoWriter(filename, fourcc, fps, frameSize, isColor)
+videoWriter(filename::String, fourcc::Int, fps::Float64, frameSize, isColor=true) =
+    @cxx VideoWriter(pointer(filename), fourcc, fps, frameSize, isColor)
 # Parameters
 # filename  – Name of the output video file.
 # fourcc    – Fourcc codec, e.g., fourcc('M','J','P','G')
@@ -71,8 +71,8 @@ videoWriter(filename::Ptr{Uint8}, fourcc::Int, fps::Float64, frameSize, isColor=
 # frameSize – Size of the video frames
 # isColor   –  only supported for Windows
 
-openWriter(filename::Ptr{Uint8}, fourcc::Int, fps::Float64, frameSize, isColor=true) =
-    @cxx writer->open(filename, fourcc, fps, frameSize, isColor)
+openWriter(writer, filename::String, fourcc::Int, fps::Float64, frameSize, isColor=true) =
+    @cxx writer->open(pointer(filename), fourcc, fps, frameSize, isColor)
 
 isOpened(writer) = @cxx writer->isOpened()
 
@@ -94,6 +94,11 @@ fcc = CV_FOURCC_MPEG # const Array(Ptr{Uint8}, 4)
 # CV_FOURCC_MPEG  #for MPEG-1 codec
 
 # Get int for the FourCC codec code
-fourcc(writer, fcc::Array) = @cxx writer->fourcc(fcc[1], fcc[2], fcc[3], fcc[4])
+cxx""" int fourcc(const char *cc1, const char *cc2, const char *cc3, const char *cc4) {
+           int code = cv::VideoWriter::fourcc (*cc1, *cc2, *cc3, *cc4);
+           return(code);
+   }
+"""
 
+fourcc(fcc::Array) = @cxx fourcc(fcc[1],fcc[2], fcc[3], fcc[4])
 

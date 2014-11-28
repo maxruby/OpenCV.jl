@@ -329,14 +329,6 @@ imadd(img1, img2) = @cxx add(img1, img2)
 cxx""" cv::Mat substract(cv::Mat img1, cv::Mat img2) { return(img1 - img2); } """
 imsubstract(img1, img2) = @cxx substract(img1, img2)
 
-# multiply
-# cxx""" cv::Mat multiply(cv::Mat img1, cv::Mat img2) { return(img1 * img2); } """
-# immultiply(img1, img2) = @cxx multiply(img1, img2)
-
-# Mat::scale
-# cxx""" cv::Mat scale(cv::Mat img, cv::Scalar alpha) { return(img * alpha); } """
-# scale(img, alpha) = @cxx scale(img, alpha)
-
 # Mat::row
 cxx""" cv::Mat row(cv::Mat img, int y) { return(img.row(y)); } """
 row(img, x::Int) = @cxx row(img, x)
@@ -408,7 +400,7 @@ transpose(img, lambda) = @cxx transpose(img, lambda)
 cxx""" cv::Mat inv(cv::Mat img, int method) { return(img.inv(method)); } """
 inv(img, method=DECOMP_LU) = @cxx inv(img, method)
 
-# Mat::mul (mutiply)
+# Mat::mul (mutiply)   # element-wise only
 cxx""" cv::Mat mul(cv::Mat img, double scale) { return(img.mul(scale)); } """
 mul(img, scale=1) = @cxx mul(img, scale)
 
@@ -520,49 +512,37 @@ SparseMat(dims::Int, _sizes::Ptr{Int32}, _type::Int) = @cxx cv::SparseMat::Spars
 SparseMat(sparseM) = @cxx cv::SparseMat::SparseMat(sparseM)
 SparseMat(M) = @cxx cv::SparseMat::SparseMat(M)
 
-# # addition
-# cxx""" cv::SparseMat addSparse(cv::SparseMat img1, cv::SparseMat img2) { return(img1 + img2); } """
-# addSparse(sparseM1, sparseM2) = @cxx addSparse(sparseM1, sparseM2)
+# clone
+cxx""" cv::SparseMat cloneSparse(cv::SparseMat img) { return(img.clone()); } """
+cloneSparse(SparseM) = @cxx cloneSparse(SparseM)
 
-# # substract
-# cxx""" cv::SparseMat substractSparse(cv::SparseMat img1, cv::SparseMat img2) { return(img1 - img2); } """
-# substractSparse(sparseM1, sparseM2) = @cxx substractSparse(sparseM1, sparseM2)
+# SparseMat::copyTo
+cxx""" void copyToSparse(cv::SparseMat img, cv::SparseMat copy) { img.copyTo(copy); } """
+cxx""" void copyToSparse(cv::SparseMat img, cv::Mat copy) { img.copyTo(copy); } """
+copySparse(SparseM, copy) = @cxx copySparse(SparseM, copy)
+copySparse(M, copy) = @cxx copySparse(M, copy)
 
-# cxx""" cv::SparseMat multiplySparse(cv::SparseMat img1, cv::SparseMat img2) { return(img1 * img2); } """
-# multiplySparse(sparseM1, sparseM2) = @cxx multiplySparse(sparseM1, sparseM2)
+# SparseMat::convertTo
+convertSparse(sparseM1, sparseM2, rtype::Int, alpha=1, beta=0) = @cxx img1->convertToSparse(sparseM1, sparseM2, rtype, alpha, beta)
+SparseToMat(sparseM, M, rtype::Int, alpha=1, beta=0) = @cxx img1->SparseToMat(sparseM, M, rtype, alpha, beta)
 
-# # clone
-# cxx""" cv::SparseMat cloneSparse(cv::SparseMat img) { return(img.clone()); } """
-# cloneSparse(SparseM) = @cxx cloneSparse(SparseM)
+# SparseMat::create
+createSparse(sparseM) = @cxx sparseM->create(dims, _sizes, _type)
 
-# # SparseMat::copyTo
-# cxx""" void copyToSparse(cv::SparseMat img, cv::SparseMat copy) { img.copyTo(copy); } """
-# cxx""" void copyToSparse(cv::SparseMat img, cv::Mat copy) { img.copyTo(copy); } """
-# copySparse(SparseM, copy) = @cxx copySparse(SparseM, copy)
-# copySparse(M, copy) = @cxx copySparse(M, copy)
+# SparseMat::clear
+clearSparse(sparseM) = @cxx sparseM->clear()
+addrefSparse(sparseM) = @cxx sparseM->addref()
+destroySparse(sparseM) = @cxx sparseM->release()              # ~SparseMat()
+elemSizeSparse(sparseM) = @cxx sparseM->elemSize()
+elemSize1Sparse(sparseM) = @cxx sparseM->elemSize1()
 
-# # SparseMat::convertTo
-# convertSparse(sparseM1, sparseM2, rtype::Int, alpha=1, beta=0) = @cxx img1->convertToSparse(sparseM1, sparseM2, rtype, alpha, beta)
-# SparseToMat(sparseM, M, rtype::Int, alpha=1, beta=0) = @cxx img1->SparseToMat(sparseM, M, rtype, alpha, beta)
+cxx""" int typeSparse(cv::SparseMat img) { return(img.type()); } """
+typeSparse(sparseM) = @cxx typeSparse(sparseM)
+typeSparselabel(sparseM) = findlabel(int(typeSparse(sparseM)))
+depthSparse(sparseM) = @cxx sparseM->depth()
 
-# # SparseMat::create
-# createSparse(sparseM) = @cxx sparseM->create(dims, _sizes, _type)
-
-# # SparseMat::clear
-# clearSparse(sparseM) = @cxx sparseM->clear()
-# addrefSparse(sparseM) = @cxx sparseM->addref()
-# destroySparse(sparseM) = @cxx sparseM->release()  # ~SparseMat()
-# elemSizeSparse(sparseM) = @cxx sparseM->elemSize()
-# elemSize1Sparse(sparseM) = @cxx sparseM->elemSize1()
-
-# cxx""" int typeSparse(cv::SparseMat img) { return(img.type()); } """
-# typeSparse(sparseM) = @cxx typeSparse(sparseM)
-# typeSparselabel(sparseM) = findlabel(int(typeSparse(sparseM)))
-# depthSparse(sparseM) = @cxx sparseM->depth()
-
-# cxx""" int channelsSparse(cv::SparseMat img) { return(img.channels()); } """
-# channelsSparse(sparseM) = @cxx channelsSparse(sparseM)                           # number of matrix channels
-
+cxx""" int channelsSparse(cv::SparseMat img) { return(img.channels()); } """
+channelsSparse(sparseM) = @cxx channelsSparse(sparseM)         # number of matrix channels
 
 #-------------------------------------------------------------------------------------------------------------------#
 # 2. Operations on Arrays

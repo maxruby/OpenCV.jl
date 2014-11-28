@@ -1,6 +1,6 @@
 ################################################################################################
 #
-# demo1: Create a blank image (specifying color channels) and display it
+# Create a blank image (specifying color channels) and display it
 #
 ################################################################################################
 

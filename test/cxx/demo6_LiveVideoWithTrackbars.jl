@@ -62,7 +62,6 @@ void liveVideo_adjust(int device_index) {
 
         if (cv::waitKey(30) == 27)
         {
-            std::cout<< "Press ESC to close.";
             cv::destroyWindow("Welcome!");
             break;
         }

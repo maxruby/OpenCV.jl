@@ -1,25 +1,25 @@
-##**OpenCV.jl**
+##OpenCV.jl
 
+The OpenCV (C++) interface for Julia.
 
+<br>
 OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions.
 
-A full documentation of the latest OpenCV API is available [here](http://docs.opencv.org/trunk/modules/core/doc/intro.html). OpenCV.jl is organized along the modules of OpenCV:
+The OpenCV API is described [here](http://docs.opencv.org/trunk/modules/core/doc/intro.html). OpenCV.jl is organized along the following modules:
 
 * **core:** <span> <span style="color:black"> Basic array structures (e.g., Mat), common functions (e.g, convertTo) 
 * **imgproc:** <span style="color:black"> Image processing (e.g.,image filtering, transformations, color space conversion)
-* **video:** <span style="color:black">Video analysis (e.g., motion estimation, background subtraction, and object tracking)
-* **calib3d:** <span style="color:black">Camera calibration, object pose estimation, stereo correspondence, 3D reconstruction.
-* **features2d:** <span style="color:black">Salient feature detectors, descriptors, and descriptor matchers.
-* **objdetect:** <span style="color:black"> detection of objects (e.g., faces)
-* **highgui:** <span style="color:black"> GUI capabilities
 * **videoio:** <span style="color:black">Video capturing and video codecs.
-* **gpu:** <span style="color:black"> GPU-accelerated algorithms 
+* **highgui:** <span style="color:black"> GUI capabilities
+* video: <span style="color:black">Video analysis (e.g., motion estimation, background subtraction, and object tracking)
+* calib3d: <span style="color:black">Camera calibration, object pose estimation, stereo correspondence, 3D reconstruction.
+* features2d: <span style="color:black">Salient feature detectors, descriptors, and descriptor matchers.
+* objdetect: <span style="color:black"> detection of objects (e.g., faces)
+* gpu: <span style="color:black"> GPU-accelerated algorithms 
 
-Currently, `core`, `imgproc`, `video` and `highgui` are implemented in 
-VideoIO.jl. Work is ongoing to implement the rest of the modules.   
+Currently, OpenCV.jl has julia wrappers for most of the `core`, `imgproc`, `videoio` and `highgui` modules. Work is ongoing to wrap the rest of the modules and advanced object detection and tracking algorithms. (Most OpenCV C++ functions can be in principle accessed already with OpenCV.jl by using `@cxx` calls directly to C++).
 
-## Installation
-
+##Installation
 
 Install `julia 0.4.0-dev` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below. 
 
@@ -56,16 +56,17 @@ $ ls opencv2
 #### Windows and Linux
 Visit [Debian linux](http://milq.github.io/install-opencv-ubuntu-debian/), [Ubuntu](http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html) and [Windows](http://docs.opencv.org/trunk/doc/tutorials/introduction/windows_install/windows_install.html) for instructions on how to install OpenCV 3.0.  
 
-## **Basic interface**
+##Basic interface
+Below are illustrated only a small subset of all the API functions available (there are hundreds of functions).  
 
 #### Basic structures
-Points (Int, Float32, Float64)
+Points (Int, Float)
 ```julia 
 cvPoint(10, 10)           # x, y
 cvPoint2f(20.15, 30.55)
 cvPoint2d(40.564, 12.444)
 ```
-Size and Scalar vectors 
+Size and Scalar vectors (Int, Float)
 ```julia 
 cvSize(300, 300)          # e.g., image width, height 
 cvSize2f(100.5, 110.6)
@@ -73,7 +74,7 @@ cvScalar(255,0,0)         # e.g., [B, G, R] color vector
 ```
 Ranges 
 ```julia  
-range = cvRange(1,100)   # e.g., row 1 to 100
+range = cvRange(1,100)   # e.g., row 1 to 100/Users/maximilianosuster
 ```
 Rectangle and rotated rectangle
 ```julia 
@@ -82,8 +83,8 @@ cvRect(5,5,300,300)      # x, y, width, height
 cvRotatedRect(cvPoint2f(10.5, 10.5), cvSize2f(300,300), 0.5)
 ```
 
-#### Creating images 
-cv::Mat array/image constructors
+#### Creating, copying and converting images 
+cv::Mat array/image constructors -- rows (height), columns (width)
 ```julia 
 img0 = Mat()                             # empty
 img1 = Mat(600, 600, CV_8UC1)            # 600x600 Uint8 gray 
@@ -115,7 +116,15 @@ Create an identity matrix
 eye(300,300, CV_8UC3)         # 300x300 Uint8 (RGB)
 ```
 
-#### Access basic image information
+Clone, copy, convert images
+```julia 
+img2 = clone(img1) 
+copy(img1, img2)
+alpha=1; beta=0;  # scale and delta factors
+convert(img1, img2, CV_8UC3, alpha=1, beta=0)  
+```
+
+#### Accessing basic image properties
 ```julia 
 total(img)              # number of array elements
 dims(img)               # dimensions
@@ -132,7 +141,35 @@ empty(img)              # is array is empty? (true/false)
 ptr(img, 10)            # uchar* or typed pointer for matrix row
 ```
 
-#### Open and save images 
+#### Operations on image arrays
+Addition and substration
+```julia
+img1 = Mat(300, 300, CV_8UC3, cvScalar(255, 0, 0))
+img2 = Mat(300, 300, CV_8UC3, cvScalar(0, 0, 255))
+img3 = imadd(img1, img2)
+img4 = imsubstract(img1, img2)
+```
+
+
+Matrix multiplication
+```julia
+alpha = 1; # weight of the matrix 
+beta = 0;  # weight of delta matrix (optional) 
+flag = 0;  # GEMM_1_T  (transpose m1, m2 or m3)
+m1 = ones(3, 3, CV_32F)    #Float32 image
+m2 = ones(3, 3, CV_32F)
+m3 = zerosM(3, 3, CV_32F)
+gemm(m1, m2, alpha, Mat(), beta, m3, flag)
+```
+
+Array indexing
+```julia
+
+
+
+```
+
+#### Opening and saving images 
 Read and write with full path/name
 ```julia 
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
@@ -145,7 +182,7 @@ img = imread()
 imwrite(img)
 ```
 
-#### Image display (GUIs)
+#### Basic image display (GUIs)
 ```julia 
 # original highgui functions 
 imshow("Lena", img)
@@ -154,13 +191,13 @@ resizeWindow("Lena", 250, 250)
 @closeWindows(0,27,"")       # waits for ESC to close all windows 
 @closeWindows(0,27,"Lena")   # waits for ESC to close "Lena" 
  
-# julia custom functions
+# custom functions
 imdisplay(img, "Lena")  # optional: window resizing, key press, time
-im2canvas(imArray, "Tiled images")
+im2tile(imArray, "Tiled images")
 ```
 
-#### Image processing
-Change color
+#### Image processing 
+Change color format
 ```julia
 dst = Mat()
 cvtColor(img, dst, COLOR_BGR2GRAY)
@@ -174,29 +211,29 @@ imdisplay(blurred, "Box filter")
 Blur with a Gaussian filter, 5x5 kernel
 ```julia
 gaussianBlur(img, dst, cvSize(5,5))
-im2canvas([img, dst], "Gaussian 5x5")
+im2tile([img, dst], "Gaussian 5x5")
 ````
 
 Convolution with a 7x7 kernel
 ```julia
 kernel = normalizeKernel(ones(7,7,CV_32F), getKernelSum(kernel))
 filter2D(img, dst, -1, kernel)
-im2canvas([img, dst], "Convolution 7x7")
+im2tile([img, dst], "Convolution 7x7")
 ```
 
 Apply a laplacian filter
 ```julia
 laplacian(img, dst, -1, 5)          # second-derivative aperture = 5
-im2canvas([img, dst], "laplacian")    
+im2tile([img, dst], "laplacian")    
 ```
 
-Apply a sobel operator
+Apply a sobel operator (edge detection)
 ```julia
 sobel(img, dst, -1, 1, 1, 3)        # dx = 1, dy = 1, kernel = 3x3
-im2canvas([img, dst], "sobel")
+im2tile([img, dst], "sobel")
 ```
 
-Basic thresholding
+Binary thresholding
 ```julia
 cvtColor(img, dst, COLOR_BGR2GRAY)
 src = clone(dst)
@@ -206,55 +243,34 @@ imdisplay(dst, "Thresholded", "ON")
 @closeWindows(0,27, "")
 ```
 
-#### Trackbars
-Interactive thresholding
+#### Interactive image processing and display (GUIs with trackbars)
+Thresholding with adjustable trackbar. Below, I created a custom C++ class `iThreshold` (src/OpenCV_util.jl) that allows the user to open a window with trackbar, set an initial value, and threshold an input image interactively. Such classes can be easily modified and extended to support GUI display for interactive image processing in Julia. 
 ```julia
-cvtColor(img, dst, COLOR_BGR2GRAY)
-src = clone(dst)
-namedWindow("Thresholded"); thresh = 120
-createTrackbar("Value", "Thresholded", thresh, 255)
-delay = 0; key = 27;
-while true
-   threshold(src, dst, thresh, 255, THRESH_BINARY)
-   imdisplay(dst, "Thresholded", "ON")
-   if (waitkey(delay) == key) 
-       destroyAllWindows()
-       break 
-   end    
-end   
+threshme = iThreshold()
+setValue(threshme, 120) 
+setWindow(threshme, "Threshold", "Interactive threshold")
+showWindow(threshme, "Interactive threshold", img)    # img (see above)
+val = getValue(threshme) 
 ```
 
 #### Video acquistion
-
-
-
-
-
-## **Applications in computer vision**
-
-#### Object detection and tracking
-
-
-
-## **Examples**
-
-```julia 
-# OpenCV C++ scripts in Julia 
-
-julia> run_tests()
-Select a demo from the following options: 
-	1) CreateImage
-	2) ImageConversion
-	3) Thresholding
-	4) LiveVideo
-	5) setVideoProperties
-	6) LiveVideoWithTrackbars
-	7) displayHistogram
-	8) Drawing
-	9) im2dots
-	10) ObjectTracking
-
-Select and run the demo at the julia prompt: 
-e.g., run_demo(N)
+Display video stream from default camera
+```julia
+videoCapture()     # press ESC to stop    
 ```
 
+## Advanced interfaces
+There is a rich collection of advanced algorithms/modules for computer vision implemented in OpenCV. A number of them are found in [opencv-contrib](github.com/Itseez/opencv_contrib/tree/master/module):  
+
+* opencv_face: Face detection
+* opencv_optflow: Optical flow
+* opencv_reg: Image registration
+* opencv_text: Scene Text Detection and Recognition
+* opencv_tracking: Long-term optical tracking API
+* opencv_xfeatures2d: Extra 2D Features Framework
+* opencv_ximgproc: Extended Image Processing
+* opencv_xobjdetect: Integral Channel Features Detector Framework
+* opencv_xphoto: Color balance/Denoising/Inpainting
+
+## Demos
+Use `run_tests()` to try one of the 10 sample demos available: basic image creation, conversion, thresholding, live video, trackbars, histograms, drawing, and object tracking.

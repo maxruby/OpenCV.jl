@@ -109,8 +109,8 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_modules.jl"))
 # Load custom utility functions
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_util.jl"))
 
-# Load demos
+# Load demos -- currently Cxx versions
 function run_tests()
-    include(joinpath(Pkg.dir("OpenCV"), "./test/demos.jl"))
+    include(joinpath(Pkg.dir("OpenCV"), "./test/cxx/demos.jl"))
 end
 

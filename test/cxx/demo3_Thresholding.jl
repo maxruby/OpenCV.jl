@@ -58,7 +58,7 @@ void imThreshold(const char *inputfile, const char *outfile) {
 
     cv::threshold(img_gray, img_thresh, threshold_value, max_value, cv::THRESH_BINARY + cv::THRESH_OTSU);
 
-  //if interative
+  //if interactive
   //cv::threshold(img_gray, img_thresh, threshold_value, max_value, cv::THRESH_BINARY_INV);
 
     imshow("Thresholded", img_thresh);
