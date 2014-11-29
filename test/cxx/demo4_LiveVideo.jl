@@ -49,12 +49,6 @@ void videocapture(int device_index, const char *winname) {
 }
 """
 
-# Wrap in Julia function
-function videocapture(device_index::Int, winname::String)
-    println("This is a demo of OpenCV webcam video capture")
-    @cxx videocapture(device_index, pointer(winname))
-end
+@cxx videocapture(device_index, pointer(winname))
 
-# Run
-videocapture(device_index, winname)
 ############################################################################################

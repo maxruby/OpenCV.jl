@@ -43,12 +43,6 @@ void imThreshold(const char *inputfile, const char *outfile) {
   cv::imshow("Original", src);
   cv::imshow("Blur", img_gray);
 
-  // Create Trackbar to change threshold value (0..255) interactively
-  // cv::createTrackbar("Value", "Thresholded", &threshold_value, max_value);
-
-  // Loop for interactive mode
-  // while(true) {
-
        // cv::THRESH_BINARY
        // cv::THRESH_OTSU
        // cv::THRESH_BINARY_INV
@@ -56,18 +50,9 @@ void imThreshold(const char *inputfile, const char *outfile) {
        // cv::THRESH_TOZERO
        // cv::THRESH_TOZERO_INV
 
-    cv::threshold(img_gray, img_thresh, threshold_value, max_value, cv::THRESH_BINARY + cv::THRESH_OTSU);
+  cv::threshold(img_gray, img_thresh, threshold_value, max_value, cv::THRESH_BINARY + cv::THRESH_OTSU);
 
-  //if interactive
-  //cv::threshold(img_gray, img_thresh, threshold_value, max_value, cv::THRESH_BINARY_INV);
-
-    imshow("Thresholded", img_thresh);
-
-     //   if (cv::waitKey(30)==27) {
-     //      std::cout << "Now saving the thresholded image. . ." << std::endl;
-     //      break;
-     //  }
- // }
+  imshow("Thresholded", img_thresh);
 
   cv::waitKey(0);
   cv::imwrite(ofname, img_thresh);

@@ -1,9 +1,9 @@
-##OpenCV.jl
+#OpenCV.jl
 
 The OpenCV (C++) interface for Julia.
 
 <br>
-OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions.
+OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions. The package also contains thin wrappers for common C++ classes such as `std::vectors` for direct use in Julia.  
 
 The OpenCV API is described [here](http://docs.opencv.org/trunk/modules/core/doc/intro.html). OpenCV.jl is organized along the following modules:
 
@@ -17,7 +17,7 @@ The OpenCV API is described [here](http://docs.opencv.org/trunk/modules/core/doc
 * objdetect: <span style="color:black"> detection of objects (e.g., faces)
 * gpu: <span style="color:black"> GPU-accelerated algorithms 
 
-Currently, OpenCV.jl has julia wrappers for most of the `core`, `imgproc`, `videoio` and `highgui` modules. Work is ongoing to wrap the rest of the modules and advanced object detection and tracking algorithms. (Most OpenCV C++ functions can be in principle accessed already with OpenCV.jl by using `@cxx` calls directly to C++).
+Currently, OpenCV.jl has julia wrappers for most of the `core`, `imgproc`, `videoio` and `highgui` modules. Work is ongoing to wrap the rest of the modules including advanced object detection and tracking algorithms. (Most OpenCV C++ functions are already supported in OpenCV.jl by using `@cxx` calls directly to C++).
 
 ##Installation
 
@@ -54,10 +54,10 @@ $ ls opencv2
 ``` 
 
 #### Windows and Linux
-Visit [Debian linux](http://milq.github.io/install-opencv-ubuntu-debian/), [Ubuntu](http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html) and [Windows](http://docs.opencv.org/trunk/doc/tutorials/introduction/windows_install/windows_install.html) for instructions on how to install OpenCV 3.0.  
+See links for info on how to install OpenCV on Debian linux [1](http://milq.github.io/install-opencv-ubuntu-debian/), Ubuntu [1](http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html) ,[2] (https://github.com/jayrambhia/Install-OpenCV) and [Windows](http://docs.opencv.org/trunk/doc/tutorials/introduction/windows_install/windows_install.html).  
 
 ##Basic interface
-Below are illustrated only a small subset of all the API functions available (there are hundreds of functions).  
+The OpenCV.jl API is very large, containing hundreds of functions.  Here is an illustration of a subset of commonly used functions.   
 
 #### Basic structures
 Points (Int, Float)
@@ -116,12 +116,13 @@ Create an identity matrix
 eye(300,300, CV_8UC3)         # 300x300 Uint8 (RGB)
 ```
 
-Clone, copy, convert images
+Clone, copy, convert
 ```julia 
 img2 = clone(img1) 
 copy(img1, img2)
 alpha=1; beta=0;  # scale and delta factors
 convert(img1, img2, CV_8UC3, alpha=1, beta=0)  
+resize(img1, cvSize(100,100))
 ```
 
 #### Accessing basic image properties
@@ -197,6 +198,22 @@ im2tile(imArray, "Tiled images")
 ```
 
 #### Image processing 
+Resize images
+```julia
+dst = clone(img)
+resize(img, dst, cvSize(250,250), float(0), float(0), INTER_LINEAR)
+imdisplay(img, "Lena", "ON")
+imdisplay(dst, "Resized Lena", "ON")
+@closeWindows(0,27,"")
+
+interpolation options:
+# INTER_NEAREST - a nearest-neighbor interpolation
+# INTER_LINEAR - a bilinear interpolation (used by default)
+# INTER_AREA - resampling using pixel area relation
+# INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
+# NTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
+```
+
 Change color format
 ```julia
 dst = Mat()
@@ -238,13 +255,18 @@ Binary thresholding
 cvtColor(img, dst, COLOR_BGR2GRAY)
 src = clone(dst)
 threshold(src, dst, 120, 255, THRESH_BINARY)  # thresh = 0, max = 255
+ #THRESH_OTSU
+ #THRESH_BINARY_INV
+ #THRESH_TRUNC
+ #THRESH_TOZERO
+ #THRESH_TOZERO_INV
 imdisplay(img, "Original", "ON")
 imdisplay(dst, "Thresholded", "ON")
 @closeWindows(0,27, "")
 ```
 
 #### Interactive image processing and display (GUIs with trackbars)
-Thresholding with adjustable trackbar. Below, I created a custom C++ class `iThreshold` (src/OpenCV_util.jl) that allows the user to open a window with trackbar, set an initial value, and threshold an input image interactively. Such classes can be easily modified and extended to support GUI display for interactive image processing in Julia. 
+Thresholding with adjustable trackbar. Below, I created a custom C++ class `iThreshold` (src/OpenCV_util.jl) that allows the user to open a window with trackbar, set an initial value, and threshold an input image interactively. Such classes can be readily modified and extended to support real-time image processing in Julia. 
 ```julia
 threshme = iThreshold()
 setValue(threshme, 120) 
@@ -253,13 +275,66 @@ showWindow(threshme, "Interactive threshold", img)    # img (see above)
 val = getValue(threshme) 
 ```
 
-#### Video acquistion
-Display video stream from default camera
+#### Video acquistion, streaming and writing
+Basic video stream display from default camera. All GUI classes/functions (e.g., videoCapture) can be easily called from OpenCV.jl to build new custom video acquisition functions.  
 ```julia
-videoCapture()     # press ESC to stop    
+videocam()     # press ESC to stop  
 ```
 
-## Advanced interfaces
+The following identifiers can be used (depending on backend) to get/set video properties:
+```
+append "CAP_PROP_" to id below
+POS_MSEC       Current position of the video file (msec or timestamp)  
+POS_FRAMES     0-based index of the frame to be decoded/captured next
+POS_AVI_RATIO  Relative position of the video file: 0 - start of the film, 1 - end of the film
+FRAME_WIDTH    Width of the frames in the video stream
+FRAME_HEIGHT   Height of the frames in the video stream
+FPS            frame rate
+FOURCC         4-character code of codec
+FRAME_COUNT    Number of frames in the video file
+FORMAT         Format of the Mat objects returned by retrieve()
+MODE           Backend-specific value indicating the current capture mode
+BRIGHTNESS     Brightness of the image (only for cameras)
+CONTRAST       Contrast of the image (only for cameras)
+SATURATION     Saturation of the image (only for cameras)
+HUE            Hue of the image (only for cameras)
+GAIN           Gain of the image (only for cameras)
+EXPOSURE       Exposure (only for cameras)
+CONVERT_RGB    Boolean flags indicating whether images should be converted to RGB
+WHITE_BALANCE  Currently not supported
+RECTIFICATION  Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently)
+```
+
+To get video properties, use `getVideoId` 
+```julia
+cam = videoCapture(CAP_ANY)   # cv::VideoCapture 
+getVideoId(cam, CAP_PROP_FOURCC)   # or set to -1 (uncompressed AVI)
+```
+To set video properties, use `setVideoId` 
+```julia
+setVideoId(cam, CAP_PROP_FPS, 10) 
+```
+
+Stream videos from the web (requires http link to source file)
+```julia
+vid = "http://r10---sn-5hn7snel.googlevideo.com/videoplayback?key=yt5&ip=2001%3A1af8%3A4700%3Aa022%3A1%3A%3A4ae9&mv=m&dur=161.760&itag=134&source=youtube&gir=yes&ms=au&mm=31&id=o-ADAN6Ts_3bJhDanBGFvCBKGKKW50pFi2_j8zQ1OgjfHS&expire=1417216752&upn=TGPwYJlCo8s&fexp=900222%2C907259%2C912146%2C922246%2C927622%2C932404%2C943909%2C947209%2C948124%2C952302%2C952605%2C952901%2C953912%2C957103%2C957105%2C957201&signature=DD325CCDE8437F34CC33EDDF7844DE22FD55C5F3.197CBDD6777E053A768F0DC66AB74D8ECAD21402&lmt=1389149989117157&sparams=clen%2Cdur%2Cgir%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmm%2Cms%2Cmv%2Csource%2Cupn%2Cexpire&clen=4881149&ipbits=0&mt=1417195094&initcwndbps=5416250&sver=3&title=Amazing+Super+Slow+Motion%21%21"
+webstream(vid)
+```
+
+Write the video stream to disk
+```julia
+cam = videoCapture(vid)
+filename = joinpath(homedir(), "myvid.avi")
+fps = 25.0
+nframes = 250            # default -> nframes = 0, to stop press ESC
+frameSize=cvSize(0,0)    # input = output frame size
+codec = -1               # fourcc(CV_FOURCC_IYUV)
+isColor = true           # color
+device = CAP_ANY         # default device
+videoWrite (cam, filename, fps, nframes, frameSize, codec, true) 
+```
+  
+## Advanced applications
 There is a rich collection of advanced algorithms/modules for computer vision implemented in OpenCV. A number of them are found in [opencv-contrib](github.com/Itseez/opencv_contrib/tree/master/module):  
 
 * opencv_face: Face detection

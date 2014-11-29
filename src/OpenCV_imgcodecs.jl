@@ -31,6 +31,7 @@ imread(filename = getOpenFileName(), flags=IMREAD_UNCHANGED) = @cxx cv::imread(p
 
 # imwrite: Saves an image to a specified file
 imwrite(filename::String, img) = @cxx cv::imwrite(pointer(filename), img)
+imwrite(filename::String, img, params) = @cxx cv::imwrite(pointer(filename), img, params)
 # optional: const vector<int>& params=vector<int>()
 # filename – Name of the file
 # image    – Image to be saved

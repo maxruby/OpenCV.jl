@@ -55,6 +55,7 @@ getVideoId(capture, propId::Int) = @cxx capture->get(propId)
 
 # Sets a property in the VideoCapture
 setVideoId(capture, propId::Int, value::Float64) = @cxx capture->set(propId, value)
+# same list of prooperties as above
 
 # Create the VideoWriter structures
 cxx""" cv::VideoWriter VideoWriter(){ cv::VideoWriter writer = cv::VideoWriter(); return(writer); }"""
@@ -84,7 +85,14 @@ cxx""" cv::VideoWriter&  writeframe(cv::VideoWriter& videowriter){ cv::Mat frame
 writeVideo(videowrite) = @cxx writeframe(videowrite)
 
 
-fcc = CV_FOURCC_MPEG # const Array(Ptr{Uint8}, 4)
+# Get int for the FourCC codec code
+cxx""" int fourcc(const char *cc1, const char *cc2, const char *cc3, const char *cc4) {
+           int code = cv::VideoWriter::fourcc (*cc1, *cc2, *cc3, *cc4);
+           return(code);
+   }
+"""
+# CV_FOURCC:  const Array(Ptr{Uint8}, 4)
+# CV_FOURCC_MPEG
 # CV_FOURCC_IYUV  #for yuv420p into an uncompressed AVI
 # CV_FOURCC_DIV3  #for DivX MPEG-4 codec
 # CV_FOURCC_MP42  #for MPEG-4 codec
@@ -92,13 +100,6 @@ fcc = CV_FOURCC_MPEG # const Array(Ptr{Uint8}, 4)
 # CV_FOURCC_PIM1  #for MPEG-1 codec
 # CV_FOURCC_I263  #for ITU H.263 codec
 # CV_FOURCC_MPEG  #for MPEG-1 codec
-
-# Get int for the FourCC codec code
-cxx""" int fourcc(const char *cc1, const char *cc2, const char *cc3, const char *cc4) {
-           int code = cv::VideoWriter::fourcc (*cc1, *cc2, *cc3, *cc4);
-           return(code);
-   }
-"""
 
 fourcc(fcc::Array) = @cxx fourcc(fcc[1],fcc[2], fcc[3], fcc[4])
 

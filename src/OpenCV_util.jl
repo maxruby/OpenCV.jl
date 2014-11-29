@@ -1,13 +1,58 @@
 
-# General utility functions
+# Julia: general utility functions
 cint(x) = convert(Cint, x)
 csize_t(x) = convert(Csize_t, x)
+
+
+# C++ std::vector class thin-wrappings for Julia
+cxx"""
+template <typename T>
+    std::vector<T> stdvector(int size, T x) {
+        std::vector<T> cppvec(size, x);
+        return (cppvec);
+   }
+
+template <typename T_>
+    T_ at(std::vector<T_> cppvec, int index) {
+       T_ value = cppvec[index];    // does not check for out of bounds (fast but dangerous)
+       return(value);
+   }
+
+template <typename T_>
+    T_ at_(std::vector<T_> cppvec, int index) {
+       T_ value = cppvec.at(index); // checks for out of bounds (safe but slow)
+       return(value);
+   }
+"""
+
+stdvector(size::Int, value) = @cxxnew stdvector(size, value)
+stdassign(ccpvec, size::Int, value) = @cxx ccpvec->assign(size,value)
+stddata(cppvec) = @cxx ccpvec->data()     # Ptr to first elememt
+stdempty(cppvec) = @cxx cppvec->empty()   # check if it is empty
+stdcapacity(cppvec) = int(@cxx cppvec->capacity())
+push_back(cppvec, value) = @cxx cppvec->push_back(value)
+pop_back(cppvec) = @cxx cppvec->pop_back()
+stdsize(cppvec) = int(@cxx cppvec->size())
+stdresize(cppvec, n::Int) = @cxx cppvec->resize(n)
+stdshrink(cppvec) = @cxx cppvec->shrink_to_fit()
+stdswap(cppvec1, cppvec2) = @cxx cppvec1->swap(cppvec2)
+
+function at(cppvec, index::Int)
+   (index < 0 || index > stdsize(cppvec)) ? throw(ArgumentError("index is out of bounds")) : nothing
+   @cxx at(cppvec, index)
+end
+function at_(cppvec, index::Int)
+  (index < 0 || index > stdsize(cppvec)) ? throw(ArgumentError("index is out of bounds")) : nothing
+   @cxx at_(cppvec, index)   # out of bounds check
+end
+clear(cppvec) = @cxx cppvec->clear()
+
 
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Image processing (imgproc)
 
-# Support functions for image convolution
+# Support for image convolution
 cxx"""
 // Function getSum returns total sum of all the elements of given matrix.
 
@@ -34,6 +79,8 @@ getKernelSum(kernel) = @cxx getKernelSum(kernel)
 normalizeKernel(kernel, ksum) = @cxx normalizeKernel(kernel, ksum)
 
 # TO_DO:  Similar utility functions are likely required for other functions in imgproc
+
+
 
 #-------------------------------------------------------------------------------------------------------------------#
 # GUI interface (highui)
@@ -72,10 +119,11 @@ end
 #-------------------------------------------------------------------------------------------------------------------#
 # Video capture (video)
 
-function videoCapture (device = CAP_ANY)
+function videocam (device = CAP_ANY)
     cam = videoCapture(device)    # open Video device
     !isOpened(cam) ? throw(ArgumentError("Can not open camera!")) : nothing
-    namedWindow("Welcome!")
+    namedWindow("Video")
+    frame = Mat()
 
     # Loop until user presses ESC or frame is empty
     while(true)
@@ -84,34 +132,65 @@ function videoCapture (device = CAP_ANY)
             break
         end
 
-        imshow("Welcome!", converted)
+        imshow("Video", frame)
 
         if (waitkey(30) == 27)
             destroyAllWindows()
-            release(cam)
             break
        end
    end
+  release(cam)
+end
+
+# Webstreaming
+# src: full http link to the video source
+function webstream (src::String)
+    cam = videoCapture(src)    # open Video device
+    !isOpened(cam) ? throw(ArgumentError("Can not open stream!")) : nothing
+    namedWindow("Web stream")
+    frame = Mat()
+
+    # Loop until user presses ESC or frame is empty
+    while(true)
+        if !(videoRead(cam, frame))
+            throw(ArgumentError("Can not acquire video stream!"))
+            break
+        end
+
+        imshow("Web stream", frame)
+
+        if (waitkey(30) == 27)
+            destroyAllWindows()
+            break
+       end
+   end
+  release(cam)
 end
 
 
-function videoWrite (filename::String, fourcc::Int, fps::Float64, frameSize, isColor=true, device = CAP_ANY)
-    cam = videoCapture(device)    # open Video device
-    !(isOpened(cam)) ? throw(ArgumentError("Can not open camera!")) : nothing
-    namedWindow("Welcome!")
+function videoWrite (cam, filename::String, fps::Float64, nframes = 0, frameSize=cvSize(0,0), fourcc=-1, isColor=true)
+    !(isOpened(cam)) ? throw(ArgumentError("Can is not opened!")) : nothing
 
+    # Set the video capture frame size based on camera input WIDTH and HEIGHT
+    width = getVideoId(cam, CAP_PROP_FRAME_WIDTH)
+    height = getVideoId(cam, CAP_PROP_FRAME_HEIGHT)
+
+    frame = Mat(int(height), int(width), CV_8UC3)
+
+    # Set the frameSize of output video frames
+    (frameSize.data[1] == 0) ? frameSize = cvSize(int(width), int(height)) :
+         throw(ArgumentError("Output frame dimension is wrong"))
+
+    # Initialize and open video writer
     writer = videoWriter(filename, fourcc, fps, frameSize, isColor)
     openWriter(writer, filename, fourcc, fps, frameSize, isColor)
     !(isOpened(writer)) ? throw(ArgumentError("Can not open the video writer!")) : nothing
 
-    # Set the frame size to the camera capture WIDTH and HEIGHT
-    width = getVideoId(cam, CAP_PROP_FRAME_WIDTH)
-    height = getVideoId(cam, CAP_PROP_FRAME_HEIGHT)
-
-    # Initialize images
-    frame = Mat(int(height), int(columns), CV_8UC3)
+    # create a window for display
+    namedWindow("Welcome!")
 
     # Loop until user presses ESC or frame is empty
+    count = 0
     while(true)
         if !(videoRead(cam, frame))
             throw(ArgumentError("Can not acquire video!"))
@@ -119,22 +198,16 @@ function videoWrite (filename::String, fourcc::Int, fps::Float64, frameSize, isC
         end
 
         writeVideo(writer, frame)
-        if !(videoRead(cam, frame))
-            throw(ArgumentError("Can not acquire video!"))
-            break
-        end
+        imshow("Welcome!", frame)
 
-        imshow("Welcome!", converted)
-
-        if (waitkey(30) == 27)
+        (nframes > 0) ? count += 1 : nothing
+        if ((waitkey(30) == 27) || (count == nframes))
             destroyAllWindows()
-            release(cam)
             break
        end
    end
+   release(cam)
 end
-
-
 
 
 #-------------------------------------------------------------------------------------------------------------------#
