@@ -3,7 +3,7 @@
 The OpenCV (C++) interface for Julia.
 
 <br>
-OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions. The package also contains thin wrappers for common C++ classes such as `std::vectors` for direct use in Julia.  
+OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions. The package also contains thin wrappers for common C++ classes (e.g., std::vectors) to make C++/Julia interface smoother in the future.  
 
 The OpenCV API is described [here](http://docs.opencv.org/trunk/modules/core/doc/intro.html). OpenCV.jl is organized along the following modules:
 
@@ -116,13 +116,13 @@ Create an identity matrix
 eye(300,300, CV_8UC3)         # 300x300 Uint8 (RGB)
 ```
 
-Clone, copy, convert
+Clone, copy, convert, basic resizing
 ```julia 
 img2 = clone(img1) 
 copy(img1, img2)
 alpha=1; beta=0;  # scale and delta factors
-convert(img1, img2, CV_8UC3, alpha=1, beta=0)  
-resize(img1, cvSize(100,100))
+convert(img1, img2, CV_8UC3, alpha, beta)  
+resizeMat(img1, 100, cvScalar(255,0, 0)) # 100 rows, 100 x 100
 ```
 
 #### Accessing basic image properties
@@ -165,7 +165,7 @@ gemm(m1, m2, alpha, Mat(), beta, m3, flag)
 
 Array indexing
 ```julia
-
+# http://docs.opencv.org/trunk/doc/tutorials/core/how_to_scan_images/how_to_scan_images.html#howtoscanimagesopencv
 
 
 ```
@@ -189,8 +189,7 @@ imwrite(img)
 imshow("Lena", img)
 moveWindow("Lena", 200, 200)
 resizeWindow("Lena", 250, 250)
-@closeWindows(0,27,"")       # waits for ESC to close all windows 
-@closeWindows(0,27,"Lena")   # waits for ESC to close "Lena" 
+closeWindows(0,27,"Lena")   # waits for ESC to close "Lena" 
  
 # custom functions
 imdisplay(img, "Lena")  # optional: window resizing, key press, time
@@ -202,9 +201,9 @@ Resize images
 ```julia
 dst = clone(img)
 resize(img, dst, cvSize(250,250), float(0), float(0), INTER_LINEAR)
-imdisplay(img, "Lena", "ON")
-imdisplay(dst, "Resized Lena", "ON")
-@closeWindows(0,27,"")
+imdisplay(img, "Lena")
+imdisplay(dst, "Resized Lena")
+closeWindows(0,27,"")  # waits for ESC to close all windows
 
 interpolation options:
 # INTER_NEAREST - a nearest-neighbor interpolation
@@ -224,30 +223,36 @@ Blur with a normalized box filter, 5x5 kernel
 blurred = clone(img)
 blur(img, blurred, cvSize(5,5))
 imdisplay(blurred, "Box filter")
+closeWindows(0,27,"")
 ```
 Blur with a Gaussian filter, 5x5 kernel
 ```julia
 gaussianBlur(img, dst, cvSize(5,5))
 im2tile([img, dst], "Gaussian 5x5")
+closeWindows(0,27,"")
 ````
 
 Convolution with a 7x7 kernel
 ```julia
-kernel = normalizeKernel(ones(7,7,CV_32F), getKernelSum(kernel))
-filter2D(img, dst, -1, kernel)
+kernel = ones(5,5,CV_32F)
+normkernel = normalizeKernel(ones(7,7,CV_32F), getKernelSum(kernel))
+filter2D(img, dst, -1, normkernel)
 im2tile([img, dst], "Convolution 7x7")
+closeWindows(0,27,"")
 ```
 
 Apply a laplacian filter
 ```julia
 laplacian(img, dst, -1, 5)          # second-derivative aperture = 5
-im2tile([img, dst], "laplacian")    
+im2tile([img, dst], "laplacian")  
+closeWindows(0,27,"")  
 ```
 
 Apply a sobel operator (edge detection)
 ```julia
 sobel(img, dst, -1, 1, 1, 3)        # dx = 1, dy = 1, kernel = 3x3
 im2tile([img, dst], "sobel")
+closeWindows(0,27,"")
 ```
 
 Binary thresholding
@@ -260,9 +265,9 @@ threshold(src, dst, 120, 255, THRESH_BINARY)  # thresh = 0, max = 255
  #THRESH_TRUNC
  #THRESH_TOZERO
  #THRESH_TOZERO_INV
-imdisplay(img, "Original", "ON")
-imdisplay(dst, "Thresholded", "ON")
-@closeWindows(0,27, "")
+imdisplay(img, "Original")
+imdisplay(dst, "Thresholded")
+closeWindows(0,27, "")
 ```
 
 #### Interactive image processing and display (GUIs with trackbars)
@@ -312,12 +317,16 @@ getVideoId(cam, CAP_PROP_FOURCC)   # or set to -1 (uncompressed AVI)
 ```
 To set video properties, use `setVideoId` 
 ```julia
-setVideoId(cam, CAP_PROP_FPS, 10) 
+setVideoId(cam, CAP_PROP_FPS, 10.0) 
+```
+Close the camera input
+```julia
+release(cam)
 ```
 
 Stream videos from the web (requires http link to source file)
 ```julia
-vid = "http://r10---sn-5hn7snel.googlevideo.com/videoplayback?key=yt5&ip=2001%3A1af8%3A4700%3Aa022%3A1%3A%3A4ae9&mv=m&dur=161.760&itag=134&source=youtube&gir=yes&ms=au&mm=31&id=o-ADAN6Ts_3bJhDanBGFvCBKGKKW50pFi2_j8zQ1OgjfHS&expire=1417216752&upn=TGPwYJlCo8s&fexp=900222%2C907259%2C912146%2C922246%2C927622%2C932404%2C943909%2C947209%2C948124%2C952302%2C952605%2C952901%2C953912%2C957103%2C957105%2C957201&signature=DD325CCDE8437F34CC33EDDF7844DE22FD55C5F3.197CBDD6777E053A768F0DC66AB74D8ECAD21402&lmt=1389149989117157&sparams=clen%2Cdur%2Cgir%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmm%2Cms%2Cmv%2Csource%2Cupn%2Cexpire&clen=4881149&ipbits=0&mt=1417195094&initcwndbps=5416250&sver=3&title=Amazing+Super+Slow+Motion%21%21"
+vid = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"
 webstream(vid)
 ```
 
@@ -349,3 +358,5 @@ There is a rich collection of advanced algorithms/modules for computer vision im
 
 ## Demos
 Use `run_tests()` to try one of the 10 sample demos available: basic image creation, conversion, thresholding, live video, trackbars, histograms, drawing, and object tracking.
+
+

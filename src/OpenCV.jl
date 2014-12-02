@@ -14,11 +14,6 @@
 
 using Cxx
 
-# Check OS
-os = @windows? "Windows" : nothing
-os = @linux? "Linux" : nothing
-os = @osx? "OSX" : nothing
-
 # Check Julia version before continuing (also checked later in Cxx)
 (VERSION >= v"0.4-") ? nothing :
      throw(ErrorException("Julia $VERSION does not support C++ FFI"))
@@ -51,8 +46,8 @@ if found && path != nothing
     const cvheaderdir = joinpath(Pkg.dir("OpenCV"), "/usr/local/include/")
 elseif !found
     # Load libs/headers in /deps/usr/lib/ - only for Mac OSX (dylib)
-    const cvlibdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries for $(os). Set path manually or install OpenCV."))
-    const cvheaderdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers for $(os). Set path manually or install OpenCV."))
+    const cvlibdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
+    const cvheaderdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
 end
 
 addHeaderDir(cvlibdir; kind = C_System)
@@ -95,6 +90,9 @@ cxx"""
  #include <cfloat>
  #include <vector>
  #include <ctime>
+ #include <map>
+ #include <utility>
+ #include <exception>
 """
 
 # Load Qt framework
@@ -108,6 +106,9 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_modules.jl"))
 
 # Load custom utility functions
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_util.jl"))
+
+# Load Videoplayer
+include(joinpath(Pkg.dir("OpenCV"), "./src/Videoprocessor.jl"))
 
 # Load demos -- currently Cxx versions
 function run_tests()

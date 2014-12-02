@@ -1,6 +1,6 @@
 ################################################################################################
 #
-# demo1: Create a blank color image and display it
+# demo 1: Create a blank color image and display it
 #
 ################################################################################################
 
@@ -11,13 +11,13 @@ color = cvScalar(255, 0, 0)
 img = Mat(300, 300, CV_8UC3)
 
 # Display in window
-imdisplay(img, "Blue image")  # press ESC(27) to exit
-
+imdisplay(img, "Blue image")
+closeWindows(0,27,"")  # press ESC(27) to exit
 
 
 #################################################################################################
 #
-# demo2: Convert an image from .png to .jpg format (with compression)
+# demo 2: Convert an image from .png to .jpg format (with compression)
 #
 #################################################################################################
 
@@ -34,7 +34,8 @@ push_back(compression_params, cint(98))
 # push_back(compression_params, cint(9))
 
 !(imwrite(outfile, img, compression_params)) ? throw(ArgumentError("Can not save to disk!")) : nothing
-imdisplay(img, "Converted .jpeg image")  # press ESC(27) to exit
+imdisplay(img, "Converted .jpeg image")
+closeWindows(0,27,"")  # press ESC(27) to exit
 
 
 #################################################################################################
@@ -58,7 +59,8 @@ threshold(dst, thresh, 120, 255, THRESH_BINARY)  # thresh = 0, max = 255
 imdisplay(img, "Original", "ON")
 imdisplay(dst, "Gaussian blur", "ON")
 imdisplay(thresh, "Thresholded", "ON")
-@closeWindows(0,27, "")
+closeWindows(0,27,"")  # press ESC(27) to exit
+
 
 
 ################################################################################################
@@ -72,6 +74,8 @@ imdisplay(thresh, "Thresholded", "ON")
 videocam()    # press ESC to stop
 
 
+
+
 ################################################################################################
 #
 # demo 5: video player: set video properties
@@ -80,10 +84,7 @@ videocam()    # press ESC to stop
 
 fvideo = joinpath(Pkg.dir("OpenCV"), "./test/images/movie.avi")
 vid = videoCapture(fvideo)
-
 !isOpened(vid) ? throw(ArgumentError("Can not open video stream!")) : nothing
-namedWindow("Video player")
-frame = Mat()
 
 setVideoId(vid, CAP_PROP_POS_MSEC, 300.0)     #300 ms into the video
 # setVideoId(vid, CAP_PROP_FRAME_WIDTH, 600.0)
@@ -92,6 +93,9 @@ setVideoId(vid, CAP_PROP_POS_MSEC, 300.0)     #300 ms into the video
 
 fps = getVideoId(vid, CAP_PROP_FPS)
 println("Frames per second: ", fps)
+
+namedWindow("Video player")
+frame = Mat()
 
 # Loop until user presses ESC or frame is empty
 while(true)
@@ -107,3 +111,14 @@ while(true)
        break
    end
 end
+
+
+######################################################################################
+#
+# demo 6: Interactive video player with threshold/brightness/contrast control
+#
+######################################################################################
+
+
+
+

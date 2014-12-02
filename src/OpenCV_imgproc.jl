@@ -639,8 +639,8 @@ fillPoly(img, pts, color, lineType=LINE_8, shift=0) = @cxx cv::fillPoly(img, pts
 # pts = InputArrayOfArrays
 
 # Calculate the width and height of a text string
-getTextSize(text::Ptr{Uint8}, fontFace::Int, fontScal::Float64, thickness::Int, baseLine::Ptr{Int}) =
-    @cxx cv::getTextSize(text, fontFace, fontScal, thickness, baseLine)
+getTextSize(text::String, fontFace::Int, fontScal::Float64, thickness::Int, baseLine::Ptr{Int}) =
+    @cxx cv::getTextSize(pointer(text), fontFace, fontScal, thickness, baseLine)
 # text       – Input text string
 # fontFace   – Font to use
 # fontScale  – Font scale
@@ -698,8 +698,8 @@ drawContours(image, contours, contourIdx::Int, color, thickness=1, lineType=LINE
 # offset   - Optional contour shift parameter (x,y)
 
 # Draws a text string
-putText(img, text::Ptr{Uint8}, org, fontFace::Int, fontScale::Float64, color, thickness=1, lineType=LINE_8,
-  bottomLeftOrigin=false) =  @cxx cv::putText(img, text, org, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin)
+putText(img, text::String, org, fontFace::Int, fontScale::Float64, color, thickness=1, lineType=LINE_8,
+  bottomLeftOrigin=false) =  @cxx cv::putText(img, pointer(text), org, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin)
 # fontFace – Font type
 # FONT_HERSHEY_SIMPLEX
 # FONT_HERSHEY_PLAIN

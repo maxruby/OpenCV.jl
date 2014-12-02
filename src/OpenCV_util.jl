@@ -3,35 +3,42 @@
 cint(x) = convert(Cint, x)
 csize_t(x) = convert(Csize_t, x)
 
+# Search directory
+searchdir(path,key) = filter(x->contains(x,key), readdir(path))
+swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
 
 # C++ std::vector class thin-wrappings for Julia
 cxx"""
 template <typename T>
-    std::vector<T> stdvector(int size, T x) {
+    std::vector<T> stdvector(int size, T x)
+      {
         std::vector<T> cppvec(size, x);
         return (cppvec);
-   }
+      }
 
 template <typename T_>
-    T_ at(std::vector<T_> cppvec, int index) {
-       T_ value = cppvec[index];    // does not check for out of bounds (fast but dangerous)
-       return(value);
-   }
+    T_ at(std::vector<T_> cppvec, int index)
+       {
+           T_ value = cppvec[index];    // does not check for out of bounds (fast but dangerous)
+           return(value);
+       }
 
 template <typename T_>
-    T_ at_(std::vector<T_> cppvec, int index) {
-       T_ value = cppvec.at(index); // checks for out of bounds (safe but slow)
-       return(value);
-   }
+    T_ at_(std::vector<T_> cppvec, int index)
+       {
+          T_ value = cppvec.at(index); // checks for out of bounds (safe but slow)
+          return(value);
+       }
+
 """
 
-stdvector(size::Int, value) = @cxxnew stdvector(size, value)
-stdassign(ccpvec, size::Int, value) = @cxx ccpvec->assign(size,value)
+stdvector(size, value) = @cxxnew stdvector(size, value)
+stdassign(ccpvec, size, value) = @cxx ccpvec->assign(size,value)
 stddata(cppvec) = @cxx ccpvec->data()     # Ptr to first elememt
 stdempty(cppvec) = @cxx cppvec->empty()   # check if it is empty
 stdcapacity(cppvec) = int(@cxx cppvec->capacity())
-push_back(cppvec, value) = @cxx cppvec->push_back(value)
-pop_back(cppvec) = @cxx cppvec->pop_back()
+stdpush_back(cppvec, value) = @cxx cppvec->push_back(value)
+stdpop_back(cppvec) = @cxx cppvec->pop_back()
 stdsize(cppvec) = int(@cxx cppvec->size())
 stdresize(cppvec, n::Int) = @cxx cppvec->resize(n)
 stdshrink(cppvec) = @cxx cppvec->shrink_to_fit()
@@ -48,6 +55,25 @@ end
 clear(cppvec) = @cxx cppvec->clear()
 
 
+# C++ string handling
+# julia string => std::string
+# std::string => julia string
+
+cxx"""
+std::string stdstring(const char* word)
+      {
+        std::string stdword = word;
+        return(stdword);
+      }
+"""
+
+stdstring(word::String) = @cxx stdstring(pointer(word))
+juliastring(std_string) = bytestring(@cxx std_string->c_str())
+stdstrdata(std_string) = @cxx std_string->data()     # Ptr to first elememt
+stdstrempty(std_string) = @cxx std_string->empty()
+stdstrsize(std_string) = @cxx std_string->size()
+stdstrlength(std_string) = @cxx std_string->length()
+stdstrclear(std_string) = @cxx std_string->clear()
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Image processing (imgproc)
@@ -87,18 +113,17 @@ normalizeKernel(kernel, ksum) = @cxx normalizeKernel(kernel, ksum)
 
 # Display an image in a window and close upon key press (and delay)
 # For concurrent multiple display, set multi = "ON"
-function imdisplay(img, windowName::String, multi="OFF", flag=WINDOW_AUTOSIZE, delay=0, key=27)
+function imdisplay(img, windowName::String, flag=WINDOW_AUTOSIZE)
     namedWindow(windowName, flag)
     imshow(windowName, img)
-    (multi == "OFF" && waitkey(delay) == key) ? destroyWindow(windowName) : nothing
 end
 
-macro closeWindows(delay, key, windowName)
+function closeWindows(delay, key, windowName)
       (waitkey(delay) == key && windowName != "") ? destroyWindow(windowName) : destroyAllWindows()
 end
-# @closeWindows(0,27)
+# closeWindows(0,27,"")
 
-function im2tile(imgArray, windowName::String, flag=WINDOW_AUTOSIZE, delay=0, key=27)
+function im2tile(imgArray, windowName::String, flag=WINDOW_AUTOSIZE)
     canvas = Mat()
 
     for i=1:length(imgArray)
@@ -112,7 +137,7 @@ function im2tile(imgArray, windowName::String, flag=WINDOW_AUTOSIZE, delay=0, ke
         push(canvas, imgArray[i])
     end
 
-    imdisplay(canvas, windowName, flag, delay, key)
+    imdisplay(canvas, windowName, flag)
 end
 
 
@@ -144,6 +169,7 @@ end
 
 # Webstreaming
 # src: full http link to the video source
+# e.g., NASA TV: vid = "http://www.nasa.gov/multimedia/nasatv/NTV-Public-IPS.m3u8"
 function webstream (src::String)
     cam = videoCapture(src)    # open Video device
     !isOpened(cam) ? throw(ArgumentError("Can not open stream!")) : nothing
@@ -262,8 +288,8 @@ class iThreshold {
             cv::destroyAllWindows();
             break;
         }
-    }
-  }
+      }
+   }
 """
 
 iThreshold() = @cxxnew iThreshold()

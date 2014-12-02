@@ -38,8 +38,8 @@ void liveVideo_adjust(int device_index) {
     int Width = static_cast<int>(dWidth);
 
     // Initialize the cv::Mat structures
-    cv::Mat frame (Width,Height, CV_8UC3);
-    cv::Mat converted (Width,Height, CV_8UC3);
+    cv::Mat frame(Width,Height, CV_8UC3);
+    cv::Mat converted(Width,Height, CV_8UC3);
 
     // Loop until user presses ESC or frame is empty
     while(true)

@@ -33,23 +33,6 @@ cxxinclude("QApplication", isAngled=true)
 cxxinclude("QMessageBox", isAngled=true)
 cxxinclude("QFileDialog", isAngled=true)
 
-# Qt GUI framework
-# http://qt-project.org/doc/qt-5/qapplication.html
-# http://qt-project.org/doc/qt-5/qfiledialog.html#getOpenFileName
-
-# QString conversion
-# http://qt-project.org/forums/viewthread/4732
-# http://qt-project.org/doc/qt-5/qstring.html#details
-
-# Create a QApplication GUI object
-#     const a = "FileOpen"
-#     argv = Ptr{Uint8}[pointer(a),C_NULL]       # const char** argv
-#     argc = [int32(1)]                          # int agrc
-#     app = @cxx QApplication(*(pointer(argc)),pointer(argv))
-#     ... call QWidget or method
-#     @cxx app->processEvents()
-
-
 # convertQString
 cxx"""
     const char* convertQString(QString myString) {
@@ -68,7 +51,7 @@ function getOpenFileName()
     argc = [int32(1)]                     # int agrc
     app = @cxx QApplication(*(pointer(argc)),pointer(argv))
     Qname = @cxx QFileDialog::getOpenFileName(cast(C_NULL, pcpp"QWidget"),
-       pointer("Open File..."), pointer(homedir()), pointer("Files (*.*)"));
+       pointer("Open File..."), pointer(homedir()), pointer("Image Files (*.png *.jpg *.jpeg *.bmp *.tif *tiff)"));
     bytestring(@cxx convertQString(Qname));  # somewhow necessary to remove the first string
     filename = bytestring(@cxx convertQString(Qname))
 end
@@ -80,7 +63,7 @@ function getSaveFileName()
     argc = [int32(1)]                     # int agrc
     app = @cxx QApplication(*(pointer(argc)),pointer(argv))
     Qname = @cxx QFileDialog::getSaveFileName(cast(C_NULL, pcpp"QWidget"),
-       pointer("Save File..."), pointer(homedir()), pointer("Files (*.*)"));
+       pointer("Save File..."), pointer(homedir()), pointer("Image Files (*.png *.jpg *.jpeg *.bmp *.tif *tiff)"));
     bytestring(@cxx convertQString(Qname));  # somewhow necessary to remove the first string
     filename = bytestring(@cxx convertQString(Qname))
 end

@@ -369,7 +369,7 @@ cxx""" cv::Mat clone(cv::Mat img) { return(img.clone()); } """
 clone(img) = @cxx clone(img)
 
 # Mat::copyTo
-cxx""" void copyTo(cv::Mat img, cv::Mat copy) { img.copyTo(copy); } """
+cxx""" void copy(cv::Mat img, cv::Mat copy) { img.copyTo(copy); } """
 copy(img, copi) = @cxx copy(img, copi)
 copy(mask, copi) = @cxx copy(mask, copi)
 
@@ -443,8 +443,8 @@ addref(img) = @cxx img->addref()
 destroy(img) = @cxx img->release()
 
 # Mat::resize
-resize(img, sz) = @cxx img->resize(csize_t(sz))         # sz – new n rows (Uint64), s = cvScalar()
-resize(img, sz, s) = @cxx img->resize(csize_t(sz), s)
+resizeMat(img, sz) = @cxx img->resize(csize_t(sz))         # sz – new n rows (Uint64), s = cvScalar()
+resizeMat(img, sz, s) = @cxx img->resize(csize_t(sz), s)
 
 # Mat::reserve
 # Reserves space for the certain number of rows
@@ -947,12 +947,14 @@ fastMalloc(bufSize::Uint64) = @cxx cv::fastMalloc(bufSize)  # returns void*
 fastFree(ptr::Ptr{Void}) = @cxx cv::fastFree(ptr)
 # ptr – Pointer to the allocated buffer
 
-# format
-format(text::Ptr{Uint8}) = @cxx cv::format(text) # returns string
+# format strings
+cvString(text::String) = @cxx cv::format(pointer(text)) # returns cv::String
+
+# convert cv::String to Julia String
+julString(cvstr) = bytestring(@cxx cvstr->c_str())
 
 # getBuildInformation
 getBuildInformation() = @cxx cv::getBuildInformation()
-
 
 # heckHardwareSupport(int feature)
 checkHardwareSupport(feature::Int) = @cxx cv::checkHardwareSupport(feature)
