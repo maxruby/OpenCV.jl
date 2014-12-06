@@ -486,11 +486,11 @@ getDefaultNewCameraMatrix(cameraMatrix, imgsize, centerPrincipalPoint=false) =
 
 
 # Transforms an image to compensate for lens distortion
-undistort(src, dst, cameraMatrix, distCoeffs) = @cxx cv::undistort(src, dst, cameraMatrix, distCoeffs)
+undistort(src, dst, cameraMatrix, distCoeffs, newCameraMatrix=noArray() ) = @cxx cv::undistort(src, dst, cameraMatrix, distCoeffs, )
 # optional: newCameraMatrix=noArray()
 
 # Compute the ideal point coordinates from the observed point coordinates
-undistortPoints(src, dst, cameraMatrix, distCoeffs) = @cxx cv::undistortPoints(src, dst, cameraMatrix, distCoeffs)
+undistortPoints(src, dst, cameraMatrix, distCoeffs, R=noArray(), P=noArray()) = @cxx cv::undistortPoints(src, dst, cameraMatrix, distCoeffs,R ,P)
 # optional: InputArray R=noArray(), InputArray P=noArray()
 # R – Rectification transformation in the object space (3x3 matrix)
 # P – New camera matrix (3x3) or new projection matrix (3x4)
@@ -691,8 +691,8 @@ INT_MAX = 0 # draw only the specified contour is drawn
 # INT_MAX = 1 # draws the contour(s) and all the nested contours
 # INT_MAX = 2 # draws the contours, all the nested contours,and so on...
 
-drawContours(image, contours, contourIdx::Int, color, thickness=1, lineType=LINE_8, maxLevel=INT_MAX) =
-    @cxx drawContours(image, contours, contourIdx, color, thickness, lineType, maxLevel)
+drawContours(image, contours, contourIdx::Int, color, thickness=1, lineType=LINE_8, hierarchy=noArray(), maxLevel=INT_MAX, offset=cvPoint(0,0)) =
+    @cxx drawContours(image, contours, contourIdx, color, thickness, lineType, hierarchy, maxLevel, offset)
 # optional:  hierarchy=noArray()
 # optional:  Point offset=Point()
 # offset   - Optional contour shift parameter (x,y)
@@ -766,8 +766,8 @@ compareHist(H1, H2, method::Int) = @cxx cv::compareHist(H1, H2, method)
 # HISTCMP_KL_DIV        Kullback-Leibler divergence
 
 # EMD: Computes the “minimal work” distance between two weighted point configurations
-emd(signature1, signature2, distType::Int, lowerBound=[pointer(float(0))]) =
-    @cxx cv::emd(signature1, signature2, distType, lowerBound)
+emd(signature1, signature2, distType::Int, cost=noArray(),lowerBound=[pointer(float(0))], flow=noArray()) =
+    @cxx cv::emd(signature1, signature2, distType, cost, lowerBound, flow)
 # optional: InputArray cost=noArray()
 # optional: OutputArray flow=noArray()
 
@@ -956,27 +956,27 @@ rotatedRectangleIntersection(rect1, rect2, intersectingRegion) =
 # accumulate: Adds an image to the accumulator
 accumulate(src, dst) = @cxx cv::accumulate(src, dst)
 # accumulateSquare: Adds the square of a source image to the accumulator
-accumulateSquare(src, dst) = @cxx cv::accumulateSquare(src, dst)
+accumulateSquare(src, dst,mask=noArray()) = @cxx cv::accumulateSquare(src, dst, mask)
 # optional: InputArray mask=noArray()
 # src         – Input image as 1- or 3-channel, 8-bit or 32-bit floating point
 # dst         – Accumulator image with 32-bit or 64-bit floating-point (same channels as src)
 
 # accumulateProduct: Adds the per-element product of two input images to the accumulator
-accumulateProduct(src1, src2, dst) = @cxx cv::accumulateProduct(src1, src2, dst)
+accumulateProduct(src1, src2, dst, mask=noArray()) = @cxx cv::accumulateProduct(src1, src2, dst, mask)
 # optional: InputArray mask=noArray()
 # src1, src2  – Input images as 1- or 3-channel, 8-bit or 32-bit floating point
 # dst         – Accumulator image with 32-bit or 64-bit floating-point (same channels as src)
 
 # accumulateWeighted: Updates a running average
-accumulateWeighted(src, dst, alpha::Float64) = @cxx cv::accumulateWeighted(src, dst, alpha)
+accumulateWeighted(src, dst, alpha::Float64, mask=noArray()) = @cxx cv::accumulateWeighted(src, dst, alpha, mask)
 # optional: InputArray mask=noArray()
 # src1, src2  – Input images as 1- or 3-channel, 8-bit or 32-bit floating point
 # dst         – Accumulator image with 32-bit or 64-bit floating-point (same channels as src
 # alpha       – Weight of the input image
 
 # phaseCorrelate: detect translational shifts that occur between two images
-phaseCorrelate(src1, src2, response=pointer(float(0))) = @cxx cv::phaseCorrelate(src1, src2, response)
-# optional: InputArray mask=noArray()
+phaseCorrelate(src1, src2, window=noArray(), response=pointer(float(0))) = @cxx cv::phaseCorrelate(src1, src2, window, response)
+# window=noArray()
 # src1        – Source floating point array (CV_32FC1 or CV_64FC1)
 # src2        – Source floating point array (CV_32FC1 or CV_64FC1)
 # window      – Floating point array with windowing coefficients to reduce edge effects (optional)
@@ -1040,9 +1040,9 @@ cornerSubPix(image, corners, winSize, zeroZone, criteria) =
 # criteria      – Criteria for termination of the iterative process of corner refinement  (TermCriteria)
 
 # goodFeaturesToTrack:
-goodFeaturesToTrack(image, corners, maxCorners::Int, qualityLevel::Float64, minDistance::Float64,
+goodFeaturesToTrack(image, corners, maxCorners::Int, qualityLevel::Float64, minDistance::Float64,mask=noArray(),
      blockSize=3, useHarrisDetector=false, k=0.04) = @cxx cv::goodFeaturesToTrack(image, corners,
-         maxCorners, qualityLevel, minDistance, blockSize, useHarrisDetector, k)
+         maxCorners, qualityLevel, minDistance, mask, blockSize, useHarrisDetector, k)
 # image             – Input 8-bit or floating-point 32-bit, single-channel image.
 # corners           – Output vector of detected corners
 # maxCorners        – Maximum number of corners to return
@@ -1113,7 +1113,7 @@ createLineSegmentDetector(_refine=LSD_REFINE_STD, _scale=0.8, _sigma_scale=0.6, 
 # n_bins      – Number of bins in pseudo-ordering of gradient modulus
 
 # LineSegmentDetector::detect
-detectLines(linesegmentDetector, _image, _lines) = @cxx cv::linesegmentDetector->detect(_image, _lines)
+detectLines(linesegmentDetector, _image, _lines, width=noArray(),prec=noArray(),nfa=noArray()) = @cxx cv::linesegmentDetector->detect(_image, _lines, width, prec, nfa)
 # _lines        – A vector of Vec4i elements specifying the beginning and ending point of a line
 # nfa           – Vector containing number of false alarms
 #                 -1 =>  10 mean false alarms

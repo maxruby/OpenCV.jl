@@ -81,12 +81,14 @@ cxxinclude(joinpath(cvheaderdir,"opencv2/stitching.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/superres.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/videostab.hpp"))
 
-# Load common headers
+# Include C++ headers
 cxx"""
  #include <iostream>
+ #include <unistd.h>
  #include <cstdlib>
  #include <cstdio>
  #include <cstddef>
+ #include <cstring>
  #include <cfloat>
  #include <vector>
  #include <ctime>

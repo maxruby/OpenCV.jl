@@ -52,7 +52,7 @@ void imThreshold(const char *inputfile, const char *outfile) {
 
   cv::threshold(img_gray, img_thresh, threshold_value, max_value, cv::THRESH_BINARY + cv::THRESH_OTSU);
 
-  imshow("Thresholded", img_thresh);
+  cv::imshow("Thresholded", img_thresh);
 
   cv::waitKey(0);
   cv::imwrite(ofname, img_thresh);

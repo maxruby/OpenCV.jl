@@ -1,16 +1,28 @@
 
-# Julia: general utility functions
-cint(x) = convert(Cint, x)
-csize_t(x) = convert(Csize_t, x)
+# type conversion
+cint(n) = convert(Cint, n)    # same as int32
+csize_t(n) = convert(Csize_t, n)
+cchar(n) = convert(Int8,n)
+cuchar(n) = convert(Cuchar, n)
+cshort(n) = convert(Cshort, n)
+cushort(n) = convert(Cushort, n)
 
 # Search directory
 searchdir(path,key) = filter(x->contains(x,key), readdir(path))
 swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
 
+
 # C++ std::vector class thin-wrappings for Julia
 cxx"""
 template <typename T>
     std::vector<T> stdvector(int size, T x)
+      {
+        std::vector<T> cppvec(size, x);
+        return (cppvec);
+      }
+
+template <typename T>
+    std::vector<T> stdvectorSzt(std::size_t size, T x)
       {
         std::vector<T> cppvec(size, x);
         return (cppvec);
@@ -33,6 +45,7 @@ template <typename T_>
 """
 
 stdvector(size, value) = @cxxnew stdvector(size, value)
+stdvectorSzt(size, value) = @cxxnew stdvectorSzt(csize_t(size), value)
 stdassign(ccpvec, size, value) = @cxx ccpvec->assign(size,value)
 stddata(cppvec) = @cxx ccpvec->data()     # Ptr to first elememt
 stdempty(cppvec) = @cxx cppvec->empty()   # check if it is empty
@@ -50,10 +63,21 @@ function at(cppvec, index::Int)
 end
 function at_(cppvec, index::Int)
   (index < 0 || index > stdsize(cppvec)) ? throw(ArgumentError("index is out of bounds")) : nothing
-   @cxx at_(cppvec, index)   # out of bounds check
+   @cxx at_(cppvec, index)   # out of bounds check  (will lead to crash if out of bounds)
 end
 clear(cppvec) = @cxx cppvec->clear()
 
+
+# Converting julia Array{Int64,1} to an std::vector
+function tostdvec{T}(jl_vector::Array{T,1})
+    # C++ must deduce type from template functions
+    stdvec = stdvector(0,jl_vector[1])
+
+    for i=2:length(jl_vector)
+       stdpush_back(stdvec, jl_vector[i])  # index -1 (C++ has 0-indexing)
+    end
+    return(stdvec)
+end
 
 # C++ string handling
 # julia string => std::string
@@ -75,8 +99,48 @@ stdstrsize(std_string) = @cxx std_string->size()
 stdstrlength(std_string) = @cxx std_string->length()
 stdstrclear(std_string) = @cxx std_string->clear()
 
+
+#-------------------------------------------------------------------------------------------------------------------#
+# Basic core utility functions
+
+# Print Mat uchar array (very rough)
+cxx"""
+void printMat(const cv::Mat& mat)
+{
+    for(int i = 0; i < mat.rows; i++)
+    {
+        for(int j=0; j < mat.cols; j++)
+        {
+            std::cout << (int) mat.at<uchar>(i,j) << " "; break;
+        }
+    }
+}
+"""
+
+printMat(img) = @cxx printMat(img)
+
+
+# Accessing pixel data (uchar)
+# Note: Templates do not currently work here, so using overloaded functions
+
+
+
 #-------------------------------------------------------------------------------------------------------------------#
 # Image processing (imgproc)
+
+# imreplace - uses a rectangular ROI to copy a region from one image to another
+cxx"""
+cv::Mat imreplace(cv::Mat& src,cv::Mat& dst, cv::Rect roi)
+{
+    //initialize the ROI (location to copy)
+    cv::Mat dstROI(dst(roi));
+    //perform the copy
+    src.copyTo(dstROI);
+    return(dst);
+}
+"""
+imreplace(src, dst, roi) = @cxx imreplace(src, dst, roi)
+
 
 # Support for image convolution
 cxx"""
@@ -105,7 +169,6 @@ getKernelSum(kernel) = @cxx getKernelSum(kernel)
 normalizeKernel(kernel, ksum) = @cxx normalizeKernel(kernel, ksum)
 
 # TO_DO:  Similar utility functions are likely required for other functions in imgproc
-
 
 
 #-------------------------------------------------------------------------------------------------------------------#
@@ -235,66 +298,3 @@ function videoWrite (cam, filename::String, fps::Float64, nframes = 0, frameSize
    release(cam)
 end
 
-
-#-------------------------------------------------------------------------------------------------------------------#
-# Interactive thresholding
-
-cxx"""
-class iThreshold {
-   public:
-     int threshold = 120;
-     int max_val = 255;
-     cv::Mat dst;
-     cv::Mat gray;
-
-     int getValue(void);
-     void setValue(int thresh);
-     void setTrackbar (const char* tn, const char* wn);
-     void show (const char* wn, cv::Mat img, int flag = cv::THRESH_BINARY);
-  };
-
-  void iThreshold::setValue(int thresh) {
-      threshold = thresh;
-  }
-
-  int iThreshold::getValue(void) {
-      return(threshold);
-  }
-
-  void iThreshold::setTrackbar (const char* tn, const char* wn){
-     std::string t = tn;
-     std::string w = wn;
-     cv::namedWindow(w, cv::WINDOW_AUTOSIZE);
-     cv::createTrackbar(t, w, &threshold, max_val);
-
-  }
-
-  void iThreshold::show (const char* wn, cv::Mat img, int flag) {
-     std::string w = wn;
-     // Make grayscale
-     cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-     while(true) {
-        // Threshold
-        // cv::THRESH_BINARY
-        // cv::THRESH_OTSU
-        // cv::THRESH_BINARY_INV
-        // cv::THRESH_TRUNC
-        // cv::THRESH_TOZERO
-        // cv::THRESH_TOZERO_INV
-        cv::threshold(gray, dst, threshold, max_val, flag);
-        // Show image
-        cv::imshow(w, dst);
-        if (cv::waitKey(30) == 27) {
-            cv::destroyAllWindows();
-            break;
-        }
-      }
-   }
-"""
-
-iThreshold() = @cxxnew iThreshold()
-setValue(iThreshold, val::Int) = @cxx iThreshold->setValue(val)
-getValue(iThreshold) = @cxx iThreshold->getValue()
-setWindow(iThreshold, trackbarname::String, winname::String) =
-     @cxx iThreshold->setTrackbar(pointer(trackbarname), pointer(winname))
-showWindow(iThreshold, winname::String, img) =  @cxx iThreshold->show(pointer(winname), img)

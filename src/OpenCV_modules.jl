@@ -64,7 +64,8 @@
 
 # Core
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_core.jl"))
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_core_templates.jl"))
+# Custom module for Mat arrays (e.g., get and set methods)
+include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_Mat.jl"))
 
 # Image processing
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_imgproc.jl"))
@@ -77,6 +78,9 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_videoio.jl"))
 
 # High-level GUI and Media I/O
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_highgui.jl"))
+
+# Support for conversion and manipulation of images from external packages
+include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_ImagesSupport.jl"))
 
 
 

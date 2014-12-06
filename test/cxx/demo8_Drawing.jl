@@ -1,7 +1,7 @@
 #################################################################################################
 #
-# demo 8:  Basic drawing example (adapated from OpenCV samples)
-#
+# demo 8:  Basic drawing example
+# source:  OpenCV samples folder
 #################################################################################################
 
 cxx"""

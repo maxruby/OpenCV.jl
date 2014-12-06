@@ -197,11 +197,56 @@
 
 #-------------------------------------------------------------------------------------------------------------------#
 # 1. Basic structures
+
+cxx"""
+// Uint8 => Cuchar
+cv::Vec2b vec2b(uchar a, uchar b) { return cv::Vec2b(a,b); }
+cv::Vec3b vec3b(uchar a, uchar b, uchar c) { return cv::Vec3b(a,b,c); }
+cv::Vec4b vec4b(uchar a, uchar b, uchar c, uchar d) { return cv::Vec4b(a,b,c,d); }
+
+// Int32 => Cint
+cv::Vec2i vec2i(int a, int b) { return cv::Vec2i(a,b); }
+cv::Vec3i vec3i(int a, int b, int c) { return cv::Vec3i(a,b,c); }
+cv::Vec4i vec4i(int a, int b, int c, int d) { return cv::Vec4i(a,b,c,d); }
+
+// Float32
+cv::Vec2f vec2f(float a, float b) { return cv::Vec2f(a,b); }
+cv::Vec3f vec3f(float a, float b, float c) { return cv::Vec3f(a,b,c); }
+cv::Vec4f vec4f(float a, float b, float c, float d) { return cv::Vec4f(a,b,c,d); }
+cv::Vec6f vec6f(float a, float b, float c, float d, float e, float f) { return cv::Vec6f(a,b,c,d,e,f); }
+
+// Float64 => Cdouble
+cv::Vec2d vec2d(double a, double b) { return cv::Vec2d(a,b); }
+cv::Vec3d vec3d(double a, double b, double c) { return cv::Vec3d(a,b,c); }
+cv::Vec4d vec4d(double a, double b, double c, double d) { return cv::Vec4d(a,b,c,d); }
+cv::Vec6d vec6d(double a, double b, double c, double d, double e, double f) { return cv::Vec6d(a,b,c,d,e,f); }
+"""
+
+vec2b(a,b) = @cxx vec2b(a, b)
+vec3b(a,b,c) = @cxx vec3b(a, b, c)
+vec4b(a,b,c,d) = @cxx vec4b(a, b, c, d)
+
+vec2i(a,b) = @cxx vec2i(cint(a), cint(b))
+vec3i(a,b,c) = @cxx vec3i(cint(a), cint(b), cint(c))
+vec4i(a,b,c,d) = @cxx vec4i(cint(a), cint(b), cint(c), cint(d))
+
+vec2f(a,b) = @cxx vec2f(float32(a), float32(b))
+vec3f(a,b,c) = @cxx vec3f(float32(a), float32(b), float32(c))
+vec4f(a,b,c,d) = @cxx vec4f(float32(a), float32(b), float32(c), float32(d))
+vec6f(a,b,c,d,e,f) = @cxx vec6f(float32(a),float32(b), float32(c), float32(d), float32(e), float32(f))
+
+vec2d(a,b) = @cxx vec2d(float(a), float(b))
+vec3d(a,b,c) = @cxx vec3d(float(a), float(b), float(c))
+vec4d(a,b,c,d) = @cxx vec4d(float(a), float(b), float(c), float(d))
+vec6d(a,b,c,d,e,f) = @cxx vec6d(float(a), float(b), float(c), float(d), float(e), float(f))
+
 # Point
 cvPoint(x, y) = @cxx cv::Point(x,y)
 cvPoint2f(x, y) = @cxx cv::Point2f(float32(x),float32(y))
 cvPoint2d(x, y) = @cxx cv::Point2d(float(x),float(y))
-# cvPoint3(x, y, z) = @cxx cv::Point3(x,y,z)
+cvPoint3i(x, y, z) = @cxx cv::Point3f(cint(x),cint(y),cint(z))
+cvPoint3f(x, y, z) = @cxx cv::Point3f(float32(x),float32(y),float32(z))
+cvPoint3d(x, y, z) = @cxx cv::Point3d(float64(x),float64(y),float64(z))
 
 # Size
 cvSize(width, height) = @cxx cv::Size(width,height)
@@ -339,18 +384,18 @@ col(img, y::Int) = @cxx col(img, y)
 
 # Mat::rowRange
 cxx""" cv::Mat rowRange(cv::Mat img, int startrow, int endrow) { return(img.rowRange(startrow, endrow)); } """
-imrow(img, startrow::Int, endrow::Int) = @cxx rowRange(img, startrow, endrow)
+rowRange(img, startrow::Int, endrow::Int) = @cxx rowRange(img, startrow, endrow)
 
 cxx""" cv::Mat rowRange(cv::Mat img, const cv::Range& r) { return(img.rowRange(r)); } """
-imrow(img, range) = @cxx rowRange(img, range)
+rowRange(img, range) = @cxx rowRange(img, range)
 
 # Mat::colRange
 # const range = cvRange(start::Int, tend::Int)
 cxx""" cv::Mat colRange(cv::Mat img, int startcol, int endcol) { return(img.colRange(startcol, endcol)); } """
-imcol(img, startcol::Int, endcol::Int) = @cxx colRange(img, startcol, endcol)
+colRange(img, startcol::Int, endcol::Int) = @cxx colRange(img, startcol, endcol)
 
 cxx""" cv::Mat colRange(cv::Mat img, const cv::Range& r) { return(img.colRange(r)); } """
-imcol(img, range) = @cxx colRange(img, range)
+colRange(img, range) = @cxx colRange(img, range)
 
 # Mat::diag
 # d=0 is the main diagonal
@@ -369,9 +414,13 @@ cxx""" cv::Mat clone(cv::Mat img) { return(img.clone()); } """
 clone(img) = @cxx clone(img)
 
 # Mat::copyTo
-cxx""" void copy(cv::Mat img, cv::Mat copy) { img.copyTo(copy); } """
-copy(img, copi) = @cxx copy(img, copi)
-copy(mask, copi) = @cxx copy(mask, copi)
+cxx""" void copy(cv::Mat out, cv::Mat img) { img.copyTo(out); } """
+cxx""" void copyTomask(cv::Mat img, cv::Mat mask, cv::Mat out) { img.copyTo(out, mask); } """
+copy(out, img) = @cxx copy(out, img)
+copyTomask(img, mask, out) = @cxx copyTomask(img, mask, out)
+
+cxx""" cv::Mat imageROI(cv::Mat img, cv::Rect roi) { return img(roi); } """
+ROImage(img, ROI) = @cxx imageROI(img, ROI)
 
 # Mat::convertTo
 # rtype - depth, rtype < 0 output = input type
@@ -385,7 +434,7 @@ assignTo(img, m, rtype=-1) = @cxx assignTo(img, m, rtype)
 
 # Mat::setTo
 # value(cvScalar), mask (same size as img)
-set(img, value) = @cxx img->setTo(value)
+set(img, value) = @cxx img->setTo(value, mask)
 
 # Mat::reshape
 # rows = 0 (no change)
@@ -411,6 +460,9 @@ cross(img, m) = @cxx cross(img, m)
 # Mat::dot (Computes a dot-product of two equally sized matrices)
 cxx"""  double dot(cv::Mat img, cv::Mat m) { return(img.dot(m)); } """
 dot(img, m) = @cxx dot(img, m)
+
+# Empty array (NULL pointer)
+noArray() = @cxx cv::noArray()
 
 # Mat::zeros()
 # ndims –> Array dimensionality.
@@ -550,7 +602,7 @@ channelsSparse(sparseM) = @cxx channelsSparse(sparseM)         # number of matri
 abs(img) = @cxx cv::abs(img)
 absdiff(src1, src2, dst) = @cxx absdiff(src1, src2, dst)
 
-add(src1, src2, dst, dtype=-1) = @cxx cv::add(src1, src2, dst, dtype)
+add(src1, src2, dst, mask = noArray(), dtype=-1) = @cxx cv::add(src1, src2, dst, mask, dtype)
 # mask – optional operation mask - 8-bit single channel array, default mask = noArray()
 # dtype – optional depth of the output array
 
@@ -559,10 +611,10 @@ addWeighted(src1, alpha, src2, beta::Float64, gamma::Float64, dst, dtype=-1) =
 # beta – weight of the second array elements
 # gamma – scalar added to each sum
 
-bitwise_and(src1, src2, dst) = @cxx cv::bitwise_and(src1, src2, dst)
-bitwise_not(src, dst) = @cxx cv::bitwise_not(src, dst)
-bitwise_or(src1, src2, dst) = @cxx cv::bitwise_or(src1, src2, dst)
-bitwise_xor(src1, src2, dst) = @cxx cv::bitwise_xor(src1, src2, dst)
+bitwise_and(src1, src2, dst,  mask = noArray()) = @cxx cv::bitwise_and(src1, src2, dst, mask)
+bitwise_not(src, dst, mask = noArray()) = @cxx cv::bitwise_not(src, dst, mask)
+bitwise_or(src1, src2, dst, mask = noArray()) = @cxx cv::bitwise_or(src1, src2, dst,mask)
+bitwise_xor(src1, src2, dst, mask = noArray()) = @cxx cv::bitwise_xor(src1, src2, dst,mask)
 # mask – optional operation mask - 8-bit single channel array, default mask = noArray()
 
 calcCovarMatrix(sample, nsamples::Int, covar, mean, flags::Int, ctype=CV_64F) =
@@ -636,7 +688,7 @@ divide(src1, src2, dst, scale=1.0, dtype=-1) = @cxx cv::divide(src1, src2, dst, 
 determinant(mtx) = @cxx cv::determinant(mtx)
 # determinant of a square floating-point matrix
 
-eigen(src, eigenvalues) = @cxx cv::eigen(src, eigenvalues)
+eigen(src, eigenvalues, eigenvectors=noArray()) = @cxx cv::eigen(src, eigenvalues,eigenvectors)
 # src           – input matrix that must have CV_32FC1 or CV_64FC1
 # eigenvectors  – default =noArray()
 # eigenvalues   – output vector [eigenvalues, type = src], stored in descending order
@@ -709,10 +761,10 @@ Mahalanobis(v1, v2, icovar) = @cxx cv::Mahalanobis(v1, v2, icovar)
 max(a, b) = @cxx cv::max(a,b)
 max(a, scalar) = @cxx cv::max(a,scalar)
 
-mean(src) = @cxx cv::mean(src)
+mean(src,mask=noArray()) = @cxx cv::mean(src, mask)
 # mask  – optional operation mask, default mask=noArray()
 
-meanStdDev(src, mean, stddev) = @cxx cv::meanStdDev(src, mean, stddev)
+meanStdDev(src, mean, stddev, mask=noArray()) = @cxx cv::meanStdDev(src, mean, stddev, mask)
 # mask  – optional operation mask, default mask=noArray()
 
 merge(mv, count::Uint64, dst) = @cxx cv::merge(mv, count, dst)
@@ -723,8 +775,8 @@ min(a, b) = @cxx cv::min(a,b)
 min(a, scalar) = @cxx cv::min(a,scalar)
 
 # global minimum and maximum in an array
-minMaxIdx(src, minVal::Ptr{Float64}, maxVal=pointer([float(0)]), iminIdx=pointer([0]), maxIdx=pointer([0])) =
-    @cxx cv::minMaxIdx(src, minVal, maxVal, iminIdx, maxIdx)
+minMaxIdx(src, minVal::Ptr{Float64}, maxVal=pointer([float(0)]), iminIdx=pointer([0]), maxIdx=pointer([0]), mask=noArray()) =
+    @cxx cv::minMaxIdx(src, minVal, maxVal, iminIdx, maxIdx, mask)
 # maxVal::Ptr{Float64}
 # minIdx::Ptr{Int}
 # maxIdx::Ptr{Int}
@@ -734,8 +786,8 @@ minMaxIdx(src, minVal::Ptr{Float64}, maxVal=pointer([float(0)]), iminIdx=pointer
 # minIdx – minIdx is not NULL, it must have at least 2 elements (as well as maxIdx),
 
 # global minimum and maximum in an array
-minMaxLoc(src, minVal::Ptr{Float64}, maxVal=pointer([float(0)]), minLoc=pointer([0]), maxLoc=pointer([0])) =
-    @cxx cv::minMaxLoc(src, minVal, maxVal, minLoc, maxLoc)
+minMaxLoc(src, minVal::Ptr{Float64}, maxVal=pointer([float(0)]), minLoc=pointer([0]), maxLoc=pointer([0]), mask=noArray()) =
+    @cxx cv::minMaxLoc(src, minVal, maxVal, minLoc, maxLoc, mask)
 # minLoc = convert(C_NULL, pointer(cvPoint))
 # maxLoc = convert(C_NULL, pointer(cvPoint))
 # mask  – optional operation mask, default mask=noArray()
@@ -757,23 +809,23 @@ mulSpectrums(a, b, c, flags=DFT_ROWS, conjB=false) = @cxx cv::mulSpectrums(a, b,
 multiply(src1, src2, dst, scale=1.0, dtype=-1) = @cxx cv::multiply(src1, src2, dst, scale, dtype)
 
 # product of a matrix and its transposition
-mulTransposed(src, dst, aTa::Bool, scale=1.0, dtype=-1) = @cxx cv::mulTransposed(src, dst, aTa, scale, dtype)
+mulTransposed(src, dst, aTa::Bool, delta=noArray(), scale=1.0, dtype=-1) = @cxx cv::mulTransposed(src, dst, aTa,delta, scale, dtype)
 # InputArray delta=noArray()
 
 # absolute array norm, an absolute difference norm, or a relative difference norm
-norm(src1, normType=NORM_L2) = @cxx cv::norm(src1, normType=NORM_L2)
-norm(src1, src2, normType=NORM_L2) = @cxx cv::norm(src1, src2, normType=NORM_L2)
+norm(src1, normType=NORM_L2,mask=noArray()) = @cxx cv::norm(src1, normType=NORM_L2, mask)
+norm(src1, src2, normType=NORM_L2,mask=noArray()) = @cxx cv::norm(src1, src2, normType=NORM_L2, mask)
 # InputArray mask=noArray()
 
 # norm or value range of an array
-normalize(src, dst, alpha=1.0, beta=0, norm_type=NORM_L2, dtype=-1) = @cxx cv::normalize(src, dst, alpha, beta, norm_type, dtype)
+normalize(src, dst, alpha=1.0, beta=0, norm_type=NORM_L2, dtype=-1, mask=noArray()) = @cxx cv::normalize(src, dst, alpha, beta, norm_type, dtype, mask)
 # InputArray mask=noArray()
 
 # PCA: Principal Component Analysis class
 # Constructors
 pca() = cv::PCA::PCA()
-pca(data, mean, flags::Int, maxComponents=0) =  @cxx cv::PCA::PCA(data, mean, flags, maxComponents)
-pca(data, mean, flags::Int, retainedVariance::Float64) = @cxx cv::PCA::PCA(data, mean, flags, retainedVariance)
+pca(data, mean=noArray(), flags=CV_PCA_DATA_AS_ROW, maxComponents=0) =  @cxx cv::PCA::PCA(data, mean, flags, maxComponents)
+pca(data, mean=noArray(), flags=CV_PCA_DATA_AS_ROW, retainedVariance=2.0) = @cxx cv::PCA::PCA(data, mean, flags, retainedVariance)
 # Run PCA
 pca_operator() = @cxx cv::PCA::PCA->operator()
 # data             – input samples stored as matrix rows or matrix columns.
@@ -875,7 +927,7 @@ sqrt(src, dst) = @cxx cv::sqrt(src, dst)
 # src - input floating-point array
 # dst – output array
 
-subtract(src1, src2, dst, dtype=-1) = @cxx cv::subtract(src1, src2, dst, dtype)
+subtract(src1, src2, dst, mask=noArray(), dtype=-1) = @cxx cv::subtract(src1, src2, dst, mask, dtype)
 # InputArray mask=noArray()
 
 # Singular Value Decomposition of a floating-point matrix
@@ -925,8 +977,8 @@ copyMakeBorder(src, dst, top::Int, bottom::Int, left::Int, right::Int, borderTyp
 # 3. Clustering
 
 # Finds centers of clusters and groups input samples around the clusters
-kmeans(data, K::Int, bestLabels, criteria, attempts::Int, flags::Int) =
-    @cxx cv::kmeans(data, K, bestLabels, criteria, attempts, flags)
+kmeans(data, K::Int, bestLabels, criteria, attempts::Int, flags::Int,centers=noArray()) =
+    @cxx cv::kmeans(data, K, bestLabels, criteria, attempts, flags, centers)
 # OutputArray centers=noArray()
 # TermCriteria
 # partition

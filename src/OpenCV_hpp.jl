@@ -178,7 +178,6 @@ const FONT_HERSHEY_SCRIPT_SIMPLEX = 6
 const FONT_HERSHEY_SCRIPT_COMPLEX = 7
 const FONT_ITALIC                 = 16
 
-
 # cvdef.h
 const CV_CPU_NONE   = 0
 const CV_CPU_MMX    = 1
@@ -192,16 +191,103 @@ const CV_CPU_POPCNT = 8
 const CV_CPU_AVX    = 10
 const CV_CPU_NEON   = 11
 
-# core.h
+# core_c.h
+const CV_AUTOSTEP        = 0x7fffffff
+const CV_MAX_ARR         = 10
+const CV_NO_DEPTH_CHECK  = 1
+const CV_NO_CN_CHECK     = 2
+const CV_NO_SIZE_CHECK   = 4
+const CV_CMP_EQ   =  0
+const CV_CMP_GT   =  1
+const CV_CMP_GE   =  2
+const CV_CMP_LT   =  3
+const CV_CMP_LE   =  4
+const CV_CMP_NE   =  5
+const CV_CHECK_RANGE  = 1
+const CV_CHECK_QUIET  = 2
+const CV_RAND_UNI     = 0
+const CV_RAND_NORMAL  = 1
+
 const CV_REDUCE_SUM = 0
 const CV_REDUCE_AVG = 1
 const CV_REDUCE_MAX = 2
 const CV_REDUCE_MIN = 3
 
-const CV_SORT_EVERY_ROW = 0
+const CV_SORT_EVERY_ROW    = 0
 const CV_SORT_EVERY_COLUMN = 1
-const CV_SORT_ASCENDING = 0
-const CV_SORT_DESCENDING = 16
+const CV_SORT_ASCENDING    = 0
+const CV_SORT_DESCENDING   = 16
+
+const CV_GEMM_A_T         = 1
+const CV_GEMM_B_T         = 2
+const CV_GEMM_C_T         = 4
+const CV_SVD_MODIFY_A     = 1
+const CV_SVD_U_T          = 2
+const CV_SVD_V_T          = 4
+const CV_LU               = 0
+const CV_SVD              = 1
+const CV_SVD_SYM          = 2
+const CV_CHOLESKY         = 3
+const CV_QR               = 4
+const CV_NORMAL           = 16
+const CV_COVAR_SCRAMBLED  = 0
+const CV_COVAR_NORMAL     = 1
+const CV_COVAR_USE_AVG    = 2
+const CV_COVAR_SCALE      = 4
+const CV_COVAR_ROWS       = 8
+const CV_COVAR_COLS       = 16
+
+const CV_PCA_DATA_AS_ROW  = 0
+const CV_PCA_DATA_AS_COL  = 1
+const CV_PCA_USE_AVG      = 2
+const CV_C                = 1
+const CV_L1               = 2
+const CV_L2               = 4
+const CV_NORM_MASK        = 7
+const CV_RELATIVE         = 8
+const CV_DIFF             = 16
+const CV_MINMAX           = 32
+
+const CV_DIFF_C        = CV_DIFF
+const CV_DIFF_L1       = CV_DIFF
+const CV_DIFF_L2       = CV_DIFF
+const CV_RELATIVE_C    = CV_RELATIVE
+const CV_RELATIVE_L1   = CV_RELATIVE
+const CV_RELATIVE_L2   = CV_RELATIVE
+
+const CV_REDUCE_SUM    = 0
+const CV_REDUCE_AVG    = 1
+const CV_REDUCE_MAX    = 2
+const CV_REDUCE_MIN    = 3
+
+const CV_DXT_FORWARD  = 0
+const CV_DXT_INVERSE  = 1
+const CV_DXT_SCALE    = 2
+const CV_DXT_INV_SCALE = (CV_DXT_INVERSE + CV_DXT_SCALE)
+const CV_DXT_INVERSE_SCALE = CV_DXT_INV_SCALE
+const CV_DXT_ROWS     = 4
+const CV_DXT_MUL_CONJ = 8
+
+const CV_FRONT = 1
+const CV_BACK = 0
+
+const CV_GRAPH_VERTEX      =   1
+const CV_GRAPH_TREE_EDGE   =   2
+const CV_GRAPH_BACK_EDGE   =   4
+const CV_GRAPH_FORWARD_EDGE =  8
+const CV_GRAPH_CROSS_EDGE   =  16
+const CV_GRAPH_ANY_EDGE     =  30
+const CV_GRAPH_NEW_TREE     =  32
+const CV_GRAPH_BACKTRACKING =  64
+const CV_GRAPH_OVER         =  -1
+const CV_GRAPH_ALL_ITEMS    = -1
+
+# flags for graph vertices and edges */
+const CV_GRAPH_ITEM_VISITED_FLAG = (1 << 30)
+# const CV_IS_GRAPH_VERTEX_VISITED(vtx) = (((CvGraphVtx*)(vtx))->flags & CV_GRAPH_ITEM_VISITED_FLAG)
+# const CV_IS_GRAPH_EDGE_VISITED(edge) \ (((CvGraphEdge*)(edge))->flags & CV_GRAPH_ITEM_VISITED_FLAG)
+const CV_GRAPH_SEARCH_TREE_NODE_FLAG =  (1 << 29)
+const CV_GRAPH_FORWARD_EDGE_FLAG     =  (1 << 28)
 
 # types_c.h
 const CV_RNG_COEFF = 4164903690       #U = unsigned
