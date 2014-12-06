@@ -26,11 +26,6 @@ The OpenCV API is extensively documented - rather than repeating the entire docu
 Install `julia 0.4.0-dev` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below. 
 
 #### OSX
-```julia
-Pkg.clone("git://github.com/maxruby/OpenCV.jl.git")
-using OpenCV
-```
-
 To compile OpenCV 3.0 on a 64-bit OSX system 
 
 ```sh
@@ -57,6 +52,12 @@ $ ls opencv2
 
 #### Windows and Linux
 See links for info on how to install OpenCV on Debian linux [1](http://milq.github.io/install-opencv-ubuntu-debian/), Ubuntu [1](http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html) ,[2] (https://github.com/jayrambhia/Install-OpenCV) and [Windows](http://docs.opencv.org/trunk/doc/tutorials/introduction/windows_install/windows_install.html).  
+
+####Download and run OpenCV.jl
+```julia
+Pkg.clone("git://github.com/maxruby/OpenCV.jl.git")
+using OpenCV
+```
 
 ##Basic interface
 OpenCV contains hundreds of algorithms and functions. Most frequently used functions for image processing are already accessible in the current version of OpenCV.jl. For simplicity, here I focus on using  functions wrapped in OpenCV.jl.   
