@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////
+/*M///////////////////////////////////////////////////////////////////////////////////////
 //
 //  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
 //
@@ -74,6 +74,8 @@
 #    error "OpenCV CUDA module doesn't support NVIDIA compute capability 1.0"
 #  endif
 #endif
+
+//! @cond IGNORED
 
 namespace cv { namespace cuda {
     CV_EXPORTS cv::String getNppErrorMessage(int code);
@@ -166,5 +168,7 @@ namespace cv { namespace cuda
 #define cuSafeCall(expr)  cv::cuda::checkCudaDriverApiError(expr, __FILE__, __LINE__, CV_Func)
 
 #endif // HAVE_CUDA
+
+//! @endcond
 
 #endif // __OPENCV_CORE_CUDA_PRIVATE_HPP__

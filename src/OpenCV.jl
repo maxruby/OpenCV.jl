@@ -62,7 +62,6 @@ end
 addHeaderDir(joinpath(cvheaderdir,"opencv2"), kind = C_System )
 addHeaderDir(joinpath(cvheaderdir,"opencv2/core"), kind = C_System )
 cxxinclude(joinpath(cvheaderdir,"opencv2/opencv.hpp"))
-
     # => opencv.hpp calls all the main headers
     #include "opencv2/core.hpp"
     #include "opencv2/imgproc.hpp"
@@ -76,6 +75,7 @@ cxxinclude(joinpath(cvheaderdir,"opencv2/opencv.hpp"))
     #include "opencv2/highgui.hpp"
     #include "opencv2/ml.hpp"
 
+cxxinclude(joinpath(cvheaderdir,"opencv2/core/ocl.hpp"))  # OpenCL
 cxxinclude(joinpath(cvheaderdir,"opencv2/shape.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/stitching.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/superres.hpp"))

@@ -119,12 +119,6 @@ void printMat(const cv::Mat& mat)
 
 printMat(img) = @cxx printMat(img)
 
-
-# Accessing pixel data (uchar)
-# Note: Templates do not currently work here, so using overloaded functions
-
-
-
 #-------------------------------------------------------------------------------------------------------------------#
 # Image processing (imgproc)
 
@@ -258,7 +252,7 @@ end
 
 
 function videoWrite (cam, filename::String, fps::Float64, nframes = 0, frameSize=cvSize(0,0), fourcc=-1, isColor=true)
-    !(isOpened(cam)) ? throw(ArgumentError("Can is not opened!")) : nothing
+    !(isOpened(cam)) ? throw(ArgumentError("Video source is not available!")) : nothing
 
     # Set the video capture frame size based on camera input WIDTH and HEIGHT
     width = getVideoId(cam, CAP_PROP_FRAME_WIDTH)
