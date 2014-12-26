@@ -10,6 +10,7 @@
 #
 # To add more libraries, make sure to add the name to "opencv_libraries" in /src/OpenCV_libs.jl
 #
+# OpenCV lib version: OpenCV 3-beta
 #################################################################################################
 
 using Cxx
@@ -75,7 +76,7 @@ cxxinclude(joinpath(cvheaderdir,"opencv2/opencv.hpp"))
     #include "opencv2/highgui.hpp"
     #include "opencv2/ml.hpp"
 
-cxxinclude(joinpath(cvheaderdir,"opencv2/core/ocl.hpp"))  # OpenCL
+cxxinclude(joinpath(cvheaderdir,"opencv2/core/ocl.hpp"))  # enable OpenCL
 cxxinclude(joinpath(cvheaderdir,"opencv2/shape.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/stitching.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/superres.hpp"))

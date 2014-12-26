@@ -5,22 +5,19 @@
 ################################################################################################
 
 # Image properties
-width = 300
-height = 300
+width = cint(300)
+height = cint(300)
 
 # Color
-R=255
-G=0
-B=0
-
-# Window name
-fun = "New Image"
+R=cint(255)
+G=cint(0)
+B=cint(0)
 
 cxx"""
-void create_image_and_display()
+void create_image_and_display(int width, int height, int B, int G, int R)
    {
    // Create a new image width x height, 8-bit unsigned RGB (BGR in OpenCV)
-   cv::Mat img($width, $height, CV_8UC3, cv::Scalar($B,$G,$R));  // Blue, Green, Red (0:255)
+   cv::Mat img(width, height, CV_8UC3, cv::Scalar(B,G,R));  // Blue, Green, Red (0:255)
 
    // Create a new window named "Welcome"
    cv::namedWindow("Welcome", cv::WINDOW_AUTOSIZE);
@@ -29,7 +26,7 @@ void create_image_and_display()
    cv::imshow("Welcome", img);
 
    // Writing a message to the REPL from Julia
-   $:(println("\nTo end this test, press any key")::Nothing);
+   std::cout << "\nTo end this test, press any key" << std::endl;
 
    // Wait for key press
    cv::waitKey(0);
@@ -40,4 +37,4 @@ void create_image_and_display()
  }
 """
 
-@cxx create_image_and_display()
+@cxx create_image_and_display(width, height, B, G, R)

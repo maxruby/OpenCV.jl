@@ -273,6 +273,14 @@ cvRotatedRectPoints(arrpts) = @cxx rRect->points(arrpts)
 # rRect = cvRotatedRect(pts, size, angle)
 cvRotatedRectBoundingRect(rRect) = @cxx rRect->boundingRect()
 
+#cv::String class
+cvString() = @cxx cv::String()
+cvString(str) = @cxx cv::String(str)
+cvString(str, pos, len) = @cxx cv::String(str, csize_t(pos), csize_t(len))
+cvString(s::String) = @cxx cv::String(pointer(s))
+cvString(s::String, n) = @cxx cv::String(s::String, csize_t(n))
+cvString(first::String, last::String) = @cxx cv::String(pointer(first), pointer(last))
+
 #TermCriteria
 TermCriteria() = @cxx cv::TermCriteria::TermCriteria()
 TermCriteria(rtype::Int, maxCount::Int, epsilon::Float64) =
@@ -595,6 +603,23 @@ depthSparse(sparseM) = @cxx sparseM->depth()
 
 cxx""" int channelsSparse(cv::SparseMat img) { return(img.channels()); } """
 channelsSparse(sparseM) = @cxx channelsSparse(sparseM)         # number of matrix channels
+
+
+#-------------------------------------------------------------------------------------------------------------------#
+# Command Line Parser (incomplete)
+# The CommandLineParser class is designed for command line arguments parsing
+
+# CommandLineParser::CommandLineParser(int argc, const char* const argv[], const String& keys)
+# Parameters:
+# argc –
+# argv –
+# keys –
+CommandLineParser(argc::Int, argv::Ptr{Ptr{Uint8}}, keys::String) =
+       @cxxnew cv::CommandLineParser(argc, argv, pointer(keys))
+
+# bool CommandLineParser::has(const String& name)
+has(parser, name::String) = @cxx parser->has(stdstring(name))
+
 
 #-------------------------------------------------------------------------------------------------------------------#
 # 2. Operations on Arrays

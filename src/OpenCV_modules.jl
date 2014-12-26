@@ -79,6 +79,9 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_videoio.jl"))
 # High-level GUI and Media I/O
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_highgui.jl"))
 
+# OpenCL support (ocl)
+include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_ocl.jl"))
+
 # Support for conversion and manipulation of images from external packages
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_ImagesSupport.jl"))
 

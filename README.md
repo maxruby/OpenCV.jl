@@ -19,6 +19,8 @@ The OpenCV API is described [here](http://docs.opencv.org/trunk/modules/core/doc
 
 Currently, OpenCV.jl has julia wrappers for most of the `core`, `imgproc`, `videoio` and `highgui` modules. Work is ongoing to wrap the rest of the modules including advanced object detection and tracking algorithms. (Most OpenCV C++ functions are already supported in OpenCV.jl by using `@cxx` calls directly to C++, with some caveats). 
 
+OpenCV.jl has OpenCL support for GPU image processing.  This has been made easier recently by a smooth and transparent interface (T-API). GPU-supported code can display improvements in processing speed up to 30 fold. This is invaluable for supporting real-time applications in Julia. See section below on how to implement GPU-enabled code in OpenCV.jl.
+
 The OpenCV API is extensively documented - rather than repeating the entire documentation here, the primary focus is on implementation of image processing and computer vision algorithms to suport Julia applications.
 
 ##Installation
@@ -26,10 +28,10 @@ The OpenCV API is extensively documented - rather than repeating the entire docu
 Install `julia 0.4.0-dev` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below. 
 
 #### OSX
-To compile OpenCV 3.0 on a 64-bit OSX system 
+To compile OpenCV 3.0 (beta) on a 64-bit OSX system 
 
 ```sh
-# Clone OpenCV from GitHub master branch  #v0.3
+# Clone OpenCV from GitHub master branch  #v0.3-beta
 $ git clone https://github.com/Itseez/opencv.git opencv
 $ git remote -v 
 
@@ -38,9 +40,17 @@ $ mkdir build
 $ cd build
 
 # Install OpenCV >3.0 (master) *without CUDA*
+BASIC INSTALLATION 
 $ cmake "Unix Makefile" -D CMAKE_OSX_ARCHITECTURES=x86_64 -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF -D WITH_CUDA=OFF -D CMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" -D CMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++" ..
 $ make -j4
 $ make install  #prepend sudo if necessary
+
+ADVANCED INSTALLATION 
+OpenCV  + TBB + OpenGL + OpenCL + VTK (Viz) + QT + EIGEN
+$ cmake "Unix Makefile" -D CMAKE_PREFIX_PATH="/path/to/Qt/5.3/clang_64" -D CMAKE_OSX_ARCHITECTURES=x86_64 -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF -D WITH_CUDA=OFF -D CMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" -D CMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++" -D TBB_INCLUDE_DIR="/usr/local/Cellar/tbb/4.3-20140724/include/tbb" -D TBB_LIB_DIR="/usr/local/Cellar/tbb/4.3-20140724/lib" -D WITH_TBB=ON -D WITH_OPENGL=ON -D WITH_EIGEN=ON -D WITH_QT=ON -D WITH_VTK=ON -D VTK_DIR="/Users/maximilianosuster/vtk6.2/build" -D WITH_OPENEXR=OFF ..
+
+$ make -j4  #4 cores in my Intel i5
+$ sudo make install
 
 # Confirm installation of OpenCV shared libraries
 $ pkg-config --libs opencv
@@ -64,22 +74,27 @@ OpenCV contains hundreds of algorithms and functions. Most frequently used funct
 
 #### <span style="color:green"> Basic structures
 **Points (Int, Float)**
-```julia 
+
+```julia
 cvPoint(10, 10)           # x, y
 cvPoint2f(20.15, 30.55)
 cvPoint2d(40.564, 12.444)
 ```
+
 **Size and Scalar vectors (Int, Float)**
+
 ```julia 
 cvSize(300, 300)          # e.g., image width, height 
 cvSize2f(100.5, 110.6)
 cvScalar(255,0,0)         # e.g., [B, G, R] color vector
 ```
 **Ranges** 
+
 ```julia  
 range = cvRange(1,100)   # e.g., row 1 to 100
 ```
 **Rectangle and rotated rectangle**
+
 ```julia 
 cvRect(5,5,300,300)      # x, y, width, height
 # 300x300 rect, centered at (10.5, 10.5) rotated by 0.5 rad
@@ -88,6 +103,7 @@ cvRotatedRect(cvPoint2f(10.5, 10.5), cvSize2f(300,300), 0.5)
 
 #### <span style="color:green">Creating, copying and converting images 
 **Mat array/image constructors: rows (height), columns (width)**
+
 ```julia 
 img0 = Mat()                             # empty
 img1 = Mat(600, 600, CV_8UC1)            # 600x600 Uint8 gray 
@@ -100,12 +116,14 @@ img3 = Mat(600, 600, CV_8UC3, imgColor)  # 600x600 Uint8 RGB (blue)
 ```
 
 **Create a region of interest (ROI)**
+
 ```julia 
 const roi = cvRect(25, 25, 100, 100);     # create a ROI
 img4 = Mat(img3, roi)
 ```
 
 **Initialize arrays with zeros or ones**
+
 ```julia 
 zerosM(300,300, CV_8UC3)      # RGB filled with zeros
 zerosM(imgSize, CV_8UC1)      # Gray filled with zeros  
@@ -115,11 +133,13 @@ ones(2, sz, CV_8UC3)          # 2 x sz
 ```
 
 **Create an identity matrix**
+
 ```julia 
 eye(300,300, CV_8UC3)         # 300x300 Uint8 (RGB)
 ```
 
 **Clone, copy, convert, basic resizing**
+
 ```julia 
 img2 = clone(img1); 
 copy(img1, img2);
@@ -130,6 +150,7 @@ resizeMat(img1, 100, cvScalar(255,0, 0)) # 100 rows, 100 x 100
 
 #### <span style="color:green">Operations on image arrays
 **Addition and substration**
+
 ```julia
 img1 = Mat(300, 300, CV_8UC3, cvScalar(255, 0, 0));
 img2 = Mat(300, 300, CV_8UC3, cvScalar(0, 0, 255));
@@ -138,6 +159,7 @@ img4 = imsubstract(img1, img2)
 ```
 
 **Matrix multiplication**
+
 ```julia
 alpha = 1; # weight of the matrix 
 beta = 0;  # weight of delta matrix (optional) 
@@ -152,7 +174,7 @@ gemm(m1, m2, alpha, Mat(), beta, m3, flag)
 Image pixels in Mat containers are arranged in a row-major order.<br> 
 For a grayscale image, e.g., pixels are addressed by row, col
   
-|       |col 0| col 1| col 2|col 3| col m| 
+|col 0| col 1| col 2|col 3| col m| 
 |:----- |:--:| :--:| :--:| :--:|  :--:|
 | row 0 | 0,0|  0,1|  0,2|  0,3|   0,m|
 | row 1 | 1,0|  1,1|  1,2|  1,3|   1,m| 
@@ -161,7 +183,7 @@ For a grayscale image, e.g., pixels are addressed by row, col
 
 For RGB color images, each column has 3 values (actually BGR in Mat)
 
-|    |col 0| col 1| col 2| col m |
+|col 0| col 1| col 2| col m |
 |:----- |:--:| :--:| :--:| :--:|
 | row 0 |<span style="color:blue">0,0,  <span style="color:green">0,0 <span style="color:red">0,0|  <span style="color:blue">0,1 <span style="color:green">0,1 <span style="color:red">0,1| <span style="color:blue">0,2 <span style="color:green">0,2 <span style="color:red">0,2| <span style="color:blue">0,m <span style="color:green">0,m <span style="color:red">0,m
 | row 1 |  <span style="color:blue">1,0 <span style="color:green">1,0 <span style="color:red">1,0|  <span style="color:blue">1,1 <span style="color:green">1,1 <span style="color:red">1,1| <span style="color:blue">1,2 <span style="color:green">1,2 <span style="color:red">1,2| <span style="color:blue">1,m <span style="color:green">1,m <span style="color:red">1,m
@@ -170,6 +192,7 @@ For RGB color images, each column has 3 values (actually BGR in Mat)
 
 **Getting and setting selected pixel values** <br>
 **Method 1**: Access pixel values using `pixget` and `pixset` functions. Here we use the`Mat::at`class method - slow but safe, intended only for checking and setting small numbers of pixels (not for scanning through the entire image). To illustrate we draw random red pixels on a blue image (i.e., turn them yellow). 
+
 ```julia
 # Creat a blue image
 img = Mat(300, 300, CV_8UC3, cvScalar(255, 0, 0));  
@@ -186,6 +209,7 @@ imdisplay(img, "Random art")
 closeWindows(0,27,"") # close by pressing ESC
 ```
 **Method 2**:  Efficient pixel scanning and manipulation using pointers in C++. Functions `setgray` and `setcolor` can be used to scan an entire image and replace pixel values. For example, scanning & exchanging the BGR values for all pixels in a 1000x1000 image took approx. 16 ms. Such functions should be modified and optimized for each operation/algorithm. 
+
 ```julia
 # Creat a green image
 img = Mat(1000, 1000, CV_8UC3, cvScalar(0, 255, 0));
@@ -197,12 +221,14 @@ closeWindows(0,27,"")
 
 #### <span style="color:green">Opening and saving images 
 **Read and write with full path/name**
+
 ```julia 
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png");
 img = imread(filename)
 imwrite(joinpath(homedir(), "lena_copy.png"), img)
 ```
 **Alternatively, open and save files with `Qt dialog` interface**
+
 ```julia 
 img = imread()
 imwrite(img)
@@ -210,10 +236,11 @@ imwrite(img)
 
 **Open image with`Images.jl` and convert to `OpenCV` Mat**<br>
 Here we convert a binary image loaded with Images to a Mat image array
+
 ```julia
-using OpenCV
 using Color, FixedPointNumbers
 import Images, ImageView
+using OpenCV
 
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.jpeg")
 image = Images.imread(filename)  # load with Images.jl
@@ -256,6 +283,7 @@ im2tile(imArray, "Tiled images")  # => closeWindows
 
 #### <span style="color:green">Image processing <span>
 **Resize images**
+
 ```julia
 dst = clone(img)
 resize(img, dst, cvSize(250,250), float(0), float(0), INTER_LINEAR)
@@ -272,6 +300,7 @@ interpolation options:
 ```
 
 **Select ROI and copy to another image**<br>
+
 ```julia
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
 src = imread(filename)
@@ -286,11 +315,13 @@ closeWindows(0,27,"")
 ```
 
 **Change color format**
+
 ```julia
 dst = Mat()
 cvtColor(img, dst, COLOR_BGR2GRAY)
 ```
 **Blur with a normalized box filter**
+
 ```julia
 blurred = clone(img)
 blur(img, blurred, cvSize(5,5))
@@ -298,12 +329,14 @@ imdisplay(blurred, "Box filter")
 closeWindows(0,27,"")
 ```
 **Blur with a Gaussian filter, 5x5 kernel**
+
 ```julia
 gaussianBlur(img, dst, cvSize(5,5))
 im2tile([img, dst], "Gaussian 5x5")
 closeWindows(0,27,"")
 ```
 **Binary thresholding**
+
 ```julia
 cvtColor(img, dst, COLOR_BGR2GRAY)
 src = clone(dst)
@@ -315,6 +348,7 @@ closeWindows(0,27, "")
 ```
 
 **Convolution**
+
 ```julia
 kernel = ones(5,5,CV_32F)
 normkernel = normalizeKernel(ones(7,7,CV_32F), getKernelSum(kernel))
@@ -324,6 +358,7 @@ closeWindows(0,27,"")
 ```
 
 **Laplacian filter**
+
 ```julia
 laplacian(img, dst, -1, 5)          # second-derivative aperture = 5
 im2tile([img, dst], "laplacian")  
@@ -331,6 +366,7 @@ closeWindows(0,27,"")
 ```
 
 **Sobel operator (edge detection)**
+
 ```julia
 sobel(img, dst, -1, 1, 1, 3)        # dx = 1, dy = 1, kernel = 3x3
 im2tile([img, dst], "sobel")
@@ -338,6 +374,7 @@ closeWindows(0,27,"")
 ```
 
 **Canny edge detection**
+
 ```julia
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
 img = imread(filename)
@@ -350,6 +387,7 @@ closeWindows(0,27,"")
 ```
 
 **Image overlay (linear blending)**
+
 ```julia
 filename2 = joinpath(Pkg.dir("OpenCV"), "./test/images/mandrill.jpg")
 img2 = imread(filename2)
@@ -361,6 +399,7 @@ closeWindows(0,27,"")
 ```
 
 **Image sharpening**
+
 ```julia
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
 img = imread(filename)
@@ -374,11 +413,13 @@ closeWindows(0,27,"")
  
 #### <span style="color:green">Video acquistion, streaming and writing
 Basic video stream display from default camera. All GUI classes/functions (e.g., videoCapture) can be easily called from OpenCV.jl to build new custom video acquisition functions.  
+
 ```julia
 videocam()     # press ESC to stop  
 ```
 
 The following identifiers can be used (depending on backend) to get/set video properties:
+
 ```
 append "CAP_PROP_" to id below
 POS_MSEC       Current position of the video file (msec or timestamp)  
@@ -403,26 +444,31 @@ RECTIFICATION  Rectification flag for stereo cameras (note: only supported by DC
 ```
 
 **To get video properties, use `getVideoId`**
+
 ```julia
 cam = videoCapture(CAP_ANY)   # cv::VideoCapture 
 getVideoId(cam, CAP_PROP_FOURCC)   # or set to -1 (uncompressed AVI)
 ```
 **To set video properties, use `setVideoId`** 
+
 ```julia
 setVideoId(cam, CAP_PROP_FPS, 10.0) 
 ```
 **Close the camera input**
+
 ```julia
 release(cam)
 ```
 
 **Stream videos from the web (requires http link to source file)**
+
 ```julia
 vid = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"
 webstream(vid)
 ```
 
 **Write the video stream to disk**
+
 ```julia
 cam = videoCapture(vid)
 filename = joinpath(homedir(), "myvid.avi")
@@ -457,6 +503,7 @@ at(params,1)  # THRESHOLD
 
 #### <span style="color:green">Text and drawing functions<br>
 Put text on image
+
 ```julia
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
 img = imread(filename)
@@ -465,6 +512,7 @@ imdisplay(img, "Text")
 closeWindows(0,27,"")
 ``` 
 Draw geometric shapes (circles, rectangles, etc)
+
 ```julia
 center = cvPoint(260,275)
 radius = 30
@@ -478,10 +526,42 @@ imdisplay(img, "Drawing")
 closeWindows(0,27,"")
 ``` 
 
+## Advanced interfaces 
+#### <span style="color:green"> GPU processing with OpenCL
+OpenCV.jl can be accelerated several fold by processing on the GPU with the OpenCL transparent API (T-API). The only requirement is to declare the image/array as `cv::UMat` (universal Mat) instead of `cv::Mat`. For example, a simple RGB to gray image conversion can run 10 times faster with GPU compared to CPU (here I used an NVIDIA GTX-Force 330M 512MB, CC 1.2) in OpenCV.jl:
+
+```julia
+Declare the Mat and UMat (1000x1000 RGB) source and initialize target images
+julia> srcMat = Mat(1000, 1000, CV_8UC3, cvScalar(0, 255, 0)); 
+julia> srcUMat = UMat(1000, 1000, CV_8UC3, cvScalar(0, 255, 0));
+julia> dstMat = Mat()
+julia> dstUMat = UMat()
+
+CPU
+julia> @time(cvtColor(srcMat, dstMat, COLOR_BGR2GRAY)) 
+elapsed time: 0.00164426 seconds (80 bytes allocated) 
+
+GPU
+julia> @time(cvtColor(srcUMat, dstUMat, COLOR_BGR2GRAY)) 
+elapsed time: 0.000149589 seconds (80 bytes allocated) 
+```
+
+#### <span style="color:green"> OpenGL
+```julia
+img = Mat(height, width, CV_8UC3)
+
+# use fast 4-byte alignment (default anyway) if possible
+glPixelStorei(GL_PACK_ALIGNMENT, (img.step & 3) ? 1 : 4);
+# set length of one complete row in destination data (doesn't need to equal img.cols)
+glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
+glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
+cv::flip(img, flipped, 0);
+
+```
 ## Demos
 The scripts in `test/jl/tests.jl` illustrate how to use basic OpenCV functions directly in Julia. Demos in `test/cxx/demos.jl` contain both basic and advanced C++ scripts wrapped with Cxx. You can execute `run_tests()` to check these examples, including basic image creation, conversion, thresholding, live video, trackbars, histograms, drawing, and object tracking. 
 
-## Advanced applications
+## Applications in computer vision
 There is a rich collection of advanced algorithms/modules for computer vision implemented in OpenCV that are likely to be added in the future. A number of them are found in [opencv-contrib](github.com/Itseez/opencv_contrib/tree/master/module) e.g.,   
 
 * opencv_face: Face detection

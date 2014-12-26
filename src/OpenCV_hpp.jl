@@ -289,6 +289,15 @@ const CV_GRAPH_ITEM_VISITED_FLAG = (1 << 30)
 const CV_GRAPH_SEARCH_TREE_NODE_FLAG =  (1 << 29)
 const CV_GRAPH_FORWARD_EDGE_FLAG     =  (1 << 28)
 
+# ocl.hpp
+const TYPE_DEFAULT     = (1 << 0)
+const TYPE_CPU         = (1 << 1)
+const TYPE_GPU         = (1 << 2)
+const TYPE_ACCELERATOR = (1 << 3)
+const TYPE_DGPU        = TYPE_GPU + (1 << 16)
+const TYPE_IGPU        = TYPE_GPU + (1 << 17)
+const TYPE_ALL         = 0xFFFFFFFF
+
 # types_c.h
 const CV_RNG_COEFF = 4164903690       #U = unsigned
 const CV_PI = 3.1415926535897932384626433832795

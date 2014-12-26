@@ -42,6 +42,18 @@ template <typename T_>
           return(value);
        }
 
+template <typename T_>
+   void stdset(std::vector<T_>& cppvec, int index, T_ value)
+       {
+          cppvec.at(index) = value; // checks for out of bounds (safe but slow)
+          cppvec[index] = value;
+       }
+
+template <typename T_>
+   void stdset(std::vector<T_>& cppvec, int index, T_ value)
+       {
+          cppvec[index] = value;
+       }
 """
 
 stdvector(size, value) = @cxxnew stdvector(size, value)
@@ -57,14 +69,22 @@ stdresize(cppvec, n::Int) = @cxx cppvec->resize(n)
 stdshrink(cppvec) = @cxx cppvec->shrink_to_fit()
 stdswap(cppvec1, cppvec2) = @cxx cppvec1->swap(cppvec2)
 
+# make sure index is stdsize -1 (C++ indexing starts at 0)
 function at(cppvec, index::Int)
-   (index < 0 || index > stdsize(cppvec)) ? throw(ArgumentError("index is out of bounds")) : nothing
+   (index < 0 || index > (stdsize(cppvec)-1)) ? throw(ArgumentError("index is out of bounds")) : nothing
    @cxx at(cppvec, index)
 end
 function at_(cppvec, index::Int)
-  (index < 0 || index > stdsize(cppvec)) ? throw(ArgumentError("index is out of bounds")) : nothing
+  # make sure index is stdsize -1 (C++ indexing starts at 0)
+  (index < 0 || index > (stdsize(cppvec)-1)) ? throw(ArgumentError("index is out of bounds")) : nothing
    @cxx at_(cppvec, index)   # out of bounds check  (will lead to crash if out of bounds)
 end
+
+function set(cppvec, index, value)
+   (index < 0 || index > (stdsize(cppvec)-1)) ? throw(ArgumentError("index is out of bounds")) : nothing
+   @cxx stdset(cppvec, index, value)
+end
+
 clear(cppvec) = @cxx cppvec->clear()
 
 
@@ -73,7 +93,7 @@ function tostdvec{T}(jl_vector::Array{T,1})
     # C++ must deduce type from template functions
     stdvec = stdvector(0,jl_vector[1])
 
-    for i=2:length(jl_vector)
+    for i=1:length(jl_vector)
        stdpush_back(stdvec, jl_vector[i])  # index -1 (C++ has 0-indexing)
     end
     return(stdvec)

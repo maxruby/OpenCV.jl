@@ -17,6 +17,7 @@ opencv_libraries = [ "libopencv_core.3.0.0",
                      "libopencv_shape.3.0.0",
                      "libopencv_stitching.3.0.0",
                      "libopencv_superres.3.0.0",
-                     "libopencv_videostab.3.0.0"
+                     "libopencv_videostab.3.0.0",
+                     "libopencv_viz.3.0.0"
                                                 ]
 
