@@ -1,133 +1,133 @@
 
 # Get and set functions for access of pixel values in Mat image arrays
 cxx"""
-int at_u(cv::Mat img, int row, int col)
+int at_u(cv::Mat &img, int row, int col)
 {
      return(static_cast<int>(img.at<uchar>(row,col)));
 }
 
-void at_u(cv::Mat img, int row, int col, double val)
+void at_u(cv::Mat &img, int row, int col, double val)
 {
     uchar value = static_cast<uchar>(val);
     img.at<uchar>(row,col) = value;
 }
 
-int at_s(cv::Mat img, int row, int col)
+int at_s(cv::Mat &img, int row, int col)
 {
     return(static_cast<int>(img.at<short>(row,col)));
 }
 
-void at_s(cv::Mat img, int row, int col, double val)
+void at_s(cv::Mat &img, int row, int col, double val)
 {
      short value = static_cast<short>(val);
      img.at<short>(row,col) = value;
 }
 
-int at_us(cv::Mat img, int row, int col)
+int at_us(cv::Mat &img, int row, int col)
 {
     return(static_cast<int>(img.at<unsigned short>(row,col)));
 }
 
-void at_us(cv::Mat img, int row, int col, double val)
+void at_us(cv::Mat &img, int row, int col, double val)
 {
     unsigned short value = static_cast<unsigned short>(val);
     img.at<unsigned short>(row,col) = value;
 }
 
-float at_f(cv::Mat img, int row, int col)
+float at_f(cv::Mat &img, int row, int col)
 {
     return(static_cast<float>(img.at<float>(row,col)));
 }
 
-void at_f(cv::Mat img, int row, int col, double val)
+void at_f(cv::Mat &img, int row, int col, double val)
 {
     float value = static_cast<float>(val);
     img.at<float>(row,col) = value;
 }
 
-double at_d(cv::Mat img, int row, int col)
+double at_d(cv::Mat &img, int row, int col)
 {
      return(static_cast<int>(img.at<double>(row,col)));
 }
 
-void at_d(cv::Mat img, int row, int col, double val)
+void at_d(cv::Mat &img, int row, int col, double val)
 {
      img.at<double>(row,col) = val;
 }
 
-std::vector<char> at_vc(cv::Mat img, int row, int col)
+std::vector<char> at_vc(cv::Mat &img, int row, int col)
 {
          std::vector<char>vec(3);
          for (int i = 0; i < 3; i++) { vec[i]= img.at<cv::Vec<char,3>>(row,col)[i]; }; return vec;
 }
 
-void at_vc(cv::Mat img, int row, int col, std::vector<double> vec)
+void at_vc(cv::Mat& img, int row, int col, std::vector<double> vec)
 {
          for (int i = 0; i < 3; i++) { img.at<cv::Vec<char,3>>(row,col)[i] = static_cast<char>(vec[i]); };
 }
 
-std::vector<uchar> at_v3b(cv::Mat img, int row, int col)
+std::vector<uchar> at_v3b(cv::Mat &img, int row, int col)
 {
          std::vector<uchar>vec(3);
          for (int i = 0; i < 3; i++) { vec[i]= img.at<cv::Vec3b>(row,col)[i]; }; return vec;
 }
 
-void at_v3b(cv::Mat img, int row, int col, std::vector<double> vec)
+void at_v3b(cv::Mat &img, int row, int col, std::vector<double> vec)
 {
          for (int i = 0; i < 3; i++) {img.at<cv::Vec3b>(row,col)[i] = static_cast<uchar>(vec[i]); };
 }
 
-std::vector<short> at_v3s(cv::Mat img, int row, int col)
+std::vector<short> at_v3s(cv::Mat &img, int row, int col)
 {
          std::vector<short>vec(3);
          for (int i = 0; i < 3; i++) { vec[i]= img.at<cv::Vec3s>(row,col)[i]; }; return vec;
 }
 
-void at_v3s(cv::Mat img, int row, int col, std::vector<double> vec)
+void at_v3s(cv::Mat &img, int row, int col, std::vector<double> vec)
 {
          for (int i = 0; i < 3; i++) { img.at<cv::Vec3s>(row,col)[i] = static_cast<short>(vec[i]); };
 }
 
-std::vector<unsigned short> at_v3us(cv::Mat img, int row, int col)
+std::vector<unsigned short> at_v3us(cv::Mat &img, int row, int col)
 {
          std::vector<unsigned short>vec(3);
          for (int i = 0; i < 3; i++) { vec[i]= img.at<cv::Vec<unsigned short,3>>(row,col)[i]; }; return vec;
 }
 
-void at_v3us(cv::Mat img, int row, int col, std::vector<double> vec)
+void at_v3us(cv::Mat &img, int row, int col, std::vector<double> vec)
 {
          for (int i = 0; i < 3; i++) { img.at<cv::Vec<unsigned short,3>>(row,col)[i] =  static_cast<unsigned short>(vec[i]); };
 }
 
-std::vector<int> at_v3i(cv::Mat img, int row, int col)
+std::vector<int> at_v3i(cv::Mat &img, int row, int col)
 {
          std::vector<int>vec(3);
          for (int i = 0; i < 3; i++) { vec[i]= img.at<cv::Vec<unsigned short,3>>(row,col)[i]; }; return vec;
 }
 
-void at_v3i(cv::Mat img, int row, int col,std::vector<double> vec)
+void at_v3i(cv::Mat &img, int row, int col,std::vector<double> vec)
 {
          for (int i = 0; i < 3; i++) { img.at<cv::Vec<unsigned short,3>>(row,col)[i] = static_cast<int>(vec[i]); };
 }
 
-std::vector<float> at_v3f(cv::Mat img, int row, int col)
+std::vector<float> at_v3f(cv::Mat &img, int row, int col)
 {
          std::vector<float>vec(3);
          for (int i = 0; i < 3; i++) { vec[i]= img.at<cv::Vec3f>(row,col)[i]; }; return vec;
 }
 
-void at_v3f(cv::Mat img, int row, int col, std::vector<double> vec)
+void at_v3f(cv::Mat &img, int row, int col, std::vector<double> vec)
 {
          for (int i = 0; i < 3; i++) { img.at<cv::Vec3f>(row,col)[i] = static_cast<float>(vec[i]); };
 }
 
-std::vector<double> at_v3d(cv::Mat img, int row, int col)
+std::vector<double> at_v3d(cv::Mat &img, int row, int col)
 {
          std::vector<double>vec(3);
          for (int i = 0; i < 3; i++) { vec[i]= img.at<cv::Vec3d>(row,col)[i]; }; return vec;
 }
 
-void at_v3d(cv::Mat img, int row, int col, std::vector<double> vec)
+void at_v3d(cv::Mat &img, int row, int col, std::vector<double> vec)
 {
          for (int i = 0; i < 3; i++) { img.at<cv::Vec3d>(row,col)[i] = vec[i]; };
 }

@@ -487,15 +487,15 @@ videoWrite (cam, filename, fps, nframes, frameSize, codec, true)
 ```julia
 # single image file
 filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
-processes = stdvector(cint(0),cint(0))
-stdpush_back(processes, BRIGHTNESS)# or CONTRAST/THRESHOLD
+processes = stdvec(cint(0),cint(0))
+stdpush!(processes, BRIGHTNESS)# or CONTRAST/THRESHOLD
 params = videoprocessor(processes, "Demo", filename,-1, 0, 30, 30, 120, 255, THRESH_BINARY, false)
 at(params,0)  # BRIGHTNESS
 
 # video stream
-processes = stdvector(cint(0),cint(0))
-stdpush_back(processes, BRIGHTNESS)
-stdpush_back(processes, THRESHOLD)
+processes = stdvec(cint(0),cint(0))
+stdpush!(processes, BRIGHTNESS)
+stdpush!(processes, THRESHOLD)
 params = videoprocessor(processes, "Videoprocessor")
 at(params,0)  # BRIGHTNESS
 at(params,1)  # THRESHOLD

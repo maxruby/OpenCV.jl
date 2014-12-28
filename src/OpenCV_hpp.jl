@@ -1005,3 +1005,38 @@ const FM_7POINT = 1 #  7-point algorithm
 const FM_8POINT = 2 #  8-point algorithm
 const FM_LMEDS  = 4 # least-median algorithm
 const FM_RANSAC = 8  # RANSAC algorithm
+
+# video. Object Tracking
+const OPTFLOW_USE_INITIAL_FLOW     = 4
+const OPTFLOW_LK_GET_MIN_EIGENVALS = 8
+const OPTFLOW_FARNEBACK_GAUSSIAN   = 256
+
+const MOTION_TRANSLATION = 0
+const MOTION_EUCLIDEAN   = 1
+const MOTION_AFFINE      = 2
+const MOTION_HOMOGRAPHY  = 3
+
+
+# OpenGL interop constants
+# cv::ogl::RenderModes
+# include "opengl.hpp"
+const POINTS          = 0x0000
+const LINES           = 0x0001
+const LINE_LOOP       = 0x0002
+const LINE_STRIP      = 0x0003
+const TRIANGLES       = 0x0004
+const TRIANGLE_STRIP  = 0x0005
+const TRIANGLE_FAN    = 0x0006
+const QUADS           = 0x0007
+const QUAD_STRIP      = 0x0008
+const POLYGON         = 0x0009
+
+# Access
+const READ_ONLY             = 0x88B8
+const WRITE_ONLY            = 0x88B9
+const READ_WRITE            = 0x88BA
+# Target
+const ARRAY_BUFFER          = 0x8892
+const ELEMENT_ARRAY_BUFFER  = 0x8893
+const PIXEL_PACK_BUFFER     = 0x88EB
+const PIXEL_UNPACK_BUFFER   = 0x88EC

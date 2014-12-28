@@ -34,9 +34,9 @@ function test2()
     img = imread(inputfile)
 
     #  compression parameters
-    compression_params = stdvector(0,cint(0))
-    stdpush_back(compression_params, cint(IMWRITE_JPEG_QUALITY))
-    stdpush_back(compression_params, cint(98))
+    compression_params = stdvec(0,cint(0))
+    stdpush!(compression_params, cint(IMWRITE_JPEG_QUALITY))
+    stdpush!(compression_params, cint(98))
     # jpeg-> png
     # push_back(compression_params, cint(IMWRITE_PNG_COMPRESSION))
     # push_back(compression_params, cint(9))

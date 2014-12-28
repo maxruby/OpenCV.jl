@@ -45,29 +45,29 @@ template <typename T_>
 template <typename T_>
    void stdset(std::vector<T_>& cppvec, int index, T_ value)
        {
-          cppvec.at(index) = value; // checks for out of bounds (safe but slow)
           cppvec[index] = value;
        }
 
 template <typename T_>
-   void stdset(std::vector<T_>& cppvec, int index, T_ value)
+   void stdset_(std::vector<T_>& cppvec, int index, T_ value)
        {
-          cppvec[index] = value;
+          cppvec.at(index) = value; // checks for out of bounds (safe but slow)
        }
+
 """
 
-stdvector(size, value) = @cxxnew stdvector(size, value)
-stdvectorSzt(size, value) = @cxxnew stdvectorSzt(csize_t(size), value)
+stdvec(size, value) = @cxxnew stdvector(size, value)
+stdvecSzt(size, value) = @cxxnew stdvectorSzt(csize_t(size), value)
 stdassign(ccpvec, size, value) = @cxx ccpvec->assign(size,value)
 stddata(cppvec) = @cxx ccpvec->data()     # Ptr to first elememt
-stdempty(cppvec) = @cxx cppvec->empty()   # check if it is empty
+stdempty!(cppvec) = @cxx cppvec->empty()   # check if it is empty
 stdcapacity(cppvec) = int(@cxx cppvec->capacity())
-stdpush_back(cppvec, value) = @cxx cppvec->push_back(value)
-stdpop_back(cppvec) = @cxx cppvec->pop_back()
+stdpush!(cppvec, value) = @cxx cppvec->push_back(value)
+stdpop!(cppvec) = @cxx cppvec->pop_back()
 stdsize(cppvec) = int(@cxx cppvec->size())
-stdresize(cppvec, n::Int) = @cxx cppvec->resize(n)
-stdshrink(cppvec) = @cxx cppvec->shrink_to_fit()
-stdswap(cppvec1, cppvec2) = @cxx cppvec1->swap(cppvec2)
+stdresize!(cppvec, n::Int) = @cxx cppvec->resize(n)
+stdshrink!(cppvec) = @cxx cppvec->shrink_to_fit()
+stdswap!(cppvec1, cppvec2) = @cxx cppvec1->swap(cppvec2)
 
 # make sure index is stdsize -1 (C++ indexing starts at 0)
 function at(cppvec, index::Int)
@@ -80,7 +80,7 @@ function at_(cppvec, index::Int)
    @cxx at_(cppvec, index)   # out of bounds check  (will lead to crash if out of bounds)
 end
 
-function set(cppvec, index, value)
+function set!(cppvec, index, value)
    (index < 0 || index > (stdsize(cppvec)-1)) ? throw(ArgumentError("index is out of bounds")) : nothing
    @cxx stdset(cppvec, index, value)
 end
@@ -91,12 +91,12 @@ clear(cppvec) = @cxx cppvec->clear()
 # Converting julia Array{Int64,1} to an std::vector
 function tostdvec{T}(jl_vector::Array{T,1})
     # C++ must deduce type from template functions
-    stdvec = stdvector(0,jl_vector[1])
+    vec = stdvec(0,jl_vector[1])
 
     for i=1:length(jl_vector)
-       stdpush_back(stdvec, jl_vector[i])  # index -1 (C++ has 0-indexing)
+       stdpush!(vec, jl_vector[i])  # index -1 (C++ has 0-indexing)
     end
-    return(stdvec)
+    return(vec)
 end
 
 # C++ string handling

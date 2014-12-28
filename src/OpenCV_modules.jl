@@ -32,8 +32,10 @@
 # highgui.   High-level GUI and Media I/O
 #            * User Interface
 #
+# video.     Motion Analysis and Object Tracking
+#
+#
 # TO DO:
-# video.      Video Analysis
 # calib3d.    Camera Calibration and 3D Reconstruction
 # features2d. 2D Features Framework
 # objdetect.  Object Detection
@@ -78,6 +80,9 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_videoio.jl"))
 
 # High-level GUI and Media I/O
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_highgui.jl"))
+
+# Video: Motion Analysis and Object Tracking
+include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_video.jl"))
 
 # OpenCL support (ocl)
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_ocl.jl"))

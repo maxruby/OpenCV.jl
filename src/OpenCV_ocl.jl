@@ -1,6 +1,7 @@
 ################################################################################################
 # OpenCL support for GPU-accelerated OpenCV
 ################################################################################################
+#  See http://docs.opencv.org/ref/master/dc/d83/group__core__opencl.html
 
 # Set up OpenCL
 setUseOpenCL(select=true) = @cxx cv::ocl::setUseOpenCL(select)
@@ -159,9 +160,13 @@ cxx""" cv::UMat clone(cv::UMat img) { return(img.clone()); } """
 clone(img) = @cxx clone(img)
 
 # UMat::copyTo
-cxx""" void copy(cv::UMat out, cv::UMat img) { img.copyTo(out); } """
-cxx""" void copyTomask(cv::UMat img, cv::UMat mask, cv::UMat out) { img.copyTo(out, mask); } """
+cxx""" void copy(cv::UMat &out, cv::UMat &img) { img.copyTo(out); } """
+cxx""" void copyToGPU(cv::UMat &out, cv::Mat &img) { img.copyTo(out); } """
+cxx""" void copyToCPU(cv::Mat &out, cv::UMat &img) { img.copyTo(out); } """
+cxx""" void copyTomask(cv::UMat &img, cv::UMat &mask, cv::UMat &out) { img.copyTo(out, mask); } """
 copy(out, img) = @cxx copy(out, img)
+copyToGPU(out, img) = @cxx copyToGPU(out, img)
+copyToCPU(out, img) = @cxx copyToCPU(out, img)
 copyTomask(img, mask, out) = @cxx copyTomask(img, mask, out)
 
 cxx""" cv::UMat imageROI(cv::UMat img, cv::Rect roi) { return img(roi); } """

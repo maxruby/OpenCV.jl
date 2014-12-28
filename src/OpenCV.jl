@@ -11,6 +11,12 @@
 # To add more libraries, make sure to add the name to "opencv_libraries" in /src/OpenCV_libs.jl
 #
 # OpenCV lib version: OpenCV 3-beta
+#
+# DOCUMENTATION
+# opencv.org
+# http://docs.opencv.org/trunk/modules/refman.html
+# Doxygen
+# http://docs.opencv.org/ref/master/index.html
 #################################################################################################
 
 using Cxx
@@ -76,11 +82,22 @@ cxxinclude(joinpath(cvheaderdir,"opencv2/opencv.hpp"))
     #include "opencv2/highgui.hpp"
     #include "opencv2/ml.hpp"
 
-cxxinclude(joinpath(cvheaderdir,"opencv2/core/ocl.hpp"))  # enable OpenCL
+cxxinclude(joinpath(cvheaderdir,"opencv2/core/opengl.hpp"))            # enable OpenGL
+cxxinclude(joinpath(cvheaderdir,"opencv2/core/ocl.hpp"))               # enable OpenCL
+cxxinclude(joinpath(cvheaderdir,"opencv2/video/background_segm.hpp"))  # enable bg/fg segmentation
+cxxinclude(joinpath(cvheaderdir,"opencv2/video/tracking.hpp"))         # enable tracking
 cxxinclude(joinpath(cvheaderdir,"opencv2/shape.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/stitching.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/superres.hpp"))
 cxxinclude(joinpath(cvheaderdir,"opencv2/videostab.hpp"))
+
+# TO DO: we need to include paths for opencv-contrib folders/subfolders inside opencv main directory
+# Currently system-specific!
+try
+    cxxinclude("/Users/maximilianosuster/opencv/opencv_contrib-master/modules/bgsegm/include/opencv2/bgsegm.hpp")
+catch
+    warn("opencv_contrib module headers could not be found, set the paths manually in src/OpenCV.jl to use advanced functions")
+end
 
 # Include C++ headers
 cxx"""

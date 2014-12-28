@@ -282,12 +282,19 @@ cvString(s::String, n) = @cxx cv::String(s::String, csize_t(n))
 cvString(first::String, last::String) = @cxx cv::String(pointer(first), pointer(last))
 
 #TermCriteria
-TermCriteria() = @cxx cv::TermCriteria::TermCriteria()
-TermCriteria(rtype::Int, maxCount::Int, epsilon::Float64) =
-     @cxx cv::TermCriteria::TermCriteria(rtype, maxCount, epsilon)
 # type     – TermCriteria::COUNT, TermCriteria::EPS or TermCriteria::COUNT + TermCriteria::EPS
 # maxCount – The maximum number of iterations or elements to compute
 # epsilon  – The desired accuracy or change in parameters
+
+TermCriteria()      = @cxx cv::TermCriteria::TermCriteria()
+TermCriteria(rtype::Int, maxCount::Int, epsilon::Float64) =
+     @cxx cv::TermCriteria::TermCriteria(rtype, maxCount, epsilon)
+TermCriteriaCount() = @cxx cv::TermCriteria::COUNT  # ::CppEnum  (not int)!
+TermCriteriaEPS()   = @cxx cv::TermCriteria::EPS      # ::CppEnum  (not int)!
+
+# to get the value of TermCriteriaCount and TermCriteriaEPS, e.g.,
+# TermCriteriaCount().val or TermCriteriaEPS().val
+# e.g., criteria=TermCriteria(int(TermCriteriaCount().val+TermCriteriaEPS().val), 30, 0.01)
 
 ###################################################
 # Mat: The core image array structure in OpenCV
