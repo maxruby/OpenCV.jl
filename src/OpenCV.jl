@@ -37,26 +37,29 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_libs.jl"))
 output = readall(so)
 close(so)
 
-@unix_only begin
-  path = match(Regex("libopencv"), output)
+@osx_only begin
+  path = match(Regex("/usr/local/lib/"), output)
+  for i in opencv_libraries
+      if match(Regex("$(i[1:end-6])"), output) == nothing
+          println("$(i) is not found in pkg-config")
+      end
+  end
 end
 
-found = false
-for i in opencv_libraries
-    libfinder = match(Regex("$(i[1:end-6])"), output)
-    if  libfinder != nothing
-        # println("$(libfinder.match) is installed")  # for debugging
-        found = true
-    else
-        println("$(i) is not installed")
-    end
+@linux_only begin
+  path = match(Regex("lopencv"), output)
+  for i in opencv_libraries
+      if match(Regex("$(i[11:end-6])"), output) == nothing
+          println("$(i) is not found in pkg-config")
+      end
+  end
 end
 
-# Choose locally pre-installed or OpenCV.jl libraries
-if found && path != nothing
+# Choose locally pre-installed or OpenCV.jl libraries - default
+if path != nothing
     const cvlibdir = "/usr/local/lib/"
     const cvheaderdir = "/usr/local/include/"
-elseif !found   # Load libs/headers from /deps/usr/lib/ - only compatible with OSX
+else  # Load libs/headers from OpenCV/deps/usr/lib/ - only compatible with OSX
     const cvlibdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
     const cvheaderdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
 end
@@ -68,7 +71,7 @@ addHeaderDir(cvlibdir; kind = C_System)
 for i in opencv_libraries
     # TO DO: ensure compatible path/extension for Windows OS
     @linux_only begin
-         i = swapext(i[1:end-6], string(".so", i[end-5:end]))
+         i = swapext(i[1:end-6], ".so")
     end
     dlopen_e(joinpath(cvlibdir,i), RTLD_GLOBAL)==C_NULL ? throw(ArgumentError("Skip loading $(i)")): nothing
 end
