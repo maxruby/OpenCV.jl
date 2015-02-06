@@ -73,7 +73,7 @@ for i in opencv_libraries
     @linux_only begin
          i = swapext(i[1:end-6], ".so")
     end
-    dlopen_e(joinpath(cvlibdir,i), RTLD_GLOBAL)==C_NULL ? throw(ArgumentError("Skip loading $(i)")): nothing
+    dlopen_e(joinpath(cvlibdir,i), RTLD_GLOBAL)==C_NULL ? println("Not loading $(i)"): nothing
 end
 
 # Now include C++ header files
