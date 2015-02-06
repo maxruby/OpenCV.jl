@@ -59,7 +59,7 @@ template <typename T_>
 stdvec(size, value) = @cxxnew stdvector(size, value)
 stdvecSzt(size, value) = @cxxnew stdvectorSzt(csize_t(size), value)
 stdassign(ccpvec, size, value) = @cxx ccpvec->assign(size,value)
-stddata(cppvec) = @cxx ccpvec->data()     # Ptr to first elememt
+stddata(cppvec) = @cxx cppvec->data()     # Ptr to first elememt
 stdempty!(cppvec) = @cxx cppvec->empty()   # check if it is empty
 stdcapacity(cppvec) = int(@cxx cppvec->capacity())
 stdpush!(cppvec, value) = @cxx cppvec->push_back(value)
@@ -86,7 +86,6 @@ function set!(cppvec, index, value)
 end
 
 clear(cppvec) = @cxx cppvec->clear()
-
 
 # Converting julia Array{Int64,1} to an std::vector
 function tostdvec{T}(jl_vector::Array{T,1})

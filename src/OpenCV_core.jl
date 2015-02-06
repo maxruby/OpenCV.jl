@@ -194,6 +194,10 @@
 #     setUseOptimized
 #     useOptimized
 
+# import base functions to explicitly extend
+import Base.copy,
+       Base.convert,
+       Base.split
 
 #-------------------------------------------------------------------------------------------------------------------#
 # 1. Basic structures

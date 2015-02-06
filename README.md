@@ -11,13 +11,13 @@ The OpenCV API is described [here](http://docs.opencv.org/trunk/modules/core/doc
 * **imgproc:** <span style="color:black"> Image processing (e.g.,image filtering, transformations, color space conversion)
 * **videoio:** <span style="color:black">Video capturing and video codecs.
 * **highgui:** <span style="color:black"> GUI capabilities
-* video: <span style="color:black">Video analysis (e.g., motion estimation, background subtraction, and object tracking)
+* **video:** <span style="color:black">Video analysis (e.g., motion estimation, background subtraction, and object tracking)
 * calib3d: <span style="color:black">Camera calibration, object pose estimation, stereo correspondence, 3D reconstruction.
 * features2d: <span style="color:black">Salient feature detectors, descriptors, and descriptor matchers.
 * objdetect: <span style="color:black"> detection of objects (e.g., faces)
 * gpu: <span style="color:black"> GPU-accelerated algorithms 
 
-Currently, OpenCV.jl has julia wrappers for most of the `core`, `imgproc`, `videoio` and `highgui` modules. Work is ongoing to wrap the rest of the modules including advanced object detection and tracking algorithms. (Most OpenCV C++ functions are already supported in OpenCV.jl by using `@cxx` calls directly to C++, with some caveats). 
+Currently, OpenCV.jl has julia wrappers for the `core`, `imgproc`, `videoio`, `highgui` and `video` modules. Work is ongoing to wrap the rest of the modules including advanced object detection and tracking algorithms. (Most OpenCV C++ functions are already supported in OpenCV.jl by using `@cxx` calls directly to C++, with some caveats). 
 
 OpenCV.jl has OpenCL support for GPU image processing.  This has been made easier recently by a smooth and transparent interface (T-API). GPU-supported code can display improvements in processing speed up to 30 fold. This is invaluable for supporting real-time applications in Julia. See section below on how to implement GPU-enabled code in OpenCV.jl.
 

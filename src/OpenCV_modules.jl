@@ -82,7 +82,10 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_videoio.jl"))
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_highgui.jl"))
 
 # Video: Motion Analysis and Object Tracking
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_video.jl"))
+# Enable only if the user provides the path for opencv-contrib-master in src/OpenCV.jl lines 101-105
+# Unfortunately, some of the functions in opencv-contrib-master are necessary to support the video module in OpenCV 3.0.0
+
+# include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_video.jl"))
 
 # OpenCL support (ocl)
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_ocl.jl"))

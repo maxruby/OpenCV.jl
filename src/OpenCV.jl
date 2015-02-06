@@ -17,10 +17,14 @@
 # http://docs.opencv.org/trunk/modules/refman.html
 # Doxygen
 # http://docs.opencv.org/ref/master/index.html
+#
 #################################################################################################
 
-using Cxx
+# convenient swap file extension function
+swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
 
+
+using Cxx
 # Check Julia version before continuing (also checked later in Cxx)
 (VERSION >= v"0.4-") ? nothing :
      throw(ErrorException("Julia $VERSION does not support C++ FFI"))
@@ -33,8 +37,9 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_libs.jl"))
 output = readall(so)
 close(so)
 
-path = match(Regex("/usr/local/lib/"), output)
-path != nothing ? println("Found a local OpenCV installation in $(path.match).") : nothing
+@unix_only begin
+  path = match(Regex("libopencv"), output)
+end
 
 found = false
 for i in opencv_libraries
@@ -47,21 +52,24 @@ for i in opencv_libraries
     end
 end
 
-# Choose locally pre-installed or OpenCV.jl libraries (OSX only)
+# Choose locally pre-installed or OpenCV.jl libraries
 if found && path != nothing
-    const cvlibdir = joinpath(Pkg.dir("OpenCV"), "/usr/local/lib/")
-    const cvheaderdir = joinpath(Pkg.dir("OpenCV"), "/usr/local/include/")
-elseif !found
-    # Load libs/headers in /deps/usr/lib/ - only for Mac OSX (dylib)
+    const cvlibdir = "/usr/local/lib/"
+    const cvheaderdir = "/usr/local/include/"
+elseif !found   # Load libs/headers from /deps/usr/lib/ - only compatible with OSX
     const cvlibdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
     const cvheaderdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
 end
 
 addHeaderDir(cvlibdir; kind = C_System)
 
-# Load OpenCV shared libraries
-# IMPORTANT: if necessary, make sure to link symbols accross libraries with RTLD_GLOBAL
+# Load OpenCV shared libraries (default file extension is .dylib)
+# IMPORTANT: make sure to link symbols accross libraries with RTLD_GLOBAL
 for i in opencv_libraries
+    # TO DO: ensure compatible path/extension for Windows OS
+    @linux_only begin
+         i = swapext(i[1:end-6], string(".so", i[end-5:end]))
+    end
     dlopen_e(joinpath(cvlibdir,i), RTLD_GLOBAL)==C_NULL ? throw(ArgumentError("Skip loading $(i)")): nothing
 end
 
@@ -93,11 +101,11 @@ cxxinclude(joinpath(cvheaderdir,"opencv2/videostab.hpp"))
 
 # TO DO: we need to include paths for opencv-contrib folders/subfolders inside opencv main directory
 # Currently system-specific!
-try
-    cxxinclude("/Users/maximilianosuster/opencv/opencv_contrib-master/modules/bgsegm/include/opencv2/bgsegm.hpp")
-catch
-    warn("opencv_contrib module headers could not be found, set the paths manually in src/OpenCV.jl to use advanced functions")
-end
+# try
+#     cxxinclude("/Users/maximilianosuster/opencv/opencv_contrib-master/modules/bgsegm/include/opencv2/bgsegm.hpp")
+# catch
+#     warn("opencv_contrib module headers could not be found, set the paths manually in src/OpenCV.jl to use advanced functions")
+# end
 
 # Include C++ headers
 cxx"""
