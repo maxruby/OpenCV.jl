@@ -25,7 +25,9 @@ The OpenCV API is extensively documented - rather than repeating the entire docu
 
 ##Installation
 
-Install `julia 0.4.0-dev` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below. 
+Install `julia 0.5.0-dev` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below.  
+
+Note that building `julia 0.5.0-dev` may require some updates/fixes to LLVM itself (compiler-rt). Currently, if using XCode 7 on OSX 10.10.5, I had to use the following [fix](https://llvm.org/bugs/show_bug.cgi?id=24776) before the build process.
 
 #### OSX
 To compile OpenCV 3.0 (beta) on a 64-bit OSX system 
@@ -546,18 +548,6 @@ julia> @time(cvtColor(srcUMat, dstUMat, COLOR_BGR2GRAY))
 elapsed time: 0.000149589 seconds (80 bytes allocated) 
 ```
 
-#### <span style="color:green"> OpenGL
-```julia
-img = Mat(height, width, CV_8UC3)
-
-# use fast 4-byte alignment (default anyway) if possible
-glPixelStorei(GL_PACK_ALIGNMENT, (img.step & 3) ? 1 : 4);
-# set length of one complete row in destination data (doesn't need to equal img.cols)
-glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
-glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
-cv::flip(img, flipped, 0);
-
-```
 ## Demos
 The scripts in `test/jl/tests.jl` illustrate how to use basic OpenCV functions directly in Julia. Demos in `test/cxx/demos.jl` contain both basic and advanced C++ scripts wrapped with Cxx. You can execute `run_tests()` to check these examples, including basic image creation, conversion, thresholding, live video, trackbars, histograms, drawing, and object tracking. 
 
