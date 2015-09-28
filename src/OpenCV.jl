@@ -64,7 +64,7 @@ else  # Load libs/headers from OpenCV/deps/usr/lib/ - only compatible with OSX
     const cvheaderdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
 end
 
-addHeaderDir(cvlibdir; kind = C_System)
+addHeaderDir(cvheaderdir, kind = C_System)
 
 # Load OpenCV shared libraries (default file extension is .dylib)
 # IMPORTANT: make sure to link symbols accross libraries with RTLD_GLOBAL
@@ -73,7 +73,7 @@ for i in opencv_libraries
     @linux_only begin
          i = swapext(i[1:end-6], ".so")
     end
-    dlopen_e(joinpath(cvlibdir,i), RTLD_GLOBAL)==C_NULL ? println("Not loading $(i)"): nothing
+    Libdl.dlopen_e(joinpath(cvlibdir,i), Libdl.RTLD_GLOBAL)==C_NULL ? println("Not loading $(i)"): nothing
 end
 
 # Now include C++ header files

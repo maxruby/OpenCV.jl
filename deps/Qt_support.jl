@@ -20,13 +20,14 @@ end
 @linux_only begin
     const qtincdir = "/usr/include/qt5"
     const qtlibdir = "/usr/lib/x86_64-linux-gnu/"
+    const QtWidgets = joinpath(qtincdir,"QtWidgets")
 
     addHeaderDir(qtincdir, kind = C_System)
     addHeaderDir(QtWidgets, kind = C_System)
 
-    dlopen(joinpath(qtlibdir,"libQt5Core.so"), RTLD_GLOBAL)
-    dlopen(joinpath(qtlibdir,"libQt5Gui.so"), RTLD_GLOBAL)
-    dlopen(joinpath(qtlibdir,"libQt5Widgets.so"), RTLD_GLOBAL)
+    Libdl.dlopen(joinpath(qtlibdir,"libQt5Core.so"), Libdl.RTLD_GLOBAL)
+    Libdl.dlopen(joinpath(qtlibdir,"libQt5Gui.so"), Libdl.RTLD_GLOBAL)
+    Libdl.dlopen(joinpath(qtlibdir,"libQt5Widgets.so"), Libdl.RTLD_GLOBAL)
 end
 
 cxxinclude("QApplication", isAngled=true)
