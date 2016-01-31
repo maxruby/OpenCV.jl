@@ -47,7 +47,7 @@ close(so)
 end
 
 @linux_only begin
-  path = match(Regex("libopencv"), output)
+  path = match(Regex("libopencv|lopencv"), output)
   for i in opencv_libraries
       if match(Regex("$(i[11:end-6])"), output) == nothing
           println("$(i) is not found in pkg-config")
