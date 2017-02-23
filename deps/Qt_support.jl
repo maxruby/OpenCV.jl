@@ -1,7 +1,7 @@
 # Load Qt framework
 # adjust qtlibdir path and version info if necessary
 
-@osx_only begin
+@static if is_apple()
     const qtlibdir = joinpath(homedir(),"Qt/5.3/clang_64/lib/")
     const QtCore = joinpath(qtlibdir,"QtCore.framework/")
     const QtWidgets = joinpath(qtlibdir,"QtWidgets.framework/")
@@ -17,7 +17,7 @@
     addHeaderDir(joinpath(QtWidgets,"Headers"), kind = C_System)
 end
 
-@linux_only begin
+@static if is_linux()
     const qtincdir = isdir("/usr/include/qt5") ? "/usr/include/qt5" : "/usr/include/x86_64-linux-gnu/qt5"
     const qtlibdir = "/usr/lib/x86_64-linux-gnu/"
     const QtWidgets = joinpath(qtincdir,"QtWidgets")

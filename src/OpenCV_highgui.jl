@@ -52,7 +52,7 @@ setMouseCallback(winname::String, onMouse, userdata=Ptr{Void}[0]) =
     @cxx cv::setMouseCallback(pointer(winname), onMouse, userdata)
 
 # Gets the mouse-wheel motion delta (multiple of 120)
-@windows_only begin
+if is_windows()
     # EVENT_MOUSEWHEEL and EVENT_MOUSEHWHEEL
     getMouseWheelDelta(flags::Int) = @cxx getMouseWheelDelta(flags)
 end
@@ -60,4 +60,3 @@ end
 # setTrackbarPos (by value)
 setTrackbarPos(trackbarname::String, winname::String, pos::Int) =
    @cxx cv::setTrackbarPos(pointer(trackbarname), pointer(winname), pos)
-

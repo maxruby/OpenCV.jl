@@ -34,10 +34,10 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_libs.jl"))
 
 # Autosearch for OpenCV installations using pkg-config
 (so,si,pr) = readandwrite(`pkg-config --libs opencv`)
-output = readall(so)
+output = readstring(so)
 close(so)
 
-@osx_only begin
+@static if is_apple()
   path = match(Regex("/usr/local/lib/"), output)
   for i in opencv_libraries
       if match(Regex("$(i[1:end-6])"), output) == nothing
@@ -46,7 +46,7 @@ close(so)
   end
 end
 
-@linux_only begin
+@static if is_linux()
   path = match(Regex("libopencv|lopencv"), output)
   for i in opencv_libraries
       if match(Regex("$(i[11:end-6])"), output) == nothing
@@ -60,8 +60,8 @@ if path != nothing
     const cvlibdir = "/usr/local/lib/"
     const cvheaderdir = "/usr/local/include/"
 else  # Load libs/headers from OpenCV/deps/usr/lib/ - only compatible with OSX
-    const cvlibdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
-    const cvheaderdir = @osx? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
+    const cvlibdir = is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
+    const cvheaderdir = is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
 end
 
 addHeaderDir(cvheaderdir, kind = C_System)
@@ -70,7 +70,7 @@ addHeaderDir(cvheaderdir, kind = C_System)
 # IMPORTANT: make sure to link symbols accross libraries with RTLD_GLOBAL
 for i in opencv_libraries
     # TO DO: ensure compatible path/extension for Windows OS
-    @linux_only begin
+    if is_linux()
          i = swapext(i[1:end-6], ".so")
     end
     Libdl.dlopen_e(joinpath(cvlibdir,i), Libdl.RTLD_GLOBAL)==C_NULL ? println("Not loading $(i)"): nothing
@@ -145,4 +145,3 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/Videoprocessor.jl"))
 function run_tests()
     include(joinpath(Pkg.dir("OpenCV"), "./test/cxx/demos.jl"))
 end
-
