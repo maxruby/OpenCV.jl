@@ -9,7 +9,7 @@
 function convertToMat(image)
     img = Images.separate(image);
     cd = Images.colordim(img);
-    if (typeof(img[1,1,1].i) == Uint8)
+    if (typeof(img[1,1,1].i) == UInt8)
        if (cd < 3); mat = Mat(Base.size(img,2), Base.size(img,1), CV_8UC1); end
        if (cd == 3); mat = Mat(Base.size(img,2), Base.size(img,1), CV_8UC3); end
     elseif (typeof(img[1,1,1].i) == Float32)

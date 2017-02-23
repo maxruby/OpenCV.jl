@@ -811,7 +811,7 @@ const INTERSECT_PARTIAL  = 1
 const INTERSECT_FULL  = 2
 
 # highgui.hpp
-typealias WindowProperty Uint32
+typealias WindowProperty UInt32
 const WINDOW_NORMAL     = 0x00000000 # the user can resize the window (no constraint)
 const WINDOW_AUTOSIZE   = 0x00000001 # the user cannot resize the window, the size is constrainted by the image displayed
 const WINDOW_OPENGL     = 0x00001000 # window with opengl support

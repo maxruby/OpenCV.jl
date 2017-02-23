@@ -424,7 +424,7 @@ std::vector<int> RunVideoprocessor(std::vector<int> processes, const std::string
 # 2. Arguments:
 # processes                     std::vector<int> (see above)
 # winname                       window name (string)
-# filename= Ptr{Uint8}[0][1]    file to open
+# filename= Ptr{UInt8}[0][1]    file to open
 # frames=-1                     number of frames to record
 # delay=0                       delay in microseconds (uses system usleep), e.g., 1000 = 1s
 # brightness=30                 initial brightness value

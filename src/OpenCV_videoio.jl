@@ -91,7 +91,7 @@ cxx""" int fourcc(const char *cc1, const char *cc2, const char *cc3, const char 
            return(code);
    }
 """
-# CV_FOURCC:  const Array(Ptr{Uint8}, 4)
+# CV_FOURCC:  const Array(Ptr{UInt8}, 4)
 # CV_FOURCC_MPEG
 # CV_FOURCC_IYUV  #for yuv420p into an uncompressed AVI
 # CV_FOURCC_DIV3  #for DivX MPEG-4 codec

@@ -155,25 +155,25 @@ function pixget(img, row::Int, col::Int)
   # RGB images (returns vec with original types)
   elseif (cvtypeval(img) == CV_8SC3)
     vec = @cxx at_vc(img, row, col);
-    println ([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_8UC3)
     vec = @cxx at_v3b(img, row, col);
-    println ([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_16SC3)
     vec = @cxx at_v3s(img, row, col);
-    println ([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_16UC3)
     vec = @cxx at_v3us(img, row, col);
-    println ([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_32SC3)
     vec = @cxx at_v3i(img, row, col);
-    println ([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_32FC3)
     vec = @cxx at_v3f(img, row, col);
-    println ([float(at(vec, 0)), float(at(vec, 1)),float(at(vec, 2))]); return (vec)
+    println([float(at(vec, 0)), float(at(vec, 1)),float(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_64FC3)
     vec = @cxx at_v3d(img, row, col);
-    println ([at(vec, 0), at(vec, 1),at(vec, 2)]); return (vec)
+    println([at(vec, 0), at(vec, 1),at(vec, 2)]); return (vec)
   else throw(ArgumentError("Image format not recognized!"))
   end
 end
@@ -253,5 +253,3 @@ end
 function setcolor(img, color)
   @cxx setcolor(img, color)
 end
-
-

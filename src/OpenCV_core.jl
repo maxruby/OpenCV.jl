@@ -203,7 +203,7 @@ import Base.copy,
 # 1. Basic structures
 
 cxx"""
-// Uint8 => Cuchar
+// UInt8 => Cuchar
 cv::Vec2b vec2b(uchar a, uchar b) { return cv::Vec2b(a,b); }
 cv::Vec3b vec3b(uchar a, uchar b, uchar c) { return cv::Vec3b(a,b,c); }
 cv::Vec4b vec4b(uchar a, uchar b, uchar c, uchar d) { return cv::Vec4b(a,b,c,d); }
@@ -514,7 +514,7 @@ addref(img) = @cxx img->addref()
 destroy(img) = @cxx img->release()
 
 # Mat::resize
-resizeMat(img, sz) = @cxx img->resize(csize_t(sz))         # sz – new n rows (Uint64), s = cvScalar()
+resizeMat(img, sz) = @cxx img->resize(csize_t(sz))         # sz – new n rows (UInt64), s = cvScalar()
 resizeMat(img, sz, s) = @cxx img->resize(csize_t(sz), s)
 
 # Mat::reserve
@@ -625,7 +625,7 @@ channelsSparse(sparseM) = @cxx channelsSparse(sparseM)         # number of matri
 # argc –
 # argv –
 # keys –
-CommandLineParser(argc::Int, argv::Ptr{Ptr{Uint8}}, keys::String) =
+CommandLineParser(argc::Int, argv::Ptr{Ptr{UInt8}}, keys::String) =
        @cxxnew cv::CommandLineParser(argc, argv, pointer(keys))
 
 # bool CommandLineParser::has(const String& name)
@@ -803,7 +803,7 @@ mean(src,mask=noArray()) = @cxx cv::mean(src, mask)
 meanStdDev(src, mean, stddev, mask=noArray()) = @cxx cv::meanStdDev(src, mean, stddev, mask)
 # mask  – optional operation mask, default mask=noArray()
 
-merge(mv, count::Uint64, dst) = @cxx cv::merge(mv, count, dst)
+merge(mv, count::UInt64, dst) = @cxx cv::merge(mv, count, dst)
 # mv  => const pointer(cv::Mat) or const Mat* mv
 # dst – output array of the same size
 
@@ -833,7 +833,7 @@ minMaxLoc(src, minVal::Ptr{Float64}, maxVal=pointer([float(0)]), minLoc=pointer(
 # maxLoc – pointer to the returned maximum location (in 2D case); NULL is used if not required.
 # mask – optional mask used to select a sub-array.
 
-mixChannels(src, dst, fromTo::Ptr{Int}, npairs::Uint64) = @cxx cv::mixChannels(src, dst, fromTo, npairs)
+mixChannels(src, dst, fromTo::Ptr{Int}, npairs::UInt64) = @cxx cv::mixChannels(src, dst, fromTo, npairs)
 # const fromTo::Ptr{Int}
 # fromTo = const std::vector<int>&
 
@@ -899,7 +899,7 @@ pow(src, power::Float64, dst) = @cxx cv::pow(src, power, dst)
 
 # Random number generator
 rng() = @cxx cv::RNG::RNG()
-rng(state::Uint64) = @cxx cv::RNG::RNG(state)
+rng(state::UInt64) = @cxx cv::RNG::RNG(state)
 rng_next() = @cxx cv::RNG::RNG->next()
 rng_uniform(a::Int, b::Int) = @cxx cv::RNG::RNG->uniform(a, b)
 rng_uniform(a::Float32, b::Float32) = @cxx cv::RNG::RNG->uniform(a, b)
@@ -1029,7 +1029,7 @@ fastAtan2(y::Float64, x::Float64) = @cxx cv::fastAtan2(y, x)
 cubeRoot(val::Float64) =  @cxx cv::cubeRoot(val)
 
 # fastMalloc
-fastMalloc(bufSize::Uint64) = @cxx cv::fastMalloc(bufSize)  # returns void*
+fastMalloc(bufSize::UInt64) = @cxx cv::fastMalloc(bufSize)  # returns void*
 
 # fastFree
 fastFree(ptr::Ptr{Void}) = @cxx cv::fastFree(ptr)
