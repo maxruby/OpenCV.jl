@@ -220,7 +220,7 @@ end
 #-------------------------------------------------------------------------------------------------------------------#
 # Video capture (video)
 
-function videocam (device = CAP_ANY)
+function videocam(device = CAP_ANY)
     cam = videoCapture(device)    # open Video device
     !isOpened(cam) ? throw(ArgumentError("Can not open camera!")) : nothing
     namedWindow("Video")
@@ -246,7 +246,7 @@ end
 # Webstreaming
 # src: full http link to the video source
 # e.g., NASA TV: vid = "http://www.nasa.gov/multimedia/nasatv/NTV-Public-IPS.m3u8"
-function webstream (src::String)
+function webstream(src::String)
     cam = videoCapture(src)    # open Video device
     !isOpened(cam) ? throw(ArgumentError("Can not open stream!")) : nothing
     namedWindow("Web stream")
@@ -270,7 +270,7 @@ function webstream (src::String)
 end
 
 
-function videoWrite (cam, filename::String, fps::Float64, nframes = 0, frameSize=cvSize(0,0), fourcc=-1, isColor=true)
+function videoWrite(cam, filename::String, fps::Float64, nframes = 0, frameSize=cvSize(0,0), fourcc=-1, isColor=true)
     !(isOpened(cam)) ? throw(ArgumentError("Video source is not available!")) : nothing
 
     # Set the video capture frame size based on camera input WIDTH and HEIGHT
@@ -310,4 +310,3 @@ function videoWrite (cam, filename::String, fps::Float64, nframes = 0, frameSize
    end
    release(cam)
 end
-
