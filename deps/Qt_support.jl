@@ -18,7 +18,7 @@
 end
 
 @linux_only begin
-    const qtincdir = "/usr/include/qt5"
+    const qtincdir = isdir("/usr/include/qt5") ? "/usr/include/qt5" : "/usr/include/x86_64-linux-gnu/qt5"
     const qtlibdir = "/usr/lib/x86_64-linux-gnu/"
     const QtWidgets = joinpath(qtincdir,"QtWidgets")
 
