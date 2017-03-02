@@ -5,7 +5,7 @@ The OpenCV (C++) interface for Julia.
 <br>
 OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions. The package also contains thin wrappers for common C++ classes (e.g., std::vector, std::string) to make the C++/Julia interface smoother.
 
-The OpenCV API is described [here](http://docs.opencv.org/trunk/modules/core/doc/intro.html). OpenCV.jl is organized along the following modules:
+The OpenCV API is described [here](http://docs.opencv.org/2.4/modules/refman.html). OpenCV.jl is organized along the following modules:
 
 * **core:** <span> <span style="color:black"> Basic array structures (e.g., Mat), common functions (e.g, convertTo) 
 * **imgproc:** <span style="color:black"> Image processing (e.g.,image filtering, transformations, color space conversion)
