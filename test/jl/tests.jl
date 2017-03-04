@@ -132,4 +132,18 @@ end
 
 test5()
 
+################################################################################################
+#
+# test 6: Conversion of images from Images.jl to OpenCV Mat 
+#
+################################################################################################
 
+function test6()
+   println("test 6: Conversion of images from Images.jl to OpenCV Mat")
+   filename = joinpath(Pkg.dir("OpenCV"), "./test/images/mandrill.jpg")
+   image = imread(filename)
+   dst = Mat(int(rows(image)), int(cols(image)), CV_8UC1)
+   dst = convertToMat(image)
+end
+
+test6()
