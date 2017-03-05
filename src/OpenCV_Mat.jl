@@ -41,27 +41,35 @@ inline void ptr_val3(cv::Mat &img, int row, int col, std::vector<double> vec)
 
 function pixget(img, row::Int, col::Int)
   (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothing
-
-  # Grayscale and binary images
-  val = @cxx ptr_val(img, row, col);
-  println(val)
-  return (val)
-
-  # RGB images
-  vec = @cxx ptr_val3(img, row, col);
-  println([int(at(vec, 0)), int(at(vec, 1)), int(at(vec, 2))])
-  return (vec)
+  image = Images.separate(img);
+  cd = Images.colordim(image);
+  
+  if cd < 3
+    # Grayscale and binary images
+    val = @cxx ptr_val(img, row, col);
+    println(val)
+    return (val)
+  else
+    # RGB images
+    vec = @cxx ptr_val3(img, row, col);
+    println([int(at(vec, 0)), int(at(vec, 1)), int(at(vec, 2))])
+    return (vec)
+  end
 end
 
 
 function pixset(img, row::Int, col::Int, value)
   (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothing
+  image = Images.separate(img);
+  cd = Images.colordim(image);
 
-  # Grayscale and binary images
-  @cxx ptr_val(img, row, col, value);
-
-  # RGB images
-  @cxx ptr_val3(img, row, col, value);
+  if cd < 3
+    # Grayscale and binary images
+    @cxx ptr_val(img, row, col, value);
+  else
+    # RGB images
+    @cxx ptr_val3(img, row, col, value);
+  end
 end
 
 # Using pointers to efficiently scan and manipulate whole Mat images: set functions
