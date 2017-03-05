@@ -142,10 +142,10 @@ function pixget(img, row::Int, col::Int)
     #println(int(val)); return (val)
   elseif (cvtypeval(img) == CV_16SC1)
     val = @cxx at_s(img, row, col);
-    println(int(val)); return (val)
+    println(Int(val)); return (val)
   elseif (cvtypeval(img) == CV_32SC1)
     val = @cxx at_us(img, row, col);
-    println(int(val)); return (val)
+    println(Int(val)); return (val)
   elseif (cvtypeval(img) == CV_32FC1)
     val = @cxx at_f(img, row, col);
     println(val); return (val)
@@ -155,19 +155,19 @@ function pixget(img, row::Int, col::Int)
   # RGB images (returns vec with original types)
   elseif (cvtypeval(img) == CV_8SC3)
     vec = @cxx at_vc(img, row, col);
-    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([Int(at(vec, 0)), Int(at(vec, 1)),Int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_8UC3)
     vec = @cxx at_v3b(img, row, col);
-    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([Int(at(vec, 0)), Int(at(vec, 1)),Int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_16SC3)
     vec = @cxx at_v3s(img, row, col);
-    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([Int(at(vec, 0)), Int(at(vec, 1)),Int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_16UC3)
     vec = @cxx at_v3us(img, row, col);
-    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([Int(at(vec, 0)), Int(at(vec, 1)),Int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_32SC3)
     vec = @cxx at_v3i(img, row, col);
-    println([int(at(vec, 0)), int(at(vec, 1)),int(at(vec, 2))]); return (vec)
+    println([Int(at(vec, 0)), Int(at(vec, 1)),Int(at(vec, 2))]); return (vec)
   elseif (cvtypeval(img) == CV_32FC3)
     vec = @cxx at_v3f(img, row, col);
     println([float(at(vec, 0)), float(at(vec, 1)),float(at(vec, 2))]); return (vec)

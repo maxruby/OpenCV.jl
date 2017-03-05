@@ -61,10 +61,10 @@ stdvecSzt(size, value) = @cxxnew stdvectorSzt(csize_t(size), value)
 stdassign(ccpvec, size, value) = @cxx ccpvec->assign(size,value)
 stddata(cppvec) = @cxx cppvec->data()     # Ptr to first elememt
 stdempty!(cppvec) = @cxx cppvec->empty()   # check if it is empty
-stdcapacity(cppvec) = int(@cxx cppvec->capacity())
+stdcapacity(cppvec) = Int(@cxx cppvec->capacity())
 stdpush!(cppvec, value) = @cxx cppvec->push_back(value)
 stdpop!(cppvec) = @cxx cppvec->pop_back()
-stdsize(cppvec) = int(@cxx cppvec->size())
+stdsize(cppvec) = Int(@cxx cppvec->size())
 stdresize!(cppvec, n::Int) = @cxx cppvec->resize(n)
 stdshrink!(cppvec) = @cxx cppvec->shrink_to_fit()
 stdswap!(cppvec1, cppvec2) = @cxx cppvec1->swap(cppvec2)
@@ -277,10 +277,10 @@ function videoWrite(cam, filename::String, fps::Float64, nframes = 0, frameSize=
     width = getVideoId(cam, CAP_PROP_FRAME_WIDTH)
     height = getVideoId(cam, CAP_PROP_FRAME_HEIGHT)
 
-    frame = Mat(int(height), int(width), CV_8UC3)
+    frame = Mat(Int(height), Int(width), CV_8UC3)
 
     # Set the frameSize of output video frames
-    (frameSize.data[1] == 0) ? frameSize = cvSize(int(width), int(height)) :
+    (frameSize.data[1] == 0) ? frameSize = cvSize(Int(width), Int(height)) :
          throw(ArgumentError("Output frame dimension is wrong"))
 
     # Initialize and open video writer
