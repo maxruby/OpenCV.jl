@@ -41,8 +41,8 @@
 //
 //M*/
 
-#ifndef __OPENCV_CORE_PRIVATE_HPP__
-#define __OPENCV_CORE_PRIVATE_HPP__
+#ifndef OPENCV_CORE_PRIVATE_HPP
+#define OPENCV_CORE_PRIVATE_HPP
 
 #ifndef __OPENCV_BUILD
 #  error this is a private header which should not be used from outside of the OpenCV library
@@ -60,15 +60,21 @@
 #endif
 
 #ifdef HAVE_TBB
-#  include "tbb/tbb_stddef.h"
-#  if TBB_VERSION_MAJOR*100 + TBB_VERSION_MINOR >= 202
-#    include "tbb/tbb.h"
-#    include "tbb/task.h"
-#    undef min
-#    undef max
-#  else
-#    undef HAVE_TBB
-#  endif
+#  include "tbb/tbb.h"
+#  include "tbb/task.h"
+#  undef min
+#  undef max
+#endif
+
+#if defined HAVE_FP16 && (defined __F16C__ || (defined _MSC_VER && _MSC_VER >= 1700))
+#  include <immintrin.h>
+#  define CV_FP16 1
+#elif defined HAVE_FP16 && defined __GNUC__
+#  define CV_FP16 1
+#endif
+
+#ifndef CV_FP16
+#  define CV_FP16 0
 #endif
 
 //! @cond IGNORED
@@ -129,54 +135,12 @@ namespace cv
     CV_EXPORTS const char* currentParallelFramework();
 } //namespace cv
 
-#define CV_INIT_ALGORITHM(classname, algname, memberinit) \
-    static inline ::cv::Algorithm* create##classname##_hidden() \
-    { \
-        return new classname; \
-    } \
-    \
-    static inline ::cv::Ptr< ::cv::Algorithm> create##classname##_ptr_hidden() \
-    { \
-        return ::cv::makePtr<classname>(); \
-    } \
-    \
-    static inline ::cv::AlgorithmInfo& classname##_info() \
-    { \
-        static ::cv::AlgorithmInfo classname##_info_var(algname, create##classname##_hidden); \
-        return classname##_info_var; \
-    } \
-    \
-    static ::cv::AlgorithmInfo& classname##_info_auto = classname##_info(); \
-    \
-    ::cv::AlgorithmInfo* classname::info() const \
-    { \
-        static volatile bool initialized = false; \
-        \
-        if( !initialized ) \
-        { \
-            initialized = true; \
-            classname obj; \
-            memberinit; \
-        } \
-        return &classname##_info(); \
-    }
-
-
-
 /****************************************************************************************\
 *                                  Common declarations                                   *
 \****************************************************************************************/
 
 /* the alignment of all the allocated buffers */
 #define  CV_MALLOC_ALIGN    16
-
-#ifdef __GNUC__
-#  define CV_DECL_ALIGNED(x) __attribute__ ((aligned (x)))
-#elif defined _MSC_VER
-#  define CV_DECL_ALIGNED(x) __declspec(align(x))
-#else
-#  define CV_DECL_ALIGNED(x)
-#endif
 
 /* IEEE754 constants and macros */
 #define  CV_TOGGLE_FLT(x) ((x)^((int)(x) < 0 ? 0x7fffffff : 0))
@@ -206,17 +170,48 @@ namespace cv
 CV_EXPORTS void scalarToRawData(const cv::Scalar& s, void* buf, int type, int unroll_to = 0);
 }
 
+// property implementation macros
+
+#define CV_IMPL_PROPERTY_RO(type, name, member) \
+    inline type get##name() const { return member; }
+
+#define CV_HELP_IMPL_PROPERTY(r_type, w_type, name, member) \
+    CV_IMPL_PROPERTY_RO(r_type, name, member) \
+    inline void set##name(w_type val) { member = val; }
+
+#define CV_HELP_WRAP_PROPERTY(r_type, w_type, name, internal_name, internal_obj) \
+    r_type get##name() const { return internal_obj.get##internal_name(); } \
+    void set##name(w_type val) { internal_obj.set##internal_name(val); }
+
+#define CV_IMPL_PROPERTY(type, name, member) CV_HELP_IMPL_PROPERTY(type, type, name, member)
+#define CV_IMPL_PROPERTY_S(type, name, member) CV_HELP_IMPL_PROPERTY(type, const type &, name, member)
+
+#define CV_WRAP_PROPERTY(type, name, internal_name, internal_obj)  CV_HELP_WRAP_PROPERTY(type, type, name, internal_name, internal_obj)
+#define CV_WRAP_PROPERTY_S(type, name, internal_name, internal_obj) CV_HELP_WRAP_PROPERTY(type, const type &, name, internal_name, internal_obj)
+
+#define CV_WRAP_SAME_PROPERTY(type, name, internal_obj) CV_WRAP_PROPERTY(type, name, name, internal_obj)
+#define CV_WRAP_SAME_PROPERTY_S(type, name, internal_obj) CV_WRAP_PROPERTY_S(type, name, name, internal_obj)
 
 /****************************************************************************************\
 *                     Structures and macros for integration with IPP                     *
 \****************************************************************************************/
 
 #ifdef HAVE_IPP
-#  include "ipp.h"
+#include "ipp.h"
 
-#  define IPP_VERSION_X100 (IPP_VERSION_MAJOR * 100 + IPP_VERSION_MINOR)
+#ifndef IPP_VERSION_UPDATE // prior to 7.1
+#define IPP_VERSION_UPDATE 0
+#endif
 
-#define IPP_ALIGN 32 // required for AVX optimization
+#define IPP_VERSION_X100 (IPP_VERSION_MAJOR * 100 + IPP_VERSION_MINOR*10 + IPP_VERSION_UPDATE)
+
+// General define for ipp function disabling
+#define IPP_DISABLE_BLOCK 0
+
+#ifdef CV_MALLOC_ALIGN
+#undef CV_MALLOC_ALIGN
+#endif
+#define CV_MALLOC_ALIGN 32 // required for AVX optimization
 
 #define setIppErrorStatus() cv::ipp::setIppStatus(-1, CV_Func, __FILE__, __LINE__)
 
@@ -230,6 +225,18 @@ static inline IppiSize ippiSize(const cv::Size & _size)
 {
     IppiSize size = { _size.width, _size.height };
     return size;
+}
+
+static inline IppiPoint ippiPoint(const cv::Point & _point)
+{
+    IppiPoint point = { _point.x, _point.y };
+    return point;
+}
+
+static inline IppiPoint ippiPoint(int x, int y)
+{
+    IppiPoint point = { x, y };
+    return point;
 }
 
 static inline IppiBorderType ippiGetBorderType(int borderTypeNI)
@@ -252,12 +259,126 @@ static inline IppDataType ippiGetDataType(int depth)
         depth == CV_64F ? ipp64f : (IppDataType)-1;
 }
 
+// IPP temporary buffer hepler
+template<typename T>
+class IppAutoBuffer
+{
+public:
+    IppAutoBuffer() { m_pBuffer = NULL; }
+    IppAutoBuffer(int size) { Alloc(size); }
+    ~IppAutoBuffer() { Release(); }
+    T* Alloc(int size) { m_pBuffer = (T*)ippMalloc(size); return m_pBuffer; }
+    void Release() { if(m_pBuffer) ippFree(m_pBuffer); }
+    inline operator T* () { return (T*)m_pBuffer;}
+    inline operator const T* () const { return (const T*)m_pBuffer;}
+private:
+    // Disable copy operations
+    IppAutoBuffer(IppAutoBuffer &) {}
+    IppAutoBuffer& operator =(const IppAutoBuffer &) {return *this;}
+
+    T* m_pBuffer;
+};
+
 #else
-#  define IPP_VERSION_X100 0
+#define IPP_VERSION_X100 0
+#endif
+
+#if defined HAVE_IPP
+#if IPP_VERSION_X100 >= 900
+#define IPP_INITIALIZER(FEAT)                           \
+{                                                       \
+    if(FEAT)                                            \
+        ippSetCpuFeatures(FEAT);                        \
+    else                                                \
+        ippInit();                                      \
+}
+#elif IPP_VERSION_X100 >= 800
+#define IPP_INITIALIZER(FEAT)                           \
+{                                                       \
+    ippInit();                                          \
+}
+#else
+#define IPP_INITIALIZER(FEAT)                           \
+{                                                       \
+    ippStaticInit();                                    \
+}
+#endif
+
+#ifdef CVAPI_EXPORTS
+#define IPP_INITIALIZER_AUTO                            \
+struct __IppInitializer__                               \
+{                                                       \
+    __IppInitializer__()                                \
+    {IPP_INITIALIZER(cv::ipp::getIppFeatures())}        \
+};                                                      \
+static struct __IppInitializer__ __ipp_initializer__;
+#else
+#define IPP_INITIALIZER_AUTO
+#endif
+#else
+#define IPP_INITIALIZER
+#define IPP_INITIALIZER_AUTO
 #endif
 
 #define CV_IPP_CHECK_COND (cv::ipp::useIPP())
 #define CV_IPP_CHECK() if(CV_IPP_CHECK_COND)
+
+#ifdef HAVE_IPP
+
+#ifdef CV_IPP_RUN_VERBOSE
+#define CV_IPP_RUN_(condition, func, ...)                                   \
+    {                                                                       \
+        if (cv::ipp::useIPP() && (condition) && (func))                     \
+        {                                                                   \
+            printf("%s: IPP implementation is running\n", CV_Func);         \
+            fflush(stdout);                                                 \
+            CV_IMPL_ADD(CV_IMPL_IPP);                                       \
+            return __VA_ARGS__;                                             \
+        }                                                                   \
+        else                                                                \
+        {                                                                   \
+            printf("%s: Plain implementation is running\n", CV_Func);       \
+            fflush(stdout);                                                 \
+        }                                                                   \
+    }
+#elif defined CV_IPP_RUN_ASSERT
+#define CV_IPP_RUN_(condition, func, ...)                                   \
+    {                                                                       \
+        if (cv::ipp::useIPP() && (condition))                               \
+        {                                                                   \
+            if(func)                                                        \
+            {                                                               \
+                CV_IMPL_ADD(CV_IMPL_IPP);                                   \
+            }                                                               \
+            else                                                            \
+            {                                                               \
+                setIppErrorStatus();                                        \
+                CV_Error(cv::Error::StsAssert, #func);                      \
+            }                                                               \
+            return __VA_ARGS__;                                             \
+        }                                                                   \
+    }
+#else
+#define CV_IPP_RUN_(condition, func, ...)                                   \
+    if (cv::ipp::useIPP() && (condition) && (func))                         \
+    {                                                                       \
+        CV_IMPL_ADD(CV_IMPL_IPP);                                           \
+        return __VA_ARGS__;                                                 \
+    }
+#endif
+#define CV_IPP_RUN_FAST(func, ...)                                          \
+    if (cv::ipp::useIPP() && (func))                                        \
+    {                                                                       \
+        CV_IMPL_ADD(CV_IMPL_IPP);                                           \
+        return __VA_ARGS__;                                                 \
+    }
+#else
+#define CV_IPP_RUN_(condition, func, ...)
+#define CV_IPP_RUN_FAST(func, ...)
+#endif
+
+#define CV_IPP_RUN(condition, func, ...) CV_IPP_RUN_((condition), (func), __VA_ARGS__)
+
 
 #ifndef IPPI_CALL
 #  define IPPI_CALL(func) CV_Assert((func) >= 0)
@@ -303,6 +424,162 @@ typedef enum CvStatus
 }
 CvStatus;
 
+#ifdef HAVE_TEGRA_OPTIMIZATION
+namespace tegra {
+
+CV_EXPORTS bool useTegra();
+CV_EXPORTS void setUseTegra(bool flag);
+
+}
+#endif
+
+#ifdef ENABLE_INSTRUMENTATION
+namespace cv
+{
+namespace instr
+{
+struct InstrTLSStruct
+{
+    InstrTLSStruct()
+    {
+        pCurrentNode = NULL;
+    }
+    InstrNode* pCurrentNode;
+};
+
+class InstrStruct
+{
+public:
+    InstrStruct()
+    {
+        useInstr    = false;
+        flags       = FLAGS_MAPPING;
+        maxDepth    = 0;
+
+        rootNode.m_payload = NodeData("ROOT", NULL, 0, NULL, false, TYPE_GENERAL, IMPL_PLAIN);
+        tlsStruct.get()->pCurrentNode = &rootNode;
+    }
+
+    Mutex mutexCreate;
+    Mutex mutexCount;
+
+    bool       useInstr;
+    int        flags;
+    int        maxDepth;
+    InstrNode  rootNode;
+    TLSData<InstrTLSStruct> tlsStruct;
+};
+
+class CV_EXPORTS IntrumentationRegion
+{
+public:
+    IntrumentationRegion(const char* funName, const char* fileName, int lineNum, void *retAddress, bool alwaysExpand, TYPE instrType = TYPE_GENERAL, IMPL implType = IMPL_PLAIN);
+    ~IntrumentationRegion();
+
+private:
+    bool    m_disabled; // region status
+    uint64  m_regionTicks;
+};
+
+CV_EXPORTS InstrStruct& getInstrumentStruct();
+InstrTLSStruct&         getInstrumentTLSStruct();
+CV_EXPORTS InstrNode*   getCurrentNode();
+}
+}
+
+#ifdef _WIN32
+#define CV_INSTRUMENT_GET_RETURN_ADDRESS _ReturnAddress()
+#else
+#define CV_INSTRUMENT_GET_RETURN_ADDRESS __builtin_extract_return_addr(__builtin_return_address(0))
+#endif
+
+// Instrument region
+#define CV_INSTRUMENT_REGION_META(NAME, ALWAYS_EXPAND, TYPE, IMPL)        ::cv::instr::IntrumentationRegion __instr_region__(NAME, __FILE__, __LINE__, CV_INSTRUMENT_GET_RETURN_ADDRESS, ALWAYS_EXPAND, TYPE, IMPL);
+#define CV_INSTRUMENT_REGION_CUSTOM_META(NAME, ALWAYS_EXPAND, TYPE, IMPL)\
+    void *__curr_address__ = [&]() {return CV_INSTRUMENT_GET_RETURN_ADDRESS;}();\
+    ::cv::instr::IntrumentationRegion __instr_region__(NAME, __FILE__, __LINE__, __curr_address__, false, ::cv::instr::TYPE_GENERAL, ::cv::instr::IMPL_PLAIN);
+// Instrument functions with non-void return type
+#define CV_INSTRUMENT_FUN_RT_META(TYPE, IMPL, ERROR_COND, FUN, ...) ([&]()\
+{\
+    if(::cv::instr::useInstrumentation()){\
+        ::cv::instr::IntrumentationRegion __instr__(#FUN, __FILE__, __LINE__, NULL, false, TYPE, IMPL);\
+        try{\
+            auto status = ((FUN)(__VA_ARGS__));\
+            if(ERROR_COND){\
+                ::cv::instr::getCurrentNode()->m_payload.m_funError = true;\
+                CV_INSTRUMENT_MARK_META(IMPL, #FUN " - BadExit");\
+            }\
+            return status;\
+        }catch(...){\
+            ::cv::instr::getCurrentNode()->m_payload.m_funError = true;\
+            CV_INSTRUMENT_MARK_META(IMPL, #FUN " - BadExit");\
+            throw;\
+        }\
+    }else{\
+        return ((FUN)(__VA_ARGS__));\
+    }\
+}())
+// Instrument functions with void return type
+#define CV_INSTRUMENT_FUN_RV_META(TYPE, IMPL, FUN, ...) ([&]()\
+{\
+    if(::cv::instr::useInstrumentation()){\
+        ::cv::instr::IntrumentationRegion __instr__(#FUN, __FILE__, __LINE__, NULL, false, TYPE, IMPL);\
+        try{\
+            (FUN)(__VA_ARGS__);\
+        }catch(...){\
+            ::cv::instr::getCurrentNode()->m_payload.m_funError = true;\
+            CV_INSTRUMENT_MARK_META(IMPL, #FUN "- BadExit");\
+            throw;\
+        }\
+    }else{\
+        (FUN)(__VA_ARGS__);\
+    }\
+}())
+// Instrumentation information marker
+#define CV_INSTRUMENT_MARK_META(IMPL, NAME, ...) {::cv::instr::IntrumentationRegion __instr_mark__(NAME, __FILE__, __LINE__, NULL, false, ::cv::instr::TYPE_MARKER, IMPL);}
+
+///// General instrumentation
+// General OpenCV region instrumentation macro
+#define CV_INSTRUMENT_REGION()              CV_INSTRUMENT_REGION_META(__FUNCTION__, false, ::cv::instr::TYPE_GENERAL, ::cv::instr::IMPL_PLAIN)
+// Custom OpenCV region instrumentation macro
+#define CV_INSTRUMENT_REGION_NAME(NAME)     CV_INSTRUMENT_REGION_CUSTOM_META(NAME,  false, ::cv::instr::TYPE_GENERAL, ::cv::instr::IMPL_PLAIN)
+// Instrumentation for parallel_for_ or other regions which forks and gathers threads
+#define CV_INSTRUMENT_REGION_MT_FORK()      CV_INSTRUMENT_REGION_META(__FUNCTION__, true,  ::cv::instr::TYPE_GENERAL, ::cv::instr::IMPL_PLAIN);
+
+///// IPP instrumentation
+// Wrapper region instrumentation macro
+#define CV_INSTRUMENT_REGION_IPP()          CV_INSTRUMENT_REGION_META(__FUNCTION__, false, ::cv::instr::TYPE_WRAPPER, ::cv::instr::IMPL_IPP)
+// Function instrumentation macro
+#define CV_INSTRUMENT_FUN_IPP(FUN, ...)     CV_INSTRUMENT_FUN_RT_META(::cv::instr::TYPE_FUN, ::cv::instr::IMPL_IPP, status < 0, FUN, __VA_ARGS__)
+// Diagnostic markers
+#define CV_INSTRUMENT_MARK_IPP(NAME)        CV_INSTRUMENT_MARK_META(::cv::instr::IMPL_IPP, NAME)
+
+///// OpenCL instrumentation
+// Wrapper region instrumentation macro
+#define CV_INSTRUMENT_REGION_OPENCL()              CV_INSTRUMENT_REGION_META(__FUNCTION__, false, ::cv::instr::TYPE_WRAPPER, ::cv::instr::IMPL_OPENCL)
+// OpenCL kernel compilation wrapper
+#define CV_INSTRUMENT_REGION_OPENCL_COMPILE(NAME)  CV_INSTRUMENT_REGION_META(NAME, false, ::cv::instr::TYPE_WRAPPER, ::cv::instr::IMPL_OPENCL)
+// OpenCL kernel run wrapper
+#define CV_INSTRUMENT_REGION_OPENCL_RUN(NAME)      CV_INSTRUMENT_REGION_META(NAME, false, ::cv::instr::TYPE_FUN, ::cv::instr::IMPL_OPENCL)
+// Diagnostic markers
+#define CV_INSTRUMENT_MARK_OPENCL(NAME)            CV_INSTRUMENT_MARK_META(::cv::instr::IMPL_OPENCL, NAME)
+#else
+#define CV_INSTRUMENT_REGION_META(...)
+
+#define CV_INSTRUMENT_REGION()
+#define CV_INSTRUMENT_REGION_NAME(...)
+#define CV_INSTRUMENT_REGION_MT_FORK()
+
+#define CV_INSTRUMENT_REGION_IPP()
+#define CV_INSTRUMENT_FUN_IPP(FUN, ...) ((FUN)(__VA_ARGS__))
+#define CV_INSTRUMENT_MARK_IPP(...)
+
+#define CV_INSTRUMENT_REGION_OPENCL()
+#define CV_INSTRUMENT_REGION_OPENCL_COMPILE(...)
+#define CV_INSTRUMENT_REGION_OPENCL_RUN(...)
+#define CV_INSTRUMENT_MARK_OPENCL(...)
+#endif
+
 //! @endcond
 
-#endif // __OPENCV_CORE_PRIVATE_HPP__
+#endif // OPENCV_CORE_PRIVATE_HPP

@@ -41,8 +41,8 @@
 //
 //M*/
 
-#ifndef __OPENCV_CORE_CUDA_HPP__
-#define __OPENCV_CORE_CUDA_HPP__
+#ifndef OPENCV_CORE_CUDA_HPP
+#define OPENCV_CORE_CUDA_HPP
 
 #ifndef __cplusplus
 #  error cuda.hpp header must be compiled as C++
@@ -51,12 +51,25 @@
 #include "opencv2/core.hpp"
 #include "opencv2/core/cuda_types.hpp"
 
+/**
+  @defgroup cuda CUDA-accelerated Computer Vision
+  @{
+    @defgroup cudacore Core part
+    @{
+      @defgroup cudacore_init Initalization and Information
+      @defgroup cudacore_struct Data Structures
+    @}
+  @}
+ */
+
 namespace cv { namespace cuda {
 
-//! @addtogroup cuda_struct
+//! @addtogroup cudacore_struct
 //! @{
 
-//////////////////////////////// GpuMat ///////////////////////////////
+//===================================================================================
+// GpuMat
+//===================================================================================
 
 /** @brief Base storage class for GPU memory with reference counting.
 
@@ -314,13 +327,13 @@ The function does not reallocate memory if the matrix has proper attributes alre
  */
 CV_EXPORTS void ensureSizeIsEnough(int rows, int cols, int type, OutputArray arr);
 
-CV_EXPORTS GpuMat allocMatFromBuf(int rows, int cols, int type, GpuMat& mat);
-
 //! BufferPool management (must be called before Stream creation)
 CV_EXPORTS void setBufferPoolUsage(bool on);
 CV_EXPORTS void setBufferPoolConfig(int deviceId, size_t stackSize, int stackCount);
 
-//////////////////////////////// CudaMem ////////////////////////////////
+//===================================================================================
+// HostMem
+//===================================================================================
 
 /** @brief Class with reference counting wrapping special memory type allocation functions from CUDA.
 
@@ -337,43 +350,45 @@ Its interface is also Mat-like but with additional memory type parameters.
 @note Allocation size of such memory types is usually limited. For more details, see *CUDA 2.2
 Pinned Memory APIs* document or *CUDA C Programming Guide*.
  */
-class CV_EXPORTS CudaMem
+class CV_EXPORTS HostMem
 {
 public:
     enum AllocType { PAGE_LOCKED = 1, SHARED = 2, WRITE_COMBINED = 4 };
 
-    explicit CudaMem(AllocType alloc_type = PAGE_LOCKED);
+    static MatAllocator* getAllocator(AllocType alloc_type = PAGE_LOCKED);
 
-    CudaMem(const CudaMem& m);
+    explicit HostMem(AllocType alloc_type = PAGE_LOCKED);
 
-    CudaMem(int rows, int cols, int type, AllocType alloc_type = PAGE_LOCKED);
-    CudaMem(Size size, int type, AllocType alloc_type = PAGE_LOCKED);
+    HostMem(const HostMem& m);
+
+    HostMem(int rows, int cols, int type, AllocType alloc_type = PAGE_LOCKED);
+    HostMem(Size size, int type, AllocType alloc_type = PAGE_LOCKED);
 
     //! creates from host memory with coping data
-    explicit CudaMem(InputArray arr, AllocType alloc_type = PAGE_LOCKED);
+    explicit HostMem(InputArray arr, AllocType alloc_type = PAGE_LOCKED);
 
-    ~CudaMem();
+    ~HostMem();
 
-    CudaMem& operator =(const CudaMem& m);
+    HostMem& operator =(const HostMem& m);
 
     //! swaps with other smart pointer
-    void swap(CudaMem& b);
+    void swap(HostMem& b);
 
     //! returns deep copy of the matrix, i.e. the data is copied
-    CudaMem clone() const;
+    HostMem clone() const;
 
     //! allocates new matrix data unless the matrix already has specified size and type.
     void create(int rows, int cols, int type);
     void create(Size size, int type);
 
-    //! creates alternative CudaMem header for the same data, with different
+    //! creates alternative HostMem header for the same data, with different
     //! number of channels and/or different number of rows
-    CudaMem reshape(int cn, int rows = 0) const;
+    HostMem reshape(int cn, int rows = 0) const;
 
     //! decrements reference counter and released memory if needed.
     void release();
 
-    //! returns matrix header with disabled reference counting for CudaMem data.
+    //! returns matrix header with disabled reference counting for HostMem data.
     Mat createMatHeader() const;
 
     /** @brief Maps CPU memory to GPU address space and creates the cuda::GpuMat header without reference counting
@@ -422,7 +437,9 @@ CV_EXPORTS void registerPageLocked(Mat& m);
  */
 CV_EXPORTS void unregisterPageLocked(Mat& m);
 
-///////////////////////////////// Stream //////////////////////////////////
+//===================================================================================
+// Stream
+//===================================================================================
 
 /** @brief This class encapsulates a queue of asynchronous calls.
 
@@ -430,7 +447,26 @@ CV_EXPORTS void unregisterPageLocked(Mat& m);
 functions use the constant GPU memory, and next call may update the memory before the previous one
 has been finished. But calling different operations asynchronously is safe because each operation
 has its own constant buffer. Memory copy/upload/download/set operations to the buffers you hold are
-also safe. :
+also safe.
+
+@note The Stream class is not thread-safe. Please use different Stream objects for different CPU threads.
+
+@code
+void thread1()
+{
+    cv::cuda::Stream stream1;
+    cv::cuda::func1(..., stream1);
+}
+
+void thread2()
+{
+    cv::cuda::Stream stream2;
+    cv::cuda::func2(..., stream2);
+}
+@endcode
+
+@note By default all CUDA routines are launched in Stream::Null() object, if the stream is not specified by user.
+In multi-threading environment the stream objects must be passed explicitly (see previous note).
  */
 class CV_EXPORTS Stream
 {
@@ -479,6 +515,7 @@ private:
 
     friend struct StreamAccessor;
     friend class BufferPool;
+    friend class DefaultDeviceInitializer;
 };
 
 class CV_EXPORTS Event
@@ -510,15 +547,18 @@ public:
 
 private:
     Ptr<Impl> impl_;
+    Event(const Ptr<Impl>& impl);
 
     friend struct EventAccessor;
 };
 
-//! @} cuda_struct
+//! @} cudacore_struct
 
-//////////////////////////////// Initialization & Info ////////////////////////
+//===================================================================================
+// Initialization & Info
+//===================================================================================
 
-//! @addtogroup cuda_init
+//! @addtogroup cudacore_init
 //! @{
 
 /** @brief Returns the number of installed CUDA-enabled devices.
@@ -558,7 +598,9 @@ enum FeatureSet
     FEATURE_SET_COMPUTE_20 = 20,
     FEATURE_SET_COMPUTE_21 = 21,
     FEATURE_SET_COMPUTE_30 = 30,
+    FEATURE_SET_COMPUTE_32 = 32,
     FEATURE_SET_COMPUTE_35 = 35,
+    FEATURE_SET_COMPUTE_50 = 50,
 
     GLOBAL_ATOMICS = FEATURE_SET_COMPUTE_11,
     SHARED_ATOMICS = FEATURE_SET_COMPUTE_12,
@@ -813,11 +855,20 @@ private:
 CV_EXPORTS void printCudaDeviceInfo(int device);
 CV_EXPORTS void printShortCudaDeviceInfo(int device);
 
-//! @} cuda_init
+/** @brief Converts an array to half precision floating number.
+
+@param _src input array.
+@param _dst output array.
+@param stream Stream for the asynchronous version.
+@sa convertFp16
+*/
+CV_EXPORTS void convertFp16(InputArray _src, OutputArray _dst, Stream& stream = Stream::Null());
+
+//! @} cudacore_init
 
 }} // namespace cv { namespace cuda {
 
 
 #include "opencv2/core/cuda.inl.hpp"
 
-#endif /* __OPENCV_CORE_CUDA_HPP__ */
+#endif /* OPENCV_CORE_CUDA_HPP */

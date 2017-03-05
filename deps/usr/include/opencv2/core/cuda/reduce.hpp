@@ -40,17 +40,25 @@
 //
 //M*/
 
-#ifndef __OPENCV_CUDA_REDUCE_HPP__
-#define __OPENCV_CUDA_REDUCE_HPP__
+#ifndef OPENCV_CUDA_REDUCE_HPP
+#define OPENCV_CUDA_REDUCE_HPP
+
+#ifndef THRUST_DEBUG // eliminate -Wundef warning
+#define THRUST_DEBUG 0
+#endif
 
 #include <thrust/tuple.h>
 #include "detail/reduce.hpp"
 #include "detail/reduce_key_val.hpp"
 
+/** @file
+ * @deprecated Use @ref cudev instead.
+ */
+
+//! @cond IGNORED
+
 namespace cv { namespace cuda { namespace device
 {
-//! @addtogroup cuda
-//! @{
     template <int N, typename T, class Op>
     __device__ __forceinline__ void reduce(volatile T* smem, T& val, unsigned int tid, const Op& op)
     {
@@ -194,7 +202,8 @@ namespace cv { namespace cuda { namespace device
     {
         return thrust::make_tuple((volatile T0*) t0, (volatile T1*) t1, (volatile T2*) t2, (volatile T3*) t3, (volatile T4*) t4, (volatile T5*) t5, (volatile T6*) t6, (volatile T7*) t7, (volatile T8*) t8, (volatile T9*) t9);
     }
-//! @}
 }}}
 
-#endif // __OPENCV_CUDA_UTILITY_HPP__
+//! @endcond
+
+#endif // OPENCV_CUDA_REDUCE_HPP

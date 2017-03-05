@@ -40,17 +40,20 @@
 //
 //M*/
 
-#ifndef __OPENCV_CUDA_VECMATH_HPP__
-#define __OPENCV_CUDA_VECMATH_HPP__
+#ifndef OPENCV_CUDA_VECMATH_HPP
+#define OPENCV_CUDA_VECMATH_HPP
 
 #include "vec_traits.hpp"
 #include "saturate_cast.hpp"
 
+/** @file
+ * @deprecated Use @ref cudev instead.
+ */
+
+//! @cond IGNORED
+
 namespace cv { namespace cuda { namespace device
 {
-
-//! @addtogroup cuda
-//! @{
 
 // saturate_cast
 
@@ -920,8 +923,8 @@ CV_CUDEV_IMPLEMENT_SCALAR_BINARY_FUNC(atan2, ::atan2, double, double, double)
 
 #undef CV_CUDEV_IMPLEMENT_SCALAR_BINARY_FUNC
 
-//! @}
-
 }}} // namespace cv { namespace cuda { namespace device
 
-#endif // __OPENCV_CUDA_VECMATH_HPP__
+//! @endcond
+
+#endif // OPENCV_CUDA_VECMATH_HPP

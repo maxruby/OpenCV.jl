@@ -40,8 +40,8 @@
 //
 //M*/
 
-#ifndef __OPENCV_VIDEOSTAB_OPTICAL_FLOW_HPP__
-#define __OPENCV_VIDEOSTAB_OPTICAL_FLOW_HPP__
+#ifndef OPENCV_VIDEOSTAB_OPTICAL_FLOW_HPP
+#define OPENCV_VIDEOSTAB_OPTICAL_FLOW_HPP
 
 #include "opencv2/core.hpp"
 #include "opencv2/opencv_modules.hpp"
@@ -121,7 +121,7 @@ public:
              cuda::GpuMat &status);
 
 private:
-    cuda::PyrLKOpticalFlow optFlowEstimator_;
+    Ptr<cuda::SparsePyrLKOpticalFlow> optFlowEstimator_;
     cuda::GpuMat frame0_, frame1_, points0_, points1_, status_, errors_;
 };
 
@@ -136,7 +136,7 @@ public:
             OutputArray errors);
 
 private:
-    cuda::PyrLKOpticalFlow optFlowEstimator_;
+    Ptr<cuda::DensePyrLKOpticalFlow> optFlowEstimator_;
     cuda::GpuMat frame0_, frame1_, flowX_, flowY_, errors_;
 };
 
