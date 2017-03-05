@@ -95,7 +95,7 @@ const CV_32S = 4       # 32bit signed int
 const CV_32F = 5       # 32bit float
 const CV_64F = 6       # 64bit double
 
-typealias CV_MatType Int
+const CV_MatType = Int
 const CV_8UC1 = 0
 const CV_8UC2 = 8
 const CV_8UC3 = 16
@@ -811,7 +811,7 @@ const INTERSECT_PARTIAL  = 1
 const INTERSECT_FULL  = 2
 
 # highgui.hpp
-typealias WindowProperty UInt32
+const WindowProperty = UInt32
 const WINDOW_NORMAL     = 0x00000000 # the user can resize the window (no constraint)
 const WINDOW_AUTOSIZE   = 0x00000001 # the user cannot resize the window, the size is constrainted by the image displayed
 const WINDOW_OPENGL     = 0x00001000 # window with opengl support
@@ -819,13 +819,13 @@ const WINDOW_FULLSCREEN = 1          # change the window to fullscreen
 const WINDOW_FREERATIO  = 0x00000100 # the image expends as much as it can (no ratio constraint)
 const WINDOW_KEEPRATIO  = 0x00000000 # the ratio of the image is respected
 
-typealias getWindowPropertyFlag Int64
+const getWindowPropertyFlag = Int64
 const WND_PROP_FULLSCREEN   = 0  # fullscreen property    (can be WINDOW_NORMAL or WINDOW_FULLSCREEN)
 const WND_PROP_AUTOSIZE     = 1  # autosize property      (can be WINDOW_NORMAL or WINDOW_AUTOSIZE)
 const WND_PROP_ASPECT_RATIO = 2  # window's aspect ration (can be set to WINDOW_FREERATIO or WINDOW_KEEPRATIO);
 const WND_PROP_OPENGL       = 3  # opengl support
 
-typealias mouseEventFlag Int64
+const mouseEventFlag = Int64
 const EVENT_MOUSEMOVE      = 0
 const EVENT_LBUTTONDOWN    = 1
 const EVENT_RBUTTONDOWN    = 2
@@ -841,7 +841,7 @@ const EVENT_FLAG_SHIFTKEY  = 16
 const EVENT_FLAG_ALTKEY    = 32
 
 # videoio.hpp
-typealias captureFlag Int64
+const captureFlag = Int64
 const CAP_ANY          = 0     # autodetect
 const CAP_VFW          = 200   # platform native
 const CAP_V4L          = 200
@@ -866,7 +866,7 @@ const CAP_INTELPERC    = 1500  # Intel Perceptual Computing SDK
 const CAP_OPENNI2      = 1600  # OpenNI2 (for Kinect)
 
 # generic properties (based on DC1394 properties)
-typealias capturePROPflag Int64
+const capturePROPflag = Int64
 const CAP_PROP_POS_MSEC       = 0
 const CAP_PROP_POS_FRAMES     = 1
 const CAP_PROP_POS_AVI_RATIO  = 2
@@ -915,7 +915,7 @@ const CV_FOURCC_I263 = [pointer("I"),pointer("2"),pointer("6"),pointer("3")]   #
 const CV_FOURCC_MPEG = [pointer("M"),pointer("P"),pointer("E"),pointer("G")]   #for MPEG-1 codec
 
 # imgcodecs.hpp
-typealias imreadFlag Int64
+const imreadFlag = Int64
 const IMREAD_UNCHANGED  = -1         # 8bit, color or not
 const IMREAD_GRAYSCALE  = 0          # 8bit, gray
 const IMREAD_COLOR      = 1          # ?, color
@@ -923,7 +923,7 @@ const IMREAD_ANYDEPTH   = 2          # any depth, ?
 const IMREAD_ANYCOLOR   = 4          # ?, any color
 const IMREAD_LOAD_GDAL  = 8          # Use gdal driver
 
-typealias imwriteFlag Int64
+const imwriteFlag = Int64
 const IMWRITE_JPEG_QUALITY        = 1
 const IMWRITE_JPEG_PROGRESSIVE    = 2
 const IMWRITE_JPEG_OPTIMIZE       = 3
