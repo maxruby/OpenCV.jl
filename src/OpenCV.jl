@@ -24,7 +24,7 @@
 swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
 
 # Check Julia version before continuing (also checked later in Cxx)
-(VERSION >= v"0.5-") ? nothing :
+(VERSION >= v"0.6-") ? nothing :
      throw(ErrorException("Julia $VERSION does not support C++ FFI"))
 
 # Load Cxx
