@@ -10,70 +10,69 @@
 #
 # To add more libraries, make sure to add the name to "opencv_libraries" in /src/OpenCV_libs.jl
 #
-# OpenCV lib version: OpenCV 3-beta
+# OpenCV lib version: OpenCV 3.2.0
 #
 # DOCUMENTATION
 # opencv.org
-# http://docs.opencv.org/trunk/modules/refman.html
+# http://opencv.org
 # Doxygen
-# http://docs.opencv.org/ref/master/index.html
+# http://docs.opencv.org/master/index.html
 #
 #################################################################################################
 
-# convenient swap file extension function
+# Convenient swap file extension function
 swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
 
-
-using Cxx
 # Check Julia version before continuing (also checked later in Cxx)
-(VERSION >= v"0.4-") ? nothing :
+(VERSION >= v"0.6-") ? nothing :
      throw(ErrorException("Julia $VERSION does not support C++ FFI"))
 
-# Load names of OpenCV shared libraries (pre-compiled)
+# Load Cxx
+using Cxx
+
+# Load config variables for loading OpenCV shared libraries
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_libs.jl"))
+opencv_libraries = getFullLibNames();
 
 # Autosearch for OpenCV installations using pkg-config
 (so,si,pr) = readandwrite(`pkg-config --libs opencv`)
 output = readstring(so)
 close(so)
 
+# Check lib installation path
 @static if is_apple()
-  path = match(Regex("/usr/local/lib/"), output)
-  for i in opencv_libraries
-      if match(Regex("$(i[1:end-6])"), output) == nothing
-          println("$(i) is not found in pkg-config")
-      end
-  end
+  failed_to_get_path = match(Regex(chop(cvlibdir)), output) == nothing
 end
 
 @static if is_linux()
-  path = match(Regex("libopencv|lopencv"), output)
-  for i in opencv_libraries
-      if match(Regex("$(i[11:end-6])"), output) == nothing
-          println("$(i) is not found in pkg-config")
-      end
-  end
+  failed_to_get_path = match(Regex("libopencv|lopencv"), output) == nothing
 end
 
-# Choose locally pre-installed or OpenCV.jl libraries - default
-if path != nothing
-    const cvlibdir = "/usr/local/lib/"
-    const cvheaderdir = "/usr/local/include/"
-else  # Load libs/headers from OpenCV/deps/usr/lib/ - only compatible with OSX
-    const cvlibdir = is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
-    const cvheaderdir = is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
+# Check if all libraries specified in config are indeed installed
+missing_libs = false
+for i in libNames
+    if !contains(output, i)
+        missingmissing_libs = true
+        println("$(i) is not found in pkg-config")
+    end
+end
+
+# Load pre-built DYLD libraries (OSX ONLY), else throw an ErrorException
+if failed_to_get_path || missing_libs
+    cvlibdir = is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
+    cvheaderdir = is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
 end
 
 addHeaderDir(cvheaderdir, kind = C_System)
 
 # Load OpenCV shared libraries (default file extension is .dylib)
-# IMPORTANT: make sure to link symbols accross libraries with RTLD_GLOBAL
+# TO DO: ensure compatible path/extension for Windows OS
 for i in opencv_libraries
-    # TO DO: ensure compatible path/extension for Windows OS
     if is_linux()
          i = swapext(i[1:end-6], ".so")
     end
-    Libdl.dlopen_e(joinpath(cvlibdir,i), Libdl.RTLD_GLOBAL)==C_NULL ? println("Not loading $(i)"): nothing
+    # Must link symbols accross libraries with RTLD_GLOBAL
+    Libdl.dlopen(joinpath(cvlibdir,i), Libdl.RTLD_GLOBAL)
 end
 
 # Now include C++ header files
@@ -127,7 +126,8 @@ cxx"""
 """
 
 # Load Qt framework
-include(joinpath(Pkg.dir("OpenCV"), "./deps/Qt_support.jl"))
+# BUG: see deps/Qt_support.jl, so currently disabled
+# include(joinpath(Pkg.dir("OpenCV"), "./deps/Qt_support.jl"))
 
 # Load header constants and typedefs
 include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_hpp.jl"))

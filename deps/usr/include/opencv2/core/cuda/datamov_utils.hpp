@@ -40,16 +40,19 @@
 //
 //M*/
 
-#ifndef __OPENCV_CUDA_DATAMOV_UTILS_HPP__
-#define __OPENCV_CUDA_DATAMOV_UTILS_HPP__
+#ifndef OPENCV_CUDA_DATAMOV_UTILS_HPP
+#define OPENCV_CUDA_DATAMOV_UTILS_HPP
 
 #include "common.hpp"
 
+/** @file
+ * @deprecated Use @ref cudev instead.
+ */
+
+//! @cond IGNORED
+
 namespace cv { namespace cuda { namespace device
 {
-//! @addtogroup cuda
-//! @{
-
     #if defined __CUDA_ARCH__ && __CUDA_ARCH__ >= 200
 
         // for Fermi memory space is detected automatically
@@ -103,7 +106,8 @@ namespace cv { namespace cuda { namespace device
         #undef OPENCV_CUDA_ASM_PTR
 
     #endif // __CUDA_ARCH__ >= 200
-//! @}
 }}} // namespace cv { namespace cuda { namespace cudev
 
-#endif // __OPENCV_CUDA_DATAMOV_UTILS_HPP__
+//! @endcond
+
+#endif // OPENCV_CUDA_DATAMOV_UTILS_HPP

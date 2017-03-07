@@ -40,17 +40,21 @@
 //
 //M*/
 
-#ifndef __OPENCV_CUDA_VEC_DISTANCE_HPP__
-#define __OPENCV_CUDA_VEC_DISTANCE_HPP__
+#ifndef OPENCV_CUDA_VEC_DISTANCE_HPP
+#define OPENCV_CUDA_VEC_DISTANCE_HPP
 
 #include "reduce.hpp"
 #include "functional.hpp"
 #include "detail/vec_distance_detail.hpp"
 
+/** @file
+ * @deprecated Use @ref cudev instead.
+ */
+
+//! @cond IGNORED
+
 namespace cv { namespace cuda { namespace device
 {
-//! @addtogroup cuda
-//! @{
     template <typename T> struct L1Dist
     {
         typedef int value_type;
@@ -221,7 +225,8 @@ namespace cv { namespace cuda { namespace device
 
         U vec1Vals[MAX_LEN / THREAD_DIM];
     };
-//! @}
 }}} // namespace cv { namespace cuda { namespace cudev
 
-#endif // __OPENCV_CUDA_VEC_DISTANCE_HPP__
+//! @endcond
+
+#endif // OPENCV_CUDA_VEC_DISTANCE_HPP

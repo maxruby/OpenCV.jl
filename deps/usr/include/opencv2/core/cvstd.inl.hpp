@@ -41,8 +41,8 @@
 //
 //M*/
 
-#ifndef __OPENCV_CORE_CVSTDINL_HPP__
-#define __OPENCV_CORE_CVSTDINL_HPP__
+#ifndef OPENCV_CORE_CVSTDINL_HPP
+#define OPENCV_CORE_CVSTDINL_HPP
 
 #ifndef OPENCV_NOSTL
 #  include <complex>
@@ -87,7 +87,7 @@ String::String(const std::string& str, size_t pos, size_t len)
     : cstr_(0), len_(0)
 {
     size_t strlen = str.size();
-    pos = max(pos, strlen);
+    pos = min(pos, strlen);
     len = min(strlen - pos, len);
     if (!len) return;
     memcpy(allocate(len), str.c_str() + pos, len);
@@ -183,6 +183,18 @@ std::ostream& operator << (std::ostream& out, const Mat& mtx)
     return out << Formatter::get()->format(mtx);
 }
 
+static inline
+std::ostream& operator << (std::ostream& out, const UMat& m)
+{
+    return out << m.getMat(ACCESS_READ);
+}
+
+template<typename _Tp> static inline
+std::ostream& operator << (std::ostream& out, const Complex<_Tp>& c)
+{
+    return out << "(" << c.re << "," << c.im << ")";
+}
+
 template<typename _Tp> static inline
 std::ostream& operator << (std::ostream& out, const std::vector<Point_<_Tp> >& vec)
 {
@@ -264,4 +276,4 @@ std::ostream& operator << (std::ostream& out, const Rect_<_Tp>& rect)
 
 //! @endcond
 
-#endif // __OPENCV_CORE_CVSTDINL_HPP__
+#endif // OPENCV_CORE_CVSTDINL_HPP

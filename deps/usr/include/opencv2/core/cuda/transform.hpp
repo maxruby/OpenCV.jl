@@ -40,17 +40,21 @@
 //
 //M*/
 
-#ifndef __OPENCV_CUDA_TRANSFORM_HPP__
-#define __OPENCV_CUDA_TRANSFORM_HPP__
+#ifndef OPENCV_CUDA_TRANSFORM_HPP
+#define OPENCV_CUDA_TRANSFORM_HPP
 
 #include "common.hpp"
 #include "utility.hpp"
 #include "detail/transform_detail.hpp"
 
+/** @file
+ * @deprecated Use @ref cudev instead.
+ */
+
+//! @cond IGNORED
+
 namespace cv { namespace cuda { namespace device
 {
-//! @addtogroup cuda
-//! @{
     template <typename T, typename D, typename UnOp, typename Mask>
     static inline void transform(PtrStepSz<T> src, PtrStepSz<D> dst, UnOp op, const Mask& mask, cudaStream_t stream)
     {
@@ -64,7 +68,8 @@ namespace cv { namespace cuda { namespace device
         typedef TransformFunctorTraits<BinOp> ft;
         transform_detail::TransformDispatcher<VecTraits<T1>::cn == 1 && VecTraits<T2>::cn == 1 && VecTraits<D>::cn == 1 && ft::smart_shift != 1>::call(src1, src2, dst, op, mask, stream);
     }
-//! @}
 }}}
 
-#endif // __OPENCV_CUDA_TRANSFORM_HPP__
+//! @endcond
+
+#endif // OPENCV_CUDA_TRANSFORM_HPP

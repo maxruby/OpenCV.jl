@@ -558,8 +558,8 @@ refcount(img) = @cxx img->refcount                           # reference count, 
 empty(img) = @cxx img->empty()                               # bool
 ptr(img, row) = @cxx img->ptr(row)                           # return uchar* or typed pointer for matrix row
 
-cxx""" cv::Size size(cv::Mat img) {  return(img.size()); } """
-size(img) = @cxx size(img)                                   # returns Size(cols, rows), if matrix > 2d, size = (-1,-1)
+cxx""" cv::Size sizeofimage(cv::Mat img) {  return(img.size()); } """
+sizeofimage(img) = @cxx sizeofimage(img)                                   # returns Size(cols, rows), if matrix > 2d, size = (-1,-1)
 
 cxx""" int channels(cv::Mat img) { return(img.channels()); } """
 channels(img) = @cxx channels(img)                           # number of matrix channels
@@ -1068,5 +1068,3 @@ getCPUTickCount() = @cxx cv::getCPUTickCount()
 # Enables or disables the optimized code
 cvUseOptimized(on_off::Int) = @cxx cv::cvUseOptimized(on_off)
 useOptimized() = @cxx cv::useOptimized()  #true/false status
-
-
