@@ -1,23 +1,33 @@
-# OpenCV v3.0 shared libraries (.dylib) in /usr/local/lib/
-# built with clang (LLVM 6.0) on OSX 10.9.5
+# Loading config for OpenCV 3.2.0 shared libraries (.dylib, .so)
+# Supports OSX (10.12.3) and Linux
 # see README for details
 
-opencv_libraries = [ "libopencv_core.3.0.0",
-                     "libopencv_highgui.3.0.0",
-                     "libopencv_imgproc.3.0.0",
-                     "libopencv_video.3.0.0",
-                     "libopencv_videoio.3.0.0",
-                     "libopencv_calib3d.3.0.0",
-                     "libopencv_features2d.3.0.0",
-                     "libopencv_flann.3.0.0",
-                     "libopencv_imgcodecs.3.0.0",
-                     "libopencv_ml.3.0.0",
-                     "libopencv_objdetect.3.0.0",
-                     "libopencv_photo.3.0.0",
-                     "libopencv_shape.3.0.0",
-                     "libopencv_stitching.3.0.0",
-                     "libopencv_superres.3.0.0",
-                     "libopencv_videostab.3.0.0",
-                     "libopencv_viz.3.0.0"
-                                                ]
+cvlibdir = "/usr/local/lib/"
+cvheaderdir = "/usr/local/include/"
 
+version = "3.2.0"
+
+libprefix = "libopencv_"
+
+libNames = [
+              "shape",
+              "stitching",
+              "objdetect",
+              "superres",
+              "videostab",
+              "calib3d",
+              "features2d",
+              "highgui",
+              "videoio",
+              "imgcodecs",
+              "video",
+              "photo",
+              "ml",
+              "imgproc",
+              #"flann",   // TODO: resolve typeid error due to rtti flag
+              "viz"
+            ]
+
+function getFullLibNames()
+    return map(x -> "$(libprefix)$(x).$(version)", libNames)
+end

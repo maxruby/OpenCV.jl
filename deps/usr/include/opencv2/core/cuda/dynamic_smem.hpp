@@ -40,13 +40,17 @@
 //
 //M*/
 
-#ifndef __OPENCV_CUDA_DYNAMIC_SMEM_HPP__
-#define __OPENCV_CUDA_DYNAMIC_SMEM_HPP__
+#ifndef OPENCV_CUDA_DYNAMIC_SMEM_HPP
+#define OPENCV_CUDA_DYNAMIC_SMEM_HPP
+
+/** @file
+ * @deprecated Use @ref cudev instead.
+ */
+
+//! @cond IGNORED
 
 namespace cv { namespace cuda { namespace device
 {
-//! @addtogroup cuda
-//! @{
     template<class T> struct DynamicSharedMem
     {
         __device__ __forceinline__ operator T*()
@@ -77,7 +81,8 @@ namespace cv { namespace cuda { namespace device
             return (double*)__smem_d;
         }
     };
-//! @}
 }}}
 
-#endif // __OPENCV_CUDA_DYNAMIC_SMEM_HPP__
+//! @endcond
+
+#endif // OPENCV_CUDA_DYNAMIC_SMEM_HPP

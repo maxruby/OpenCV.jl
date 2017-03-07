@@ -40,18 +40,22 @@
 //
 //M*/
 
-#ifndef __OPENCV_CUDA_SCAN_HPP__
-#define __OPENCV_CUDA_SCAN_HPP__
+#ifndef OPENCV_CUDA_SCAN_HPP
+#define OPENCV_CUDA_SCAN_HPP
 
 #include "opencv2/core/cuda/common.hpp"
 #include "opencv2/core/cuda/utility.hpp"
 #include "opencv2/core/cuda/warp.hpp"
 #include "opencv2/core/cuda/warp_shuffle.hpp"
 
+/** @file
+ * @deprecated Use @ref cudev instead.
+ */
+
+//! @cond IGNORED
+
 namespace cv { namespace cuda { namespace device
 {
-//! @addtogroup cuda
-//! @{
     enum ScanKind { EXCLUSIVE = 0,  INCLUSIVE = 1 };
 
     template <ScanKind Kind, typename T, typename F> struct WarpScan
@@ -247,7 +251,8 @@ namespace cv { namespace cuda { namespace device
             return warpScanInclusive(idata, s_Data, tid);
         }
     }
-//! @}
 }}}
 
-#endif // __OPENCV_CUDA_SCAN_HPP__
+//! @endcond
+
+#endif // OPENCV_CUDA_SCAN_HPP

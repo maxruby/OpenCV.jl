@@ -1,19 +1,21 @@
 # Load Qt framework
 # adjust qtlibdir path and version info if necessary
+# BUG: error: incomplete type 'QWidget' named in nested name specifier, etc
+# This goes back to Cxx.jl which has several bugs in Cxx/test/qttest.jl
 
 @static if is_apple()
-    const qtlibdir = joinpath(homedir(),"Qt/5.3/clang_64/lib/")
+    const qtlibdir = joinpath(homedir(),"Qt/5.7/clang_64/lib/")
     const QtCore = joinpath(qtlibdir,"QtCore.framework/")
     const QtWidgets = joinpath(qtlibdir,"QtWidgets.framework/")
 
     addHeaderDir(qtlibdir; isFramework = true, kind = C_System)
 
-    dlopen(joinpath(QtCore,"QtCore_debug"))
+    Libdl.dlopen(joinpath(QtCore,"QtCore_debug"))
     addHeaderDir(joinpath(QtCore,"Headers"), kind = C_System)
-    addHeaderDir(joinpath(QtCore,"Headers/5.3.2/QtCore"))
-    cxxinclude(joinpath(QtCore,"Headers/5.3.2/QtCore/private/qcoreapplication_p.h"))
+    addHeaderDir(joinpath(QtCore,"Headers/5.7.0/QtCore"))
+    cxxinclude(joinpath(QtCore,"Headers/5.7.0/QtCore/private/qcoreapplication_p.h"))
 
-    dlopen(joinpath(QtWidgets,"QtWidgets"))
+    Libdl.dlopen(joinpath(QtWidgets,"QtWidgets"))
     addHeaderDir(joinpath(QtWidgets,"Headers"), kind = C_System)
 end
 

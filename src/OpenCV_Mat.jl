@@ -40,7 +40,7 @@ inline void ptr_val3(cv::Mat &img, int row, int col, std::vector<double> vec)
 """
 
 function pixget(img, row::Int, col::Int)
-  (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothing
+  (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothingcpp_templates
   cd = channels(img)
   
   if cd < 3
