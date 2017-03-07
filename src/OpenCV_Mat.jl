@@ -41,8 +41,7 @@ inline void ptr_val3(cv::Mat &img, int row, int col, std::vector<double> vec)
 
 function pixget(img, row::Int, col::Int)
   (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothing
-  image = Images.separate(img);
-  cd = Images.colordim(image);
+  cd = channels(img)
   
   if cd < 3
     # Grayscale and binary images
@@ -60,8 +59,7 @@ end
 
 function pixset(img, row::Int, col::Int, value)
   (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothing
-  image = Images.separate(img);
-  cd = Images.colordim(image);
+  cd = channels(img)
 
   if cd < 3
     # Grayscale and binary images
