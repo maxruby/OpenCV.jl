@@ -4,13 +4,13 @@
 cxx"""
 // Grayscale and binary images 
 template <typename T1>
-inline T1 ptr_val(cv::Mat &img, int row, int col)
+inline T1 ptr_val(cv::Mat<T1> &img, int row, int col)
 {
   return(static_cast<int>(img.at<T1>(row, col)));
 }
 
 template <typename T2>
-inline void ptr_val(cv::Mat &img, int row, int col, double val)
+inline void ptr_val(cv::Mat<T2> &img, int row, int col, double val)
 {
   T2 value = static_cast<T2>(val);
     img.at<T2>(row, col) = value;
@@ -18,7 +18,7 @@ inline void ptr_val(cv::Mat &img, int row, int col, double val)
 
 // RGB images
 template <typename T1>
-inline std::vector<T1> ptr_val3(cv::Mat &img, int row, int col)
+inline std::vector<T1> ptr_val3(cv::Mat<T1> &img, int row, int col)
 {
     std::vector<T1>vec(3);
     for(int i = 0; i < 3; ++i)
@@ -29,7 +29,7 @@ inline std::vector<T1> ptr_val3(cv::Mat &img, int row, int col)
 }
 
 template <typename T2>
-inline void ptr_val3(cv::Mat &img, int row, int col, std::vector<double> vec)
+inline void ptr_val3(cv::Mat<T2> &img, int row, int col, std::vector<double> vec)
 {
     for(int i = 0; i < 3; ++i)
     {
