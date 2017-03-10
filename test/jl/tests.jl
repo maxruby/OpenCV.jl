@@ -58,7 +58,7 @@ function test3()
     println("test 3: Binary thresholding")
     filename = joinpath(Pkg.dir("OpenCV"), "./test/images/lena.png")
     img = imread(filename)
-    dst = Mat(int(rows(img)), int(cols(img)), CV_8UC1)
+    dst = Mat(Int(round(rows(img))), Int(round(cols(img))), CV_8UC1)
     cvtColor(img, dst, COLOR_BGR2GRAY)
     gaussianBlur(dst, dst, cvSize(5,5))
     thresh = Mat()
@@ -132,4 +132,18 @@ end
 
 test5()
 
+################################################################################################
+#
+# test 6: Conversion of images from Images.jl to OpenCV Mat 
+#
+################################################################################################
 
+function test6()
+   println("test 6: Conversion of images from Images.jl to OpenCV Mat")
+   filename = joinpath(Pkg.dir("OpenCV"), "./test/images/mandrill.jpg")
+   image = imread(filename)
+   dst = Mat(Int(round(rows(image))), Int(round(cols(image))), CV_8UC1)
+   dst = convertToMat(image)
+end
+
+test6()
