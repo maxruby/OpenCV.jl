@@ -3,37 +3,37 @@
 
 cxx"""
 // Grayscale and binary images 
-template <typename T1>
-inline T1 ptr_val(cv::Mat<T1> &img, int row, int col)
+template <typename T>
+inline T ptr_val(cv::Mat &img, int row, int col)
 {
-  return(static_cast<int>(img.at<T1>(row, col)));
+  return(static_cast<int>(img.at<T>(row, col)));
 }
 
-template <typename T2>
-inline void ptr_val(cv::Mat<T2> &img, int row, int col, double val)
+template <typename T>
+inline void ptr_val(cv::Mat &img, int row, int col, double val)
 {
-  T2 value = static_cast<T2>(val);
-    img.at<T2>(row, col) = value;
+  T value = static_cast<T>(val);
+    img.at<T>(row, col) = value;
 }
 
 // RGB images
-template <typename T1>
-inline std::vector<T1> ptr_val3(cv::Mat<T1> &img, int row, int col)
+template <typename T>
+inline std::vector<T> ptr_val3(cv::Mat &img, int row, int col)
 {
-    std::vector<T1>vec(3);
+    std::vector<T>vec(3);
     for(int i = 0; i < 3; ++i)
     {
-        vec[i] = img.at<cv::Vec<T1, 3>>(row, col)[i];
+        vec[i] = img.at<cv::Vec<T, 3>>(row, col)[i];
     }
     return vec;
 }
 
-template <typename T2>
-inline void ptr_val3(cv::Mat<T2> &img, int row, int col, std::vector<double> vec)
+template <typename T>
+inline void ptr_val3(cv::Mat &img, int row, int col, std::vector<double> vec)
 {
     for(int i = 0; i < 3; ++i)
     {
-        img.at<cv::Vec<T2, 3>>(row, col)[i] = static_cast<T2>(vec[i]);
+        img.at<cv::Vec<T, 3>>(row, col)[i] = static_cast<T>(vec[i]);
     }
 }
 
@@ -41,32 +41,68 @@ inline void ptr_val3(cv::Mat<T2> &img, int row, int col, std::vector<double> vec
 
 function pixget(img, row::Int, col::Int)
   (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothingcpp_templates
-  cd = channels(img)
   
-  if cd < 3
-    # Grayscale and binary images
-    val = @cxx ptr_val(img, row, col);
-    println(val)
-    return (val)
-  else
-    # RGB images
-    vec = @cxx ptr_val3(img, row, col);
-    println([int(at(vec, 0)), int(at(vec, 1)), int(at(vec, 2))])
-    return (vec)
+  # Grayscale and binary images
+  if (cvtypeval(img) == CV_8UC1)
+    val = @cxx ptr_val<unsigned char>(img, row, col);
+  elseif (cvtypeval(img) == CV_16SC1)
+    val = @cxx ptr_val<short>(img, row, col);
+  elseif (cvtypeval(img) == CV_32SC1)
+    val = @cxx ptr_val<unsigned short>(img, row, col);
+  elseif (cvtypeval(img) == CV_32FC1)
+    val = @cxx ptr_val<float>(img, row, col);
+  elseif (cvtypeval(img) == CV_64FC1)
+    val = @cxx ptr_val<double>(img, row, col);
+  # RGB images
+  elseif (cvtypeval(img) == CV_8SC3)
+    vec = @cxx ptr_val3<char>(img, row, col);
+  elseif (cvtypeval(img) == CV_8UC3)
+    vec = @cxx ptr_val3<unsigned char>(img, row, col);
+  elseif (cvtypeval(img) == CV_16SC3)
+    vec = @cxx ptr_val3<short>(img, row, col);
+  elseif (cvtypeval(img) == CV_16UC3)
+    vec = @cxx ptr_val3<unsigned short>(img, row, col);
+  elseif (cvtypeval(img) == CV_32SC3)
+    vec = @cxx ptr_val3<int>(img, row, col);
+  elseif (cvtypeval(img) == CV_32FC3)
+    vec = @cxx ptr_val3<float>(img, row, col);
+  elseif (cvtypeval(img) == CV_64FC3)
+    vec = @cxx ptr_val3<double>(img, row, col);
+  else throw(ArgumentError("Image format not recognized!"))
   end
 end
 
 
 function pixset(img, row::Int, col::Int, value)
   (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothing
-  cd = channels(img)
-
-  if cd < 3
-    # Grayscale and binary images
-    @cxx ptr_val(img, row, col, value);
-  else
-    # RGB images
-    @cxx ptr_val3(img, row, col, value);
+  
+  # Grayscale and binary images
+  if (cvtypeval(img) == CV_8UC1)
+    @cxx ptr_val<unsigned char>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_16SC1)
+    @cxx ptr_val<short>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_32SC1)
+    @cxx ptr_val<unsigned short>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_32FC1)
+    @cxx ptr_val<float>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_64FC1)
+    @cxx ptr_val<double>(img, row, col, value);
+  # RGB images
+  elseif (cvtypeval(img) == CV_8SC3)
+    @cxx ptr_val3<char>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_8UC3)
+    @cxx ptr_val3<unsigned char>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_16SC3)
+    @cxx ptr_val3<short>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_16UC3)
+    @cxx ptr_val3<unsigned short>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_32SC3)
+    @cxx ptr_val3<int>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_32FC3)
+    @cxx ptr_val3<float>(img, row, col, value);
+  elseif (cvtypeval(img) == CV_64FC3)
+    @cxx ptr_val3<double>(img, row, col, value);
+  else throw(ArgumentError("Image format not recognized!"))
   end
 end
 
