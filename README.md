@@ -81,9 +81,6 @@ $ ls opencv2
 - Comment out the #include statements for `flann` in `opencv2/opencv.hpp`.
 
 
-#### Windows and Debian Linux
-See links for info on how to install OpenCV on Debian linux [1](http://milq.github.io/install-opencv-ubuntu-debian/) and [Windows](http://docs.opencv.org/trunk/doc/tutorials/introduction/windows_install/windows_install.html).
-
 ####Download and run OpenCV.jl
 ```julia
 Pkg.clone("git://github.com/maxruby/OpenCV.jl.git")
