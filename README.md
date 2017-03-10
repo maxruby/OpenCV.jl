@@ -76,8 +76,13 @@ $ ls opencv2
 ```
 
 
+#### Linux (Ubuntu)
+See links [1](http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html) and [2](https://github.com/jayrambhia/Install-OpenCV) on how to install OpenCV `3.2.0`.
+Comment out the #include statements for `flann` in `opencv2/opencv.hpp`.
+
+
 #### Windows and Linux
-See links for info on how to install OpenCV on Debian linux [1](http://milq.github.io/install-opencv-ubuntu-debian/), Ubuntu [1](http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html) ,[2] (https://github.com/jayrambhia/Install-OpenCV) and [Windows](http://docs.opencv.org/trunk/doc/tutorials/introduction/windows_install/windows_install.html).  
+See links for info on how to install OpenCV on Debian linux [1](http://milq.github.io/install-opencv-ubuntu-debian/) and [Windows](http://docs.opencv.org/trunk/doc/tutorials/introduction/windows_install/windows_install.html).
 
 ####Download and run OpenCV.jl
 ```julia
