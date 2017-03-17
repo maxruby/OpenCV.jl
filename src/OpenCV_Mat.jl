@@ -194,18 +194,25 @@ function pixset(img, row::Int, col::Int, value)
     @cxx at_d(img, row, col, value);
   # RGB images (value::  std::vector<double>)
   elseif (cvtypeval(img) == CV_8SC3)
+    cppvec = tostdvec(value)
     @cxx at_vc(img, row, col, value);
   elseif (cvtypeval(img) == CV_8UC3)
+    cppvec = tostdvec(value)
     @cxx at_v3b(img, row, col, value);
   elseif (cvtypeval(img) == CV_16SC3)
+    cppvec = tostdvec(value)
     @cxx at_v3s(img, row, col, value);
   elseif (cvtypeval(img) == CV_16UC3)
+    cppvec = tostdvec(value)
     @cxx at_v3us(img, row, col, value);
   elseif (cvtypeval(img) == CV_32SC3)
+    cppvec = tostdvec(value)
     @cxx at_v3i(img, row, col, value);
   elseif (cvtypeval(img) == CV_32FC3)
+    cppvec = tostdvec(value)
     @cxx at_v3f(img, row, col, value);
   elseif (cvtypeval(img) == CV_64FC3)
+    cppvec = tostdvec(value)
     @cxx at_v3d(img, row, col, value);
   else throw(ArgumentError("Image format not recognized!"))
   end

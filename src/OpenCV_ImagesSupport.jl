@@ -34,7 +34,7 @@ function convertToMat(image)
    if (cd == 3)   # color (RGB) image
         for j = 1:Base.size(img,2)     # index row first (Mat is row-major order)
             for k =1:Base.size(img,1)  # index column second
-                colorvec = tostdvec([float(img[k,j,1].i),float(img[k,j,2].i),float(img[k,j,3].i)])
+                colorvec = [float(img[k,j,1].i),float(img[k,j,2].i),float(img[k,j,3].i)]
                 pixset(mat, k-1, j-1, colorvec)   # -1 to have 0-indexing per C++
             end
         end
