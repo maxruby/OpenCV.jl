@@ -181,6 +181,7 @@ end
 
 function pixset(img, row::Int, col::Int, value)
   (row < 0 || col < 0 || row > rows(img) || col > cols(img)) ? throw(BoundsError()) : nothing
+  cppvec = tostdvec(value)
   # Grayscale and binary images (value:: double)
   if (cvtypeval(img) == CV_8UC1)
     @cxx at_u(img, row, col, value);
@@ -194,19 +195,19 @@ function pixset(img, row::Int, col::Int, value)
     @cxx at_d(img, row, col, value);
   # RGB images (value::  std::vector<double>)
   elseif (cvtypeval(img) == CV_8SC3)
-    @cxx at_vc(img, row, col, value);
+    @cxx at_vc(img, row, col, cppvec);
   elseif (cvtypeval(img) == CV_8UC3)
-    @cxx at_v3b(img, row, col, value);
+    @cxx at_v3b(img, row, col, cppvec);
   elseif (cvtypeval(img) == CV_16SC3)
-    @cxx at_v3s(img, row, col, value);
+    @cxx at_v3s(img, row, col, cppvec);
   elseif (cvtypeval(img) == CV_16UC3)
-    @cxx at_v3us(img, row, col, value);
+    @cxx at_v3us(img, row, col, cppvec);
   elseif (cvtypeval(img) == CV_32SC3)
-    @cxx at_v3i(img, row, col, value);
+    @cxx at_v3i(img, row, col, cppvec);
   elseif (cvtypeval(img) == CV_32FC3)
-    @cxx at_v3f(img, row, col, value);
+    @cxx at_v3f(img, row, col, cppvec);
   elseif (cvtypeval(img) == CV_64FC3)
-    @cxx at_v3d(img, row, col, value);
+    @cxx at_v3d(img, row, col, cppvec);
   else throw(ArgumentError("Image format not recognized!"))
   end
 end
