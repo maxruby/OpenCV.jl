@@ -14,49 +14,123 @@ swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
 
 # C++ std::vector class thin-wrappings for Julia
 cxx"""
-template <typename T>
+    template <typename T>
     std::vector<T> stdvector(int size, T x)
-      {
+    {
         std::vector<T> cppvec(size, x);
         return (cppvec);
-      }
+    }
 
-template <typename T>
+    template <typename T>
+    std::vector<std::vector<T>> stdvector2(int rows, std::vector<T> colVec)
+    {
+        std::vector<std::vector<T>> cppvec2(rows, colVec);
+        return (cppvec2);
+    }
+
+    template <typename T>
+    std::vector<std::vector<std::vector<T>>> stdvector3(int rows, std::vector<std::vector<T>> colVec2)
+    {
+        std::vector<std::vector<std::vector<T>>> cppvec3(rows, colVec2);
+        return (cppvec3);
+    }
+
+    template <typename T>
     std::vector<T> stdvectorSzt(std::size_t size, T x)
-      {
+    {
         std::vector<T> cppvec(size, x);
         return (cppvec);
-      }
+    }
 
-template <typename T_>
+    template <typename T_>
     T_ at(std::vector<T_> cppvec, int index)
-       {
-           T_ value = cppvec[index];    // does not check for out of bounds (fast but dangerous)
-           return(value);
-       }
+    {
+         T_ value = cppvec[index];    // does not check for out of bounds (fast but dangerous)
+         return(value);
+    }
 
-template <typename T_>
+    template <typename T_>
     T_ at_(std::vector<T_> cppvec, int index)
-       {
-          T_ value = cppvec.at(index); // checks for out of bounds (safe but slow)
-          return(value);
-       }
+    {
+        T_ value = cppvec.at(index); // checks for out of bounds (safe but slow)
+        return(value);
+    }
 
-template <typename T_>
-   void stdset(std::vector<T_>& cppvec, int index, T_ value)
-       {
-          cppvec[index] = value;
-       }
+    template <typename T_>
+    void stdset(std::vector<T_>& cppvec, int index, T_ value)
+    {
+        cppvec[index] = value;
+    }
 
-template <typename T_>
-   void stdset_(std::vector<T_>& cppvec, int index, T_ value)
-       {
-          cppvec.at(index) = value; // checks for out of bounds (safe but slow)
-       }
+    template <typename T_>
+    void stdset_(std::vector<T_>& cppvec, int index, T_ value)
+    {
+        cppvec.at(index) = value; // checks for out of bounds (safe but slow)
+    }
+
+    template <typename T_>
+    void stdvec2set_(std::vector<std::vector<T_>>& cppvec2, int row, int col, T_ value)
+    {
+         cppvec2[row][col] = static_cast<T_>(value);
+    }
+
+    template <typename T_>
+    void stdvec3set_(std::vector<std::vector<std::vector<T_>>>& cppvec3, int row, int col, std::vector<T_> value)
+    {
+         cppvec3[row][col] = value;
+    }
+
+
+    // Crucial to this implementation
+    // - cv::DataType<T>::type
+    // - efficient access to vector using pointers
+    // Reference for cv::DataType<T>::type:
+    // http://stackoverflow.com/questions/14291165/template-initialization-of-opencv-mat-from-vector
+    template <typename T>
+    cv::Mat stdvector2Mat(std::vector<std::vector<T>> vec2)
+    {
+          cv::Mat img = cv::Mat::zeros(vec2.size(), vec2[0].size(), cv::DataType<T>::type);
+
+          for(int row = 0; row<vec2.size(); ++row) {
+              T* p = img.ptr<T>(row);
+              for(int col = 0; col<vec2[0].size(); ++col) {
+                 //points to each pixel value
+                  *p++ = vec2[row][col];
+              }
+          }
+
+          return img;
+     }
+
+     template <typename T>
+     cv::Mat stdvector3Mat(std::vector<std::vector<std::vector<T>>> vec3)
+     {
+          cv::Mat img = cv::Mat::zeros(vec3.size(), vec3[0].size(), cv::DataType<T>::type);
+
+          // copy data
+          for (int row=0; row<vec3.size(); row++)
+          {
+              for (int col=0; col<vec3[0].size(); col++)
+              {
+                 cv::Point3_<T>* p = img.ptr<cv::Point3_<T>>(row,col);
+                 p->x = vec3[row][col][0];  //B
+                 p->y = vec3[row][col][1];  //G
+                 p->z = vec3[row][col][2];  //R
+              }
+          }
+
+          return img;
+    }
 
 """
 
 stdvec(size, value) = @cxxnew stdvector(size, value)
+stdvec2(rows, colVec) = @cxxnew stdvector2(rows, colVec)
+stdvec3(rows, colVec2) = @cxxnew stdvector3(rows, colVec2)
+stdvec2Mat(vec2) = @cxx stdvector2Mat(vec2)
+stdvec3Mat(vec3) = @cxx stdvector3Mat(vec3)
+stdvec2set(vec2, row, col, val) = @cxxnew stdvec2set_(vec2, row, col, val)
+stdvec3set(vec2, row, col, val) = @cxxnew stdvec3set_(vec2, row, col, val)
 stdvecSzt(size, value) = @cxxnew stdvectorSzt(csize_t(size), value)
 stdassign(ccpvec, size, value) = @cxx ccpvec->assign(size,value)
 stddata(cppvec) = @cxx cppvec->data()     # Ptr to first elememt
@@ -87,15 +161,65 @@ end
 
 clear(cppvec) = @cxx cppvec->clear()
 
-# Converting julia Array{Int64,1} to an std::vector
-function tostdvec{T}(jl_vector::Array{T,1})
-    # C++ must deduce type from template functions
-    vec = stdvec(0,jl_vector[1])
+# Converting julia Array{T,N} to std::vector<T> or std::vector<std::vector<T>>
+# accepted input array types
+# ndims = 1
+#  [1,2,3,4]
 
-    for i=1:length(jl_vector)
-       stdpush!(vec, jl_vector[i])  # index -1 (C++ has 0-indexing)
+# ndims = 2
+#  [1,2,3,4,
+#   5,6,7,8 ]
+
+# ndims = 3
+#  [ [200, 155, 200], [200, 155, 200], [200, 155, 200],
+#    [200, 155, 200], [200, 155, 200], [200, 155, 200] ]
+
+
+function tostdvec{T, N}(jl_vector::Array{T,N})
+
+    if (ndims(jl_vector) === 1)
+        # C++ compiler must deduce type from template functions
+        vec = stdvec(0,jl_vector[1])
+
+        for i=1:length(jl_vector)
+           stdpush!(vec, jl_vector[i])  # index -1 (C++ has 0-indexing)
+        end
+        return(vec)
+
+    elseif (ndims(jl_vector) === 2)
+        rows = size(jl_vector, 1)
+        cols = size(jl_vector, 2)
+
+        # C++ compiler must deduce type from template functions
+        colVec = stdvec(cols, jl_vector[1, 1])
+        vec2 = stdvec2(rows, colVec)
+
+        for row = 1: rows
+            for col = 1: cols
+                stdvec2set(vec2, row-1, col-1, jl_vector[row, col])
+            end
+        end
+        return(vec2)
+
+    elseif (ndims(jl_vector) === 3)
+        rows = size(jl_vector, 2)
+        cols = size(jl_vector, 3)
+
+        # C++ compiler must deduce type from template functions
+        colVec3 = stdvec2(cols, jl_vector[:, 1, 1])
+        vec3 = stdvec3(rows, colVec3)
+
+        for row = 1: rows
+            for col = 1: cols
+                stdvec3set(vec3, row-1, col-1, jl_vector[:, row, col])
+            end
+        end
+        return(vec3)
+
+    else
+        throw(ArgumentError("Incompatible array dimensions"))
     end
-    return(vec)
+
 end
 
 # C++ string handling
