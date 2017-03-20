@@ -141,6 +141,9 @@ include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_util.jl"))
 # Load Videoplayer
 include(joinpath(Pkg.dir("OpenCV"), "./src/Videoprocessor.jl"))
 
+# Load support for Images
+include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_ImagesSupport.jl"))
+
 # Load demos -- currently Cxx versions
 function run_tests()
     include(joinpath(Pkg.dir("OpenCV"), "./test/cxx/demos.jl"))
