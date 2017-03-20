@@ -1,44 +1,43 @@
-# Preliminary (and partial) support for conversion of images from Images.jl to OpenCV Mat
-# Images in Images.jl are encoded as 2d arrays of RGB4{Ufixed8}, Float64, Ufixed8, or Ufixed12
+# Support for conversion of images from Images.jl to OpenCV Mat
+# Images in Images.jl are encoded as 2d arrays as follows
 
-# The following function converts both grayscale and color images to Mat from Image.jl arrays
-#   TO_DO: colorspace is NOT correctly transformed
-#   TO_DO:  improve algorithm(currently, takes 300 ms for a 512x512 image
-#   Use * pointer indexing instead of the "at" method implemented in pixset
+# How to use:
 
-function convertToMat(image)
-    img = Images.separate(image);
-    cd = Images.colordim(img);
-    if (typeof(img[1,1,1].i) == UInt8)
-       if (cd < 3); mat = Mat(Base.size(img,2), Base.size(img,1), CV_8UC1); end
-       if (cd == 3); mat = Mat(Base.size(img,2), Base.size(img,1), CV_8UC3); end
-    elseif (typeof(img[1,1,1].i) == Float32)
-       if (cd < 3); mat = Mat(Base.size(img,2), Base.size(img,1), CV_32FC1); end
-       if (cd == 3); mat = Mat(Base.size(img,2), Base.size(img,1), CV_32FC3); end
-    elseif (typeof(img[1,1,1].i) == Float64)
-       if (cd < 3); mat = Mat(Base.size(img,2), Base.size(img,1), CV_64FC1); end
-       if (cd == 3); mat = Mat(Base.size(img,2), Base.size(img,1), CV_64FC3); end
+# Create a grayscale image
+# julia> imgg = rand(Gray{Float32}, 100, 100)
+# julia> typeof(imgg)
+#   100×100 Array{Gray{Float32},2}
+# julia> imggv = channelview(imgg)
+# julia> typeof(imggv)
+#   Array{Float32,2}
+
+# Create a color image
+# julia> imgc = rand(RGB{Float32}, 300, 300)
+# julia> typeof(imgc)
+#   Array{ColorTypes.RGB{Float32},2}
+# Convert to standard Array{Float32,3} before conversion to Mat
+# julia> jlimg = channelview(imgc)
+# julia> typeof(jlimg)
+#   Array{Float32,3}
+
+# The following function converts both grayscale and color image arrays to Mat
+using Images
+
+# convert julia vector to Mat using template
+function arrToMat{T, N}(jl_array::Array{T, N})
+
+    jlImg = channelview(jl_array)
+    dims = ndims(jlImg)
+    vec = tostdvec(jl_array)
+
+    if (dims === 2)
+        mat2Img = stdvec2Mat(vec)
+        return mat2Img
+    elseif (dims === 3)
+        mat3Img = stdvec3Mat(vec)
+        return mat3Img
     else
-       throw(ArgumentError("Pixel format not supported!"))
+        throw(ArgumentError("Array format not supported"))
     end
 
-    if (cd < 3)   # grayscale or binary
-        for j = 1:Base.size(img,2)     # index row first (Mat is row-major order)
-            for k =1:Base.size(img,1)  # index column second
-                # slow algorithm  - will try to use pointer method (C++)!
-                pixset(mat, k, j, float(img[k,j,1].i))
-            end
-        end
-    end
-
-   if (cd == 3)   # color (RGB) image
-        for j = 1:Base.size(img,2)     # index row first (Mat is row-major order)
-            for k =1:Base.size(img,1)  # index column second
-                colorvec = tostdvec([float(img[k,j,1].i),float(img[k,j,2].i),float(img[k,j,3].i)])
-                pixset(mat, k-1, j-1, colorvec)   # -1 to have 0-indexing per C++
-            end
-        end
-    end
-
-    return(mat)
 end
