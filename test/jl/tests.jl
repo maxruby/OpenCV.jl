@@ -132,4 +132,65 @@ end
 
 test5()
 
+################################################################################################
+#
+# test 6: Test conversion of Julia arrays to single and multidimensional std::vectors
+#
+################################################################################################
 
+function test6()
+
+println("Testing tostdvec: converting Julia 1, 2 and 3d grayscale and RGB arrays to std::vector")
+
+# 1d grayscale
+gray1 = rand(100)
+vec1 = tostdvec(gray1)
+assert(stdempty!(vec1) === false)
+
+# 2d grayscale
+gray2 = rand(100, 100)
+vec2 = tostdvec(gray2)
+assert(stdempty!(vec2) === false)
+
+# 2d Gray{Float32}
+grayFloat = rand(Gray{Float32}, 100, 100)
+vec3 = tostdvec(grayFloat)
+assert(stdempty!(vec3) === false)
+
+# 3d RGB{Float32}
+rgb = rand(RGB{Float32}, 100, 100)
+vec4 = tostdvec(rgb)
+assert(stdempty!(vec4) === false)
+
+end
+
+test6()
+
+################################################################################################
+#
+# test 6: Test conversion of Julia arrays to single and multidimensional std::vectors
+#
+################################################################################################
+
+function test7()
+
+println("Testing jltoMat: converting std::vector (2d and 3d) to template cv::Mat_<T>")
+
+# 2d grayscale
+gray2 = rand(100, 100)
+grayMat = jltoMat(gray2)
+assert(channels(grayMat) === 2)
+
+# 2d Gray{Float32}
+grayFloat = rand(Gray{Float32}, 100, 100)
+gray2Mat = jltoMat(grayFloat)
+assert(channels(gray2Mat) === 2)
+
+# 3d RGB{Float32}
+rgb = rand(RGB{Float32}, 100, 100)
+rgbMat = jltoMat(rgb)
+assert(channels(rgbMat) === 3)
+
+end
+
+test7()
