@@ -209,7 +209,7 @@ For RGB color images, each column has 3 values (actually BGR in Mat)
 | row n| <span style="color:blue">n,0 <span style="color:green">n,0 <span style="color:red">n,0|  <span style="color:blue">n,1 <span style="color:green">n,1 <span style="color:red">n,1| <span style="color:blue">n,2 <span style="color:green">n,2 <span style="color:red">n,2| <span style="color:blue">n,m <span style="color:green">n,m <span style="color:red">n,m
 
 **Getting and setting selected pixel values** <br>
-**Method 1**: Access pixel values using `pixget` and `pixset` functions. Here we use the`Mat::at`class method - slow but safe, intended only for checking and setting small numbers of pixels (not for scanning through the entire image). To illustrate we draw random red pixels on a blue image (i.e., turn them yellow).
+**Method 1**: Get and set pixel values using `getPixel` and `setPixel` functions, respectively. Here we use the`cv::Mat_<T>` class to index easily. To illustrate we draw random red pixels on a blue image (i.e., turn them yellow).
 
 ```julia
 # Creat a blue image
@@ -253,7 +253,7 @@ imwrite(img)
 ```
 
 **Open image with`Images.jl` and convert to `OpenCV` Mat**<br>
-Here we convert a binary image loaded with Images to a Mat image array
+Load a binary image with Images and convert to a Mat image array
 
 ```julia
 using Color, FixedPointNumbers
@@ -267,6 +267,26 @@ ImageView.view(image)
 imdisplay(converted, "converted to OpenCV Mat")
 closeWindows(0,27,"")
 ```
+
+`jltoMat`: Convert 2/3d image arrays from JuliaImages to OpenCV template cv::Mat_<T>
+
+```julia
+julia> jlimg = rand(100, 100)
+100×100 Array{Float64,2}
+julia> cvimg = jltoMat(jlimg)
+(class cv::Mat_<double>)
+julia> cols(cvimg)
+100
+julia> rows(cvimg)
+100
+julia> dims(cvimg)
+2
+julia> channels(cvimg)
+1
+julia> findlabel(Int(cvtypeval(cvimg)))
+"CV_64FC1"
+```
+
 #### <span style="color:green">Access image properties
 ```julia
 printMat(img)           # crude printout of the entire Mat (uchar only)
