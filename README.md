@@ -190,11 +190,7 @@ gemm(m1, m2, alpha, Mat(), beta, m3, flag)
 
 **Accessing pixels and indexing Mat arrays**<br>
 Image pixels in Mat containers are arranged in a row-major order.<br>
-For a grayscale image, e.g., pixels are addressed by row, col
-
-**Accessing pixels and indexing Mat arrays**<br>
-Image pixels in Mat containers are arranged in a row-major order.<br>
-For a grayscale image, e.g., pixels are addressed by row, col
+For a grayscale image, e.g., pixels are addressed by row, col.
 
 |      |col(0)| col(1)| col(2)|col(3)| col(m)|
 |:----- |:--:| :--:| :--:| :--:|  :--:|
