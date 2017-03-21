@@ -8,7 +8,7 @@ function jltoMat{T, N}(jl_array::Array{T, N})
 
     jlImg = channelview(jl_array)
     dims = ndims(jlImg)
-    vec = tostdvec(jl_array)
+    vec = tostdvec(jlImg)
 
     if (dims === 2)
         mat2Img = stdvec2Mat_(vec)
