@@ -567,7 +567,7 @@ channels(img) = @cxx channels(img)                           # number of matrix 
 findlabel(value::Int) = CV_MAT_TYPE[value]                   # e.g., CV_8UC1 type CV_MatType in OpenCV_hpp.jl
 cxx""" int cvtype(cv::Mat img) { return(img.type()); } """
 cvtypeval(img) = @cxx cvtype(img)
-cvtypelabel(img) = findlabel(int(cvtypeval(img)))
+cvtypelabel(img) = findlabel(Int(cvtypeval(img)))
 
 
 # SparseMat: multi-dimensional sparse numerical arrays

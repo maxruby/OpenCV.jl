@@ -92,7 +92,7 @@ cxx"""
           cv::Mat img = cv::Mat::zeros(vec2.size(), vec2[0].size(), cv::DataType<T>::type);
 
           for(int row = 0; row<vec2.size(); ++row) {
-              T* p = img.ptr<T>(row);
+              T* p = img.template ptr<T>(row);
               for(int col = 0; col<vec2[0].size(); ++col) {
                  //points to each pixel value
                   *p++ = vec2[row][col];
@@ -100,6 +100,23 @@ cxx"""
           }
 
           return img;
+     }
+
+     // conversion to cv::Mat_<T>
+     template <typename T>
+     cv::Mat_<T> stdvector2Mat_(std::vector<std::vector<T>> vec2)
+     {
+           cv::Mat_<T> img = cv::Mat_<T>(vec2.size(), vec2[0].size(), cv::DataType<T>::type);
+
+           for(int row = 0; row<vec2.size(); ++row) {
+               T* p = img.template ptr<T>(row);
+               for(int col = 0; col<vec2[0].size(); ++col) {
+                  // points to each pixel value
+                   *p++ = vec2[row][col];
+               }
+           }
+
+           return img;
      }
 
      template <typename T>
@@ -112,10 +129,30 @@ cxx"""
           {
               for (int col=0; col<vec3[0].size(); col++)
               {
-                 cv::Point3_<T>* p = img.ptr<cv::Point3_<T>>(row,col);
+                 cv::Point3_<T>* p = img.template ptr<cv::Point3_<T>>(row,col);
                  p->x = vec3[row][col][0];  //B
                  p->y = vec3[row][col][1];  //G
                  p->z = vec3[row][col][2];  //R
+              }
+          }
+
+          return img;
+    }
+
+     template <typename T>
+     cv::Mat_<T> stdvector3Mat_(std::vector<std::vector<std::vector<T>>> vec3)
+     {
+          cv::Mat_<T> img = cv::Mat_<T>(vec3.size(), vec3[0].size(), cv::DataType<T>::type);
+
+          // copy data
+          for (int row=0; row<vec3.size(); row++)
+          {
+              for (int col=0; col<vec3[0].size(); col++)
+              {
+                 cv::Point3_<T>* p = (cv::Point3_<T>*)img(row,col);
+                 p->x = vec3(row, col)[0];  //B
+                 p->y = vec3(row, col)[1];  //G
+                 p->z = vec3(row, col)[2];  //R
               }
           }
 
@@ -127,6 +164,8 @@ cxx"""
 stdvec(size, value) = @cxxnew stdvector(size, value)
 stdvec2(rows, colVec) = @cxxnew stdvector2(rows, colVec)
 stdvec3(rows, colVec2) = @cxxnew stdvector3(rows, colVec2)
+stdvec2Mat_(vec2) = @cxx stdvector2Mat_(vec2)
+stdvec3Mat_(vec3) = @cxx stdvector3Mat_(vec3)
 stdvec2Mat(vec2) = @cxx stdvector2Mat(vec2)
 stdvec3Mat(vec3) = @cxx stdvector3Mat(vec3)
 stdvec2set(vec2, row, col, val) = @cxxnew stdvec2set_(vec2, row, col, val)
