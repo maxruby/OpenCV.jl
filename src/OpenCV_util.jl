@@ -14,31 +14,32 @@ swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
 
 # C++ std::vector class thin-wrappings for Julia
 cxx"""
-    template <typename T>
-    std::vector<T> stdvector(int size, T x)
+    template <typename T_>
+    std::vector<T_> stdvector(int size, T_ x)
     {
-        std::vector<T> cppvec(size, x);
+        std::vector<T_> cppvec(size, x);
         return (cppvec);
     }
 
-    template <typename T>
-    std::vector<std::vector<T>> stdvector2(int rows, std::vector<T> colVec)
+    template <typename T_>
+    std::vector<std::vector<T_>> stdvector2(int rows, std::vector<T_> colVec)
     {
-        std::vector<std::vector<T>> cppvec2(rows, colVec);
+        std::vector<std::vector<T_>> cppvec2(rows, colVec);
         return (cppvec2);
     }
 
-    template <typename T>
-    std::vector<std::vector<std::vector<T>>> stdvector3(int rows, std::vector<std::vector<T>> colVec2)
+    template <typename T_>
+    std::vector<std::vector<std::vector<T_>>> stdvector3(int rows, int cols, std::vector<T_> colVec)
     {
-        std::vector<std::vector<std::vector<T>>> cppvec3(rows, colVec2);
+        std::vector<std::vector<T_>> vec2 = stdvector2(cols, colVec);
+        std::vector<std::vector<std::vector<T_>>> cppvec3(rows, vec2);
         return (cppvec3);
     }
 
-    template <typename T>
-    std::vector<T> stdvectorSzt(std::size_t size, T x)
+    template <typename T_>
+    std::vector<T_> stdvectorSzt(std::size_t size, T_ x)
     {
-        std::vector<T> cppvec(size, x);
+        std::vector<T_> cppvec(size, x);
         return (cppvec);
     }
 
@@ -75,12 +76,29 @@ cxx"""
     }
 
     template <typename T_>
-    void stdvec3set_(std::vector<std::vector<std::vector<T_>>>& cppvec3, int row, int col, std::vector<T_> value)
+    T_ stdvec2get_(std::vector<std::vector<T_>>& cppvec2, int row, int col)
     {
-         cppvec3[row][col] = value;
+         // debugging
+         std::cout << cppvec2[row][col] << std::endl;
+         return cppvec2[row][col];
     }
 
+    template <typename T1, typename T2>
+    void stdvec3set_(std::vector<std::vector<std::vector<T1>>>& cppvec3, int row, int col, std::vector<T2> value)
+    {
+         std::vector<T1> convertedValue(value.begin(), value.end());
+         cppvec3[row][col] = convertedValue;
+         // debugging
+         std::cout << convertedValue[0] << ", " << convertedValue[1] << ", " << convertedValue[2] << std::endl;
+    }
 
+    template <typename T_>
+    std::vector<T_> stdvec3get_(std::vector<std::vector<std::vector<T_>>>& cppvec3, int row, int col)
+    {
+         // debugging
+         std::cout << cppvec3[row][col][0] << ", " << cppvec3[row][col][1] << ", " << cppvec3[row][col][2] << std::endl;
+         return cppvec3[row][col];
+    }
     // Crucial to this implementation
     // - cv::DataType<T>::type
     // - efficient access to vector using pointers
@@ -149,10 +167,8 @@ cxx"""
           {
               for (int col=0; col<vec3[0].size(); col++)
               {
-                 cv::Point3_<T>* p = (cv::Point3_<T>*)img(row,col);
-                 p->x = vec3(row, col)[0];  //B
-                 p->y = vec3(row, col)[1];  //G
-                 p->z = vec3(row, col)[2];  //R
+                cv::Point3_<T> p(vec3[row][col][0], vec3[row][col][1], vec3[row][col][2]);
+                img(row, col) = p;
               }
           }
 
@@ -163,11 +179,13 @@ cxx"""
 
 stdvec(size, value) = @cxxnew stdvector(size, value)
 stdvec2(rows, colVec) = @cxxnew stdvector2(rows, colVec)
-stdvec3(rows, colVec2) = @cxxnew stdvector3(rows, colVec2)
+stdvec3(rows, cols, colVec2) = @cxxnew stdvector3(rows, cols, colVec2)
 stdvec2Mat_(vec2) = @cxx stdvector2Mat_(vec2)
 stdvec3Mat_(vec3) = @cxx stdvector3Mat_(vec3)
 stdvec2Mat(vec2) = @cxx stdvector2Mat(vec2)
 stdvec3Mat(vec3) = @cxx stdvector3Mat(vec3)
+stdvec2get(vec2, row, col) = @cxxnew stdvec2get_(vec2, row, col)
+stdvec3get(vec3, row, col) = @cxxnew stdvec3get_(vec3, row, col)
 stdvec2set(vec2, row, col, val) = @cxxnew stdvec2set_(vec2, row, col, val)
 stdvec3set(vec2, row, col, val) = @cxxnew stdvec3set_(vec2, row, col, val)
 stdvecSzt(size, value) = @cxxnew stdvectorSzt(csize_t(size), value)
@@ -245,7 +263,8 @@ function tostdvec{T, N}(jl_vector::Array{T,N})
         cols = size(jl_vector, 3)
 
         # C++ compiler must deduce type from template functions
-        colVec3 = stdvec2(cols, jl_vector[:, 1, 1])
+        vec = tostdvec(jlimg_[:, 1, 1])
+        colVec3 = stdvec2(cols, vec)
         vec3 = stdvec3(rows, colVec3)
 
         for row = 1: rows
