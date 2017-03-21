@@ -2,7 +2,7 @@
 
 The OpenCV (C++) interface for Julia.
 
-<br>
+
 OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions. The package also contains thin wrappers for common C++ classes (e.g., std::vector, std::string) to make the C++/Julia interface smoother.
 
 The OpenCV API is described [here](http://docs.opencv.org/2.4/modules/refman.html). OpenCV.jl is organized along the following modules:
@@ -192,21 +192,25 @@ gemm(m1, m2, alpha, Mat(), beta, m3, flag)
 Image pixels in Mat containers are arranged in a row-major order.<br>
 For a grayscale image, e.g., pixels are addressed by row, col
 
-|col 0| col 1| col 2|col 3| col m|
+**Accessing pixels and indexing Mat arrays**<br>
+Image pixels in Mat containers are arranged in a row-major order.<br>
+For a grayscale image, e.g., pixels are addressed by row, col
+
+|      |col(0)| col(1)| col(2)|col(3)| col(m)|
 |:----- |:--:| :--:| :--:| :--:|  :--:|
-| row 0 | 0,0|  0,1|  0,2|  0,3|   0,m|
-| row 1 | 1,0|  1,1|  1,2|  1,3|   1,m|
-| row 2 | 2,0|  2,1|  2,2|  2,3|   2,m|
-| row n | n,0|  n,1|  n,2|  n,3|   n,m|
+| row(0) | 200|  100|  150|  102|   30|
+| row(1) | 200|  100|  150|  102|   30|
+| row(2) | 200|  100|  150|  102|   30|
+| row(n) | 200|  100|  150|  102|   30|
 
 For RGB color images, each column has 3 values (actually BGR in Mat)
 
-|col 0| col 1| col 2| col m |
+|       |col(0)| col(1)| col(2)| col(m) |
 |:----- |:--:| :--:| :--:| :--:|
-| row 0 |<span style="color:blue">0,0,  <span style="color:green">0,0 <span style="color:red">0,0|  <span style="color:blue">0,1 <span style="color:green">0,1 <span style="color:red">0,1| <span style="color:blue">0,2 <span style="color:green">0,2 <span style="color:red">0,2| <span style="color:blue">0,m <span style="color:green">0,m <span style="color:red">0,m
-| row 1 |  <span style="color:blue">1,0 <span style="color:green">1,0 <span style="color:red">1,0|  <span style="color:blue">1,1 <span style="color:green">1,1 <span style="color:red">1,1| <span style="color:blue">1,2 <span style="color:green">1,2 <span style="color:red">1,2| <span style="color:blue">1,m <span style="color:green">1,m <span style="color:red">1,m
-| row 2 | <span style="color:blue">2,0 <span style="color:green">2,0 <span style="color:red">2,0|  <span style="color:blue">2,1 <span style="color:green">2,1 <span style="color:red">2,1| <span style="color:blue">2,2 <span style="color:green">2,2 <span style="color:red">2,2|<span style="color:blue">2,m <span style="color:green">2,m <span style="color:red">2,m
-| row n| <span style="color:blue">n,0 <span style="color:green">n,0 <span style="color:red">n,0|  <span style="color:blue">n,1 <span style="color:green">n,1 <span style="color:red">n,1| <span style="color:blue">n,2 <span style="color:green">n,2 <span style="color:red">n,2| <span style="color:blue">n,m <span style="color:green">n,m <span style="color:red">n,m
+| row(0) |<span style="color:blue">100,  <span style="color:green">50, <span style="color:red">0 |  <span style="color:blue">1 <span style="color:green">100, <span style="color:red">10| <span style="color:blue">40, <span style="color:green">20, <span style="color:red">20| <span style="color:blue">100, <span style="color:green">200, <span style="color:red">234
+| row(1) |  <span style="color:blue">100, <span style="color:green">50, <span style="color:red">10|   <span style="color:blue">100, <span style="color:green">50, <span style="color:red">10|  <span style="color:blue">100, <span style="color:green">50, <span style="color:red">10|  <span style="color:blue">100, <span style="color:green">50, <span style="color:red">10
+| row(2) | <span style="color:blue">20, <span style="color:green">240, <span style="color:red">20|  <span style="color:blue">21, <span style="color:green">210, <span style="color:red">20| <span style="color:blue">22, <span style="color:green">23, <span style="color:red">22|<span style="color:blue">220, <span style="color:green">234, <span style="color:red">230
+| row(n)| <span style="color:blue">100, <span style="color:green">20, <span style="color:red">200|  <span style="color:blue">10, <span style="color:green">100, <span style="color:red">30| <span style="color:blue">2, <span style="color:green">66, <span style="color:red">2| <span style="color:blue">12, <span style="color:green">100, <span style="color:red">33
 
 **Getting and setting selected pixel values** <br>
 **Method 1**: Get and set pixel values using `getPixel` and `setPixel` functions, respectively. Here we use the`cv::Mat_<T>` class to index easily. To illustrate we draw random red pixels on a blue image (i.e., turn them yellow).
