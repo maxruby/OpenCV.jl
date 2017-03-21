@@ -46,7 +46,7 @@ cxx"""
     template <typename T_>
     T_ at(std::vector<T_> cppvec, int index)
     {
-         T_ value = cppvec[index];    // does not check for out of bounds (fast but dangerous)
+         T_ value = cppvec[index]; // does not check for out of bounds (fast but dangerous)
          return(value);
     }
 
@@ -72,6 +72,8 @@ cxx"""
     template <typename T_>
     void stdvec2set_(std::vector<std::vector<T_>>& cppvec2, int row, int col, T_ value)
     {
+         // debugging
+         // std::cout << value << std::endl;
          cppvec2[row][col] = static_cast<T_>(value);
     }
 
@@ -79,7 +81,7 @@ cxx"""
     T_ stdvec2get_(std::vector<std::vector<T_>>& cppvec2, int row, int col)
     {
          // debugging
-         std::cout << cppvec2[row][col] << std::endl;
+         // std::cout << cppvec2[row][col] << std::endl;
          return cppvec2[row][col];
     }
 
@@ -89,14 +91,14 @@ cxx"""
          std::vector<T1> convertedValue(value.begin(), value.end());
          cppvec3[row][col] = convertedValue;
          // debugging
-         std::cout << convertedValue[0] << ", " << convertedValue[1] << ", " << convertedValue[2] << std::endl;
+         // std::cout << convertedValue[0] << ", " << convertedValue[1] << ", " << convertedValue[2] << std::endl;
     }
 
     template <typename T_>
     std::vector<T_> stdvec3get_(std::vector<std::vector<std::vector<T_>>>& cppvec3, int row, int col)
     {
          // debugging
-         std::cout << cppvec3[row][col][0] << ", " << cppvec3[row][col][1] << ", " << cppvec3[row][col][2] << std::endl;
+         // std::cout << cppvec3[row][col][0] << ", " << cppvec3[row][col][1] << ", " << cppvec3[row][col][2] << std::endl;
          return cppvec3[row][col];
     }
     // Crucial to this implementation
@@ -158,22 +160,24 @@ cxx"""
     }
 
      template <typename T>
-     cv::Mat_<T> stdvector3Mat_(std::vector<std::vector<std::vector<T>>> vec3)
+     cv::Mat_<cv::Vec<T,3>> stdvector3Mat_(std::vector<std::vector<std::vector<T>>> vec3)
      {
-          cv::Mat_<T> img = cv::Mat_<T>(vec3.size(), vec3[0].size(), cv::DataType<T>::type);
+          cv::Mat_<cv::Vec<T,3>> img = cv::Mat_<cv::Vec<T,3>>(vec3.size(), vec3[0].size(), cv::DataType<T>::type);
 
           // copy data
           for (int row=0; row<vec3.size(); row++)
           {
               for (int col=0; col<vec3[0].size(); col++)
               {
-                cv::Point3_<T> p(vec3[row][col][0], vec3[row][col][1], vec3[row][col][2]);
-                img(row, col) = p;
+                    img(row, col)[0] = vec3[row][col][0];
+                    img(row, col)[1] = vec3[row][col][1];
+                    img(row, col)[2] = vec3[row][col][2];
               }
+
           }
 
           return img;
-    }
+       }
 
 """
 
@@ -234,42 +238,46 @@ clear(cppvec) = @cxx cppvec->clear()
 
 function tostdvec{T, N}(jl_vector::Array{T,N})
 
-    if (ndims(jl_vector) === 1)
-        # C++ compiler must deduce type from template functions
-        vec = stdvec(0,jl_vector[1])
+    _jlimg = channelview(jl_vector)
+    d = ndims(_jlimg)
 
-        for i=1:length(jl_vector)
-           stdpush!(vec, jl_vector[i])  # index -1 (C++ has 0-indexing)
+    if (d === 1)
+        # C++ compiler must deduce type from template functions
+        vec = stdvec(0, _jlimg[1])
+
+        for i=1:length(_jlimg)
+           println(_jlimg[i])
+           stdpush!(vec, _jlimg[i])  # index -1 (C++ has 0-indexing)
         end
         return(vec)
 
-    elseif (ndims(jl_vector) === 2)
-        rows = size(jl_vector, 1)
-        cols = size(jl_vector, 2)
+    elseif (d === 2)
+        rows = size(_jlimg, 1)
+        cols = size(_jlimg, 2)
 
         # C++ compiler must deduce type from template functions
-        colVec = stdvec(cols, jl_vector[1, 1])
+        colVec = stdvec(cols, _jlimg[1, 1])
         vec2 = stdvec2(rows, colVec)
 
         for row = 1: rows
             for col = 1: cols
-                stdvec2set(vec2, row-1, col-1, jl_vector[row, col])
+                println(_jlimg[row, col])
+                stdvec2set(vec2, row-1, col-1, _jlimg[row, col])
             end
         end
         return(vec2)
 
-    elseif (ndims(jl_vector) === 3)
-        rows = size(jl_vector, 2)
-        cols = size(jl_vector, 3)
+    elseif (d === 3)
+        rows = size(_jlimg, 2)
+        cols = size(_jlimg, 3)
 
         # C++ compiler must deduce type from template functions
-        vec = tostdvec(jlimg_[:, 1, 1])
-        colVec3 = stdvec2(cols, vec)
-        vec3 = stdvec3(rows, colVec3)
+        color = tostdvec(_jlimg[:, 1, 1])
+        vec3 =  stdvec3(size(_jlimg, 2), size(_jlimg, 3), color)
 
         for row = 1: rows
             for col = 1: cols
-                stdvec3set(vec3, row-1, col-1, jl_vector[:, row, col])
+                stdvec3set(vec3, row-1, col-1, tostdvec(_jlimg[:, row, col]))
             end
         end
         return(vec3)
