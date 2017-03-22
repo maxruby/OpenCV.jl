@@ -168,13 +168,13 @@ test6()
 
 ################################################################################################
 #
-# test 6: Test conversion of Julia arrays to single and multidimensional std::vectors
+# test 7: Test conversion of Julia arrays to cv::Mat_<T>
 #
 ################################################################################################
 
 function test7()
 
-println("Testing jltoMat: converting std::vector (2d and 3d) to template cv::Mat_<T>")
+println("Testing jltoMat: convert std::vector (2d and 3d) to template cv::Mat_<T> and display Mat")
 
 # 2d grayscale
 gray2 = rand(100, 100)
@@ -190,6 +190,12 @@ assert(channels(gray2Mat) === 2)
 rgb = rand(RGB{Float32}, 100, 100)
 rgbMat = jltoMat(rgb)
 assert(channels(rgbMat) === 3)
+
+# Display the image
+img = rand(RGB{Float32}, 200, 300)
+imgMat = jltoMat(img)
+imdisplay(imgMat, "jltoMat Test")
+closeWindows(0, 27, "")
 
 end
 
