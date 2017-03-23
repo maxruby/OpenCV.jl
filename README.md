@@ -77,7 +77,7 @@ $ ls opencv2
 
 
 #### Linux (Ubuntu)
-- See links [1](http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html) and [2](https://github.com/jayrambhia/Install-OpenCV) on how to install OpenCV `3.2.0`.
+- See links [1](http://docs.opencv.org/3.2.0/d7/d9f/tutorial_linux_install.html) and [2](https://github.com/jayrambhia/Install-OpenCV) on how to install OpenCV `3.2.0`.
 - Comment out the #include statements for `flann` in `opencv2/opencv.hpp`.
 
 
