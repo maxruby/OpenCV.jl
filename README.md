@@ -1,9 +1,9 @@
-##OpenCV.jl
+## OpenCV.jl
 
 The OpenCV (C++) interface for Julia.
 
-<br>
-OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions. The package also contains thin wrappers for common C++ classes (e.g., std::vector, std::string) to make the C++/Julia interface smoother.
+
+OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia](http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions. The package also contains thin wrappers for common C++ classes (e.g., std::vector, std::string) to make the C++/Julia interface smoother.
 
 The OpenCV API is described [here](http://docs.opencv.org/2.4/modules/refman.html). OpenCV.jl is organized along the following modules:
 
@@ -21,9 +21,9 @@ Currently, OpenCV.jl has julia wrappers for the `core`, `imgproc`, `videoio`, `h
 
 OpenCV.jl has OpenCL support for GPU image processing.  This has been made easier recently by a smooth and transparent interface (T-API). GPU-supported code can display improvements in processing speed up to 30 fold. This is invaluable for supporting real-time applications in Julia. See section below on how to implement GPU-enabled code in OpenCV.jl.
 
-The OpenCV API is extensively documented - rather than repeating the entire documentation here, the primary focus is on implementation of image processing and computer vision algorithms to suport Julia applications.
+The OpenCV API is extensively documented - rather than repeating the entire documentation here, the primary focus is on implementation of image processing and computer vision algorithms to support Julia applications.
 
-##Installation
+## Installation
 
 Install `julia 0.6.0` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below.  
 
@@ -78,16 +78,16 @@ $ ls opencv2
 
 #### Linux (Ubuntu)
 - See links [1](http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html) and [2](https://github.com/jayrambhia/Install-OpenCV) on how to install OpenCV `3.2.0`.
-- Comment out the #include statements for `flann` in `opencv2/opencv.hpp`.
+- Comment out the `#include` statements for `flann` in `opencv2/opencv.hpp`.
 
 
-####Download and run OpenCV.jl
+#### Download and run OpenCV.jl
 ```julia
 Pkg.clone("git://github.com/maxruby/OpenCV.jl.git")
 using OpenCV
 ```
 
-##Basic interface
+## Basic interface
 OpenCV contains hundreds of algorithms and functions. Most frequently used functions for image processing are already accessible in the current version of OpenCV.jl. For simplicity, here I focus on using  functions wrapped in OpenCV.jl.   
 
 #### <span style="color:green"> Basic structures
@@ -192,22 +192,22 @@ gemm(m1, m2, alpha, Mat(), beta, m3, flag)
 Image pixels in Mat containers are arranged in a row-major order.<br>
 For a grayscale image, e.g., pixels are addressed by row, col
 
-|col 0| col 1| col 2|col 3| col m|
-|:----- |:--:| :--:| :--:| :--:|  :--:|
-| row 0 | 0,0|  0,1|  0,2|  0,3|   0,m|
-| row 1 | 1,0|  1,1|  1,2|  1,3|   1,m|
-| row 2 | 2,0|  2,1|  2,2|  2,3|   2,m|
-| row n | n,0|  n,1|  n,2|  n,3|   n,m|
+ Image [m x n] | col 0 | col 1 | col 2 | col 3 | col m 
+ ----- | ----- | ----- | ----- | ----- | ----- 
+ __row 0__ | 0,0 |  0,1 |  0,2 |  0,3 |   0,m 
+ __row 1__ | 1,0 |  1,1 |  1,2 |  1,3 |   1,m 
+ __row 2__ | 2,0 |  2,1 |  2,2 |  2,3 |   2,m 
+ __row n__ | n,0 |  n,1 |  n,2 |  n,3 |   n,m 
 
 For RGB color images, each column has 3 values (actually BGR in Mat)
 
-|col 0| col 1| col 2| col m |
-|:----- |:--:| :--:| :--:| :--:|
-| row 0 |<span style="color:blue">0,0,  <span style="color:green">0,0 <span style="color:red">0,0|  <span style="color:blue">0,1 <span style="color:green">0,1 <span style="color:red">0,1| <span style="color:blue">0,2 <span style="color:green">0,2 <span style="color:red">0,2| <span style="color:blue">0,m <span style="color:green">0,m <span style="color:red">0,m
-| row 1 |  <span style="color:blue">1,0 <span style="color:green">1,0 <span style="color:red">1,0|  <span style="color:blue">1,1 <span style="color:green">1,1 <span style="color:red">1,1| <span style="color:blue">1,2 <span style="color:green">1,2 <span style="color:red">1,2| <span style="color:blue">1,m <span style="color:green">1,m <span style="color:red">1,m
-| row 2 | <span style="color:blue">2,0 <span style="color:green">2,0 <span style="color:red">2,0|  <span style="color:blue">2,1 <span style="color:green">2,1 <span style="color:red">2,1| <span style="color:blue">2,2 <span style="color:green">2,2 <span style="color:red">2,2|<span style="color:blue">2,m <span style="color:green">2,m <span style="color:red">2,m
-| row n| <span style="color:blue">n,0 <span style="color:green">n,0 <span style="color:red">n,0|  <span style="color:blue">n,1 <span style="color:green">n,1 <span style="color:red">n,1| <span style="color:blue">n,2 <span style="color:green">n,2 <span style="color:red">n,2| <span style="color:blue">n,m <span style="color:green">n,m <span style="color:red">n,m
-
+  col 0 | col 1 | col 2 | col 3 | col m 
+  ----- | ----- | ----- | ----- | ----- 
+  __row 0__ | (0,0) (0,0) (0,0)  |   (0,1) (0,1) (0,1) |  (0,2) (0,2) (0,2) |  (0,m) (0,m) (0,m)
+  __row 1__ | (1,0) (1,0) (1,0)  |   (1,1) (1,1) (1,1) | (1,2) (1,2) (1,2)  |  (1,m) (1,m) (1,m)
+  __row 2__ | (2,0) (2,0) (2,0)  |   (2,1) (2,1) (2,1) | (2,2) (2,2) (2,2)  |  (2,m) (2,m) (2,m)
+  __row n__ | (n,0) (n,0) (n,0)  |   (n,1) (n,1) (n,1) | (n,2) (n,2) (n,2)  |  (n,m) (n,m) (n,m)
+  
 **Getting and setting selected pixel values** <br>
 **Method 1**: Access pixel values using `pixget` and `pixset` functions. Here we use the`Mat::at`class method - slow but safe, intended only for checking and setting small numbers of pixels (not for scanning through the entire image). To illustrate we draw random red pixels on a blue image (i.e., turn them yellow).
 
@@ -237,7 +237,7 @@ imdisplay(img, "coloring the fast way")
 closeWindows(0,27,"")
 ```
 
-#### <span style="color:green">Opening and saving images
+### <span style="color:green">Opening and saving images
 **Read and write with full path/name**
 
 ```julia
@@ -267,7 +267,7 @@ ImageView.view(image)
 imdisplay(converted, "converted to OpenCV Mat")
 closeWindows(0,27,"")
 ```
-#### <span style="color:green">Access image properties
+### <span style="color:green">Access image properties
 ```julia
 printMat(img)           # crude printout of the entire Mat (uchar only)
 total(img)              # number of array elements
@@ -285,7 +285,7 @@ empty(img)              # is array is empty? (true/false)
 ptr(img, 10)            # uchar* or typed pointer for matrix row
 ```
 
-#### <span style="color:green">Basic image display (GUIs)
+### <span style="color:green">Basic image display (GUIs)
 ```julia
 # original highgui functions
 namedWindow("Lena", WINDOW_AUTOSIZE)
@@ -299,7 +299,7 @@ imdisplay(img, "Lena")  # optional: window resizing, key press, time
 im2tile(imArray, "Tiled images")  # => closeWindows
 ```
 
-#### <span style="color:green">Image processing <span>
+### <span style="color:green">Image processing <span>
 **Resize images**
 
 ```julia
@@ -429,7 +429,7 @@ im2tile([img, dst], "sharpened")
 closeWindows(0,27,"")
 ```
 
-#### <span style="color:green">Video acquistion, streaming and writing
+### <span style="color:green">Video acquistion, streaming and writing
 Basic video stream display from default camera. All GUI classes/functions (e.g., videoCapture) can be easily called from OpenCV.jl to build new custom video acquisition functions.  
 
 ```julia
