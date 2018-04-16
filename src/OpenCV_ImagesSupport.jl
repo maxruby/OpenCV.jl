@@ -26,7 +26,7 @@ function convertToMat(image)
         for j = 1:Base.size(img,2)     # index row first (Mat is row-major order)
             for k =1:Base.size(img,1)  # index column second
                 # slow algorithm  - will try to use pointer method (C++)!
-                pixset(mat, k, j, float(img[k,j,1].i))
+                pixset(mat, k-1, j-1, float(img[k,j,1].i))
             end
         end
     end
