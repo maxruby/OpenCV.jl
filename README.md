@@ -1,4 +1,4 @@
-##OpenCV.jl
+## OpenCV.jl
 
 The OpenCV (C++) interface for Julia.
 
@@ -23,7 +23,7 @@ OpenCV.jl has OpenCL support for GPU image processing.  This has been made easie
 
 The OpenCV API is extensively documented - rather than repeating the entire documentation here, the primary focus is on implementation of image processing and computer vision algorithms to suport Julia applications.
 
-##Installation
+## Installation
 
 Install `julia 0.6.0` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below.  
 
@@ -81,13 +81,13 @@ $ ls opencv2
 - Comment out the #include statements for `flann` in `opencv2/opencv.hpp`.
 
 
-####Download and run OpenCV.jl
+#### Download and run OpenCV.jl
 ```julia
 Pkg.clone("git://github.com/maxruby/OpenCV.jl.git")
 using OpenCV
 ```
 
-##Basic interface
+## Basic interface
 OpenCV contains hundreds of algorithms and functions. Most frequently used functions for image processing are already accessible in the current version of OpenCV.jl. For simplicity, here I focus on using  functions wrapped in OpenCV.jl.   
 
 #### <span style="color:green"> Basic structures
