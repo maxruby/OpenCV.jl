@@ -1,4 +1,4 @@
-##OpenCV.jl
+## OpenCV.jl
 
 The OpenCV (C++) interface for Julia.
 
@@ -23,7 +23,7 @@ OpenCV.jl has OpenCL support for GPU image processing.  This has been made easie
 
 The OpenCV API is extensively documented - rather than repeating the entire documentation here, the primary focus is on implementation of image processing and computer vision algorithms to suport Julia applications.
 
-##Installation
+## Installation
 
 Install `julia 0.6.0` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below.  
 
@@ -81,13 +81,13 @@ $ ls opencv2
 - Comment out the #include statements for `flann` in `opencv2/opencv.hpp`.
 
 
-####Download and run OpenCV.jl
+#### Download and run OpenCV.jl
 ```julia
 Pkg.clone("git://github.com/maxruby/OpenCV.jl.git")
 using OpenCV
 ```
 
-##Basic interface
+## Basic interface
 OpenCV contains hundreds of algorithms and functions. Most frequently used functions for image processing are already accessible in the current version of OpenCV.jl. For simplicity, here I focus on using  functions wrapped in OpenCV.jl.   
 
 #### <span style="color:green"> Basic structures
@@ -192,16 +192,16 @@ gemm(m1, m2, alpha, Mat(), beta, m3, flag)
 Image pixels in Mat containers are arranged in a row-major order.<br>
 For a grayscale image, e.g., pixels are addressed by row, col
 
-|col 0| col 1| col 2|col 3| col m|
-|:----- |:--:| :--:| :--:| :--:|  :--:|
-| row 0 | 0,0|  0,1|  0,2|  0,3|   0,m|
-| row 1 | 1,0|  1,1|  1,2|  1,3|   1,m|
-| row 2 | 2,0|  2,1|  2,2|  2,3|   2,m|
-| row n | n,0|  n,1|  n,2|  n,3|   n,m|
+|       | col 0 | col 1 | col 2 | col 3 | col m |
+|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| row 0 | 0,0   | 0,1   | 0,2   | 0,3   | 0,m   |
+| row 1 | 1,0   | 1,1   | 1,2   | 1,3   | 1,m   |
+| row 2 | 2,0   | 2,1   | 2,2   | 2,3   | 2,m   |
+| row n | n,0   | n,1   | n,2   | n,3   | n,m   |
 
 For RGB color images, each column has 3 values (actually BGR in Mat)
 
-|col 0| col 1| col 2| col m |
+||col 0| col 1| col 2| col m |
 |:----- |:--:| :--:| :--:| :--:|
 | row 0 |<span style="color:blue">0,0,  <span style="color:green">0,0 <span style="color:red">0,0|  <span style="color:blue">0,1 <span style="color:green">0,1 <span style="color:red">0,1| <span style="color:blue">0,2 <span style="color:green">0,2 <span style="color:red">0,2| <span style="color:blue">0,m <span style="color:green">0,m <span style="color:red">0,m
 | row 1 |  <span style="color:blue">1,0 <span style="color:green">1,0 <span style="color:red">1,0|  <span style="color:blue">1,1 <span style="color:green">1,1 <span style="color:red">1,1| <span style="color:blue">1,2 <span style="color:green">1,2 <span style="color:red">1,2| <span style="color:blue">1,m <span style="color:green">1,m <span style="color:red">1,m
