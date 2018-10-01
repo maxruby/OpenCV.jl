@@ -192,16 +192,16 @@ gemm(m1, m2, alpha, Mat(), beta, m3, flag)
 Image pixels in Mat containers are arranged in a row-major order.<br>
 For a grayscale image, e.g., pixels are addressed by row, col
 
-|col 0| col 1| col 2|col 3| col m|
-|:----- |:--:| :--:| :--:| :--:|  :--:|
-| row 0 | 0,0|  0,1|  0,2|  0,3|   0,m|
-| row 1 | 1,0|  1,1|  1,2|  1,3|   1,m|
-| row 2 | 2,0|  2,1|  2,2|  2,3|   2,m|
-| row n | n,0|  n,1|  n,2|  n,3|   n,m|
+|       | col 0 | col 1 | col 2 | col 3 | col m |
+|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| row 0 | 0,0   | 0,1   | 0,2   | 0,3   | 0,m   |
+| row 1 | 1,0   | 1,1   | 1,2   | 1,3   | 1,m   |
+| row 2 | 2,0   | 2,1   | 2,2   | 2,3   | 2,m   |
+| row n | n,0   | n,1   | n,2   | n,3   | n,m   |
 
 For RGB color images, each column has 3 values (actually BGR in Mat)
 
-|col 0| col 1| col 2| col m |
+||col 0| col 1| col 2| col m |
 |:----- |:--:| :--:| :--:| :--:|
 | row 0 |<span style="color:blue">0,0,  <span style="color:green">0,0 <span style="color:red">0,0|  <span style="color:blue">0,1 <span style="color:green">0,1 <span style="color:red">0,1| <span style="color:blue">0,2 <span style="color:green">0,2 <span style="color:red">0,2| <span style="color:blue">0,m <span style="color:green">0,m <span style="color:red">0,m
 | row 1 |  <span style="color:blue">1,0 <span style="color:green">1,0 <span style="color:red">1,0|  <span style="color:blue">1,1 <span style="color:green">1,1 <span style="color:red">1,1| <span style="color:blue">1,2 <span style="color:green">1,2 <span style="color:red">1,2| <span style="color:blue">1,m <span style="color:green">1,m <span style="color:red">1,m
