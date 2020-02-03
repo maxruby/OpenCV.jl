@@ -13,15 +13,15 @@ The package also contains thin wrappers for common C++ classes (e.g., std::vecto
 
 The OpenCV API is described [here](http://docs.opencv.org/2.4/modules/refman.html). OpenCV.jl is organized along the following modules:
 
-* **core:** <span> <span style="color:black"> Basic array structures (e.g., Mat), common functions (e.g, convertTo)
-* **imgproc:** <span style="color:black"> Image processing (e.g.,image filtering, transformations, color space conversion)
-* **videoio:** <span style="color:black">Video capturing and video codecs.
-* **highgui:** <span style="color:black"> GUI capabilities
-* **video:** <span style="color:black">Video analysis (e.g., motion estimation, background subtraction, and object tracking)
-* calib3d: <span style="color:black">Camera calibration, object pose estimation, stereo correspondence, 3D reconstruction.
-* features2d: <span style="color:black">Salient feature detectors, descriptors, and descriptor matchers.
-* objdetect: <span style="color:black"> detection of objects (e.g., faces)
-* gpu: <span style="color:black"> GPU-accelerated algorithms
+- **core:** <span> <span style="color:black"> Basic array structures (e.g., Mat), common functions (e.g, convertTo)
+- **imgproc:** <span style="color:black"> Image processing (e.g.,image filtering, transformations, color space conversion)
+- **videoio:** <span style="color:black">Video capturing and video codecs.
+- **highgui:** <span style="color:black"> GUI capabilities
+- **video:** <span style="color:black">Video analysis (e.g., motion estimation, background subtraction, and object tracking)
+- **calib3d:** <span style="color:black">Camera calibration, object pose estimation, stereo correspondence, 3D reconstruction.
+- **features2d:** <span style="color:black">Salient feature detectors, descriptors, and descriptor matchers.
+- **objdetect:** <span style="color:black"> detection of objects (e.g., faces)
+- **gpu:** <span style="color:black"> GPU-accelerated algorithms
 
 Currently, OpenCV.jl has julia wrappers for the `core`, `imgproc`, `videoio`, `highgui` and `video` modules. Work is ongoing to wrap the rest of the modules including advanced object detection and tracking algorithms. (Most OpenCV C++ functions are already supported in OpenCV.jl by using `@cxx` calls directly to C++, with some caveats).
 
