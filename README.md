@@ -1,21 +1,30 @@
-##OpenCV.jl
+## OpenCV.jl
 
 The OpenCV (C++) interface for Julia.
 
-<br>
-OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in [Julia] (http://julia.readthedocs.org/en/latest/manual/).  It relies primarily on [Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI). OpenCV.jl comes bundled with the [Qt framework](http://qt-project.org/) - though not essential, it supports many convenient GUI functions. The package also contains thin wrappers for common C++ classes (e.g., std::vector, std::string) to make the C++/Julia interface smoother.
+<br/>
+OpenCV.jl aims to provide an interface for [OpenCV](http://opencv.org) computer vision applications (C++) directly in 
+[Julia](http://julia.readthedocs.org/en/latest/manual/) .
+It relies primarily on 
+[Cxx.jl](https://github.com/Keno/Cxx.jl), the Julia C++ foreign function interface (FFI).
+OpenCV.jl comes bundled with the 
+[Qt framework](http://qt-project.org/) —though not essential, it supports many convenient GUI functions.
+The package also contains thin wrappers for common C++ classes (e.g., `std::vector`, `std::string`) to make the C++/Julia interface smoother.
+
+
+----
 
 The OpenCV API is described [here](http://docs.opencv.org/2.4/modules/refman.html). OpenCV.jl is organized along the following modules:
 
-* **core:** <span> <span style="color:black"> Basic array structures (e.g., Mat), common functions (e.g, convertTo)
-* **imgproc:** <span style="color:black"> Image processing (e.g.,image filtering, transformations, color space conversion)
-* **videoio:** <span style="color:black">Video capturing and video codecs.
-* **highgui:** <span style="color:black"> GUI capabilities
-* **video:** <span style="color:black">Video analysis (e.g., motion estimation, background subtraction, and object tracking)
-* calib3d: <span style="color:black">Camera calibration, object pose estimation, stereo correspondence, 3D reconstruction.
-* features2d: <span style="color:black">Salient feature detectors, descriptors, and descriptor matchers.
-* objdetect: <span style="color:black"> detection of objects (e.g., faces)
-* gpu: <span style="color:black"> GPU-accelerated algorithms
+- **core:** <span> <span style="color:black"> Basic array structures (e.g., Mat), common functions (e.g, convertTo)
+- **imgproc:** <span style="color:black"> Image processing (e.g.,image filtering, transformations, color space conversion)
+- **videoio:** <span style="color:black">Video capturing and video codecs.
+- **highgui:** <span style="color:black"> GUI capabilities
+- **video:** <span style="color:black">Video analysis (e.g., motion estimation, background subtraction, and object tracking)
+- **calib3d:** <span style="color:black">Camera calibration, object pose estimation, stereo correspondence, 3D reconstruction.
+- **features2d:** <span style="color:black">Salient feature detectors, descriptors, and descriptor matchers.
+- **objdetect:** <span style="color:black"> detection of objects (e.g., faces)
+- **gpu:** <span style="color:black"> GPU-accelerated algorithms
 
 Currently, OpenCV.jl has julia wrappers for the `core`, `imgproc`, `videoio`, `highgui` and `video` modules. Work is ongoing to wrap the rest of the modules including advanced object detection and tracking algorithms. (Most OpenCV C++ functions are already supported in OpenCV.jl by using `@cxx` calls directly to C++, with some caveats).
 
@@ -23,7 +32,7 @@ OpenCV.jl has OpenCL support for GPU image processing.  This has been made easie
 
 The OpenCV API is extensively documented - rather than repeating the entire documentation here, the primary focus is on implementation of image processing and computer vision algorithms to suport Julia applications.
 
-##Installation
+## Installation
 
 Install `julia 0.6.0` and `Cxx.jl` according to the following [instructions](https://github.com/Keno/Cxx.jl/blob/master/README.md). For Mac OSX, you can use the pre-compiled shared libraries (.dylib) and headers (.hpp) included in OpenCV.jl. However, you can also compile OpenCV from source with the instructions below.  
 
@@ -81,13 +90,13 @@ $ ls opencv2
 - Comment out the #include statements for `flann` in `opencv2/opencv.hpp`.
 
 
-####Download and run OpenCV.jl
+#### Download and run OpenCV.jl
 ```julia
 Pkg.clone("git://github.com/maxruby/OpenCV.jl.git")
 using OpenCV
 ```
 
-##Basic interface
+## Basic interface
 OpenCV contains hundreds of algorithms and functions. Most frequently used functions for image processing are already accessible in the current version of OpenCV.jl. For simplicity, here I focus on using  functions wrapped in OpenCV.jl.   
 
 #### <span style="color:green"> Basic structures
